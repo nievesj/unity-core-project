@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee9fd5820a637b6479ace52874c6dfc9, type: 3}
+  m_Name: ServiceConfiguration
+  m_EditorClassIdentifier: 
+  disableLogging: 0
+  services:
+  - {fileID: 11400000, guid: c9a2d14d5885745f2b623f45f4546843, type: 2}
+  - {fileID: 11400000, guid: 3b78924b695a24fa78ab5df6cbb3b236, type: 2}
+  - {fileID: 11400000, guid: 1c3e60d2c0f4c425595920fc3a9038c5, type: 2}
+  - {fileID: 11400000, guid: af19deeff993c4ba0856f5535c807f10, type: 2}
+  - {fileID: 11400000, guid: 15ee114978413429590151d43172a651, type: 2}
