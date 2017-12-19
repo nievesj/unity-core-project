@@ -12,5 +12,4 @@ MonoBehaviour:
   m_Name: LevelLoaderService
   m_EditorClassIdentifier: 
   levels:
-  - MainLevel
   - Level_1

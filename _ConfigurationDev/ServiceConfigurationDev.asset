@@ -9,12 +9,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ee9fd5820a637b6479ace52874c6dfc9, type: 3}
-  m_Name: ServiceConfiguration
+  m_Name: ServiceConfigurationDev
   m_EditorClassIdentifier: 
   disableLogging: 0
   services:
-  - {fileID: 11400000, guid: c9a2d14d5885745f2b623f45f4546843, type: 2}
-  - {fileID: 11400000, guid: 3b78924b695a24fa78ab5df6cbb3b236, type: 2}
-  - {fileID: 11400000, guid: 1c3e60d2c0f4c425595920fc3a9038c5, type: 2}
-  - {fileID: 11400000, guid: af19deeff993c4ba0856f5535c807f10, type: 2}
-  - {fileID: 11400000, guid: 15ee114978413429590151d43172a651, type: 2}
+  - {fileID: 11400000, guid: 2356d13f2da6b224a95fb9262d672947, type: 2}
+  - {fileID: 11400000, guid: b93419971d26e55448f38d4b20c7fb7b, type: 2}
+  - {fileID: 11400000, guid: c7b4874e763a1ac488308ea1a97bff39, type: 2}
+  - {fileID: 11400000, guid: 593f83bf4e1b76748b1c550f1b88d295, type: 2}
+  - {fileID: 11400000, guid: f7bce0a28cd56674b9f514224da318df, type: 2}
