@@ -9,7 +9,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8d82e82ef7b764a509d5dda4d4dbbf73, type: 3}
-  m_Name: AudioService
+  m_Name: AudioServiceDev
   m_EditorClassIdentifier: 
   audioSourcePrefab: {fileID: 82150614225088218, guid: 499ad987645774733a7a17cde91bcc2a,
     type: 2}
+  poolAmount: 10

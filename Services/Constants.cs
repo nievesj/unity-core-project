@@ -9,7 +9,5 @@ namespace Core
 		public const string ServiceFramework = "_ServiceFramework";
 		public const string ServiceConfiguration = "ServiceConfiguration";
 		public const string PooledObject = "_PooledObjects_";
-
-
 	}
 }
