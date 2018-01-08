@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>UniRx</id>
+        <version>5.4.1.0</version>
+        <title>UniRx</title>
+        <authors>neuecc</authors>
+        <owners>neuecc</owners>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Reactive Extensions for Unity. This is .NET 3.5 subset of UniRx.</description>
+        <releaseNotes>
+            <![CDATA[
+Improvement: Where().Select(), Select().Where() peformance was optimized that combine funcs at internal
+Improvement: Observable.Return performance was optimized that reduced memory cost
+Improvement: Observable.Return(bool) was optimzied perofmrance that allocate zero memory
+Improvement: Observable.ReturnUnit was optimzied perofmrance that allocate zero memory
+Improvement: Observable.Empty was optimzied perofmrance that allocate zero memory
+Improvement: Observable.Never was optimzied perofmrance that allocate zero memory
+Improvement: ReactiveCollection, ReactiveDictionary implements dispose pattern
+Fix: Remove indexer.set of IReadOnlyReactiveDictionary
+            ]]>
+        </releaseNotes>
+        <language>en-US</language>
+        <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+        <projectUrl>https://github.com/neuecc/UniRx</projectUrl>
+        <tags>Rx Unity LINQ</tags>
+    </metadata>
+    <files>
+        <file src="..\Dlls\UniRx.Library\bin\Release\UniRx.dll" target="lib" />
+        <file src="..\Dlls\UniRx.Library\bin\Release\UniRx.xml" target="lib" />
+    </files>
+</package>

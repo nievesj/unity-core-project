@@ -1,0 +1,18 @@
+﻿<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>UniRxAnalyzer</id>
+        <version>1.0.4.1</version>
+        <title>UniRxAnalyzer</title>
+        <authors>neuecc</authors>
+        <projectUrl>https://github.com/neuecc/UniRx</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Various Analyzers for UniRx</description>
+        <releaseNotes>Fix show invalid warning when IObservable in Constructor.</releaseNotes>
+        <tags>UniRx, analyzers</tags>
+    </metadata>
+    <files>
+        <file src="*.dll" target="analyzers\dotnet\cs" exclude="**\Microsoft.CodeAnalysis.*;**\System.Collections.Immutable.*;**\System.Reflection.Metadata.*;**\System.Composition.*" />
+        <file src="tools\*.ps1" target="tools\" />
+    </files>
+</package>
