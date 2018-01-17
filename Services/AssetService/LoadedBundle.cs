@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UniRx;
 using UnityEngine;
 
 namespace Core.Assets
@@ -87,6 +88,28 @@ namespace Core.Assets
 				Unload();
 				callback(ret);
 			}
+		}
+
+		public IObservable<UnityEngine.Object> LoadAssetAsyncRx<T>(string name) where T : UnityEngine.Object
+		{
+			Debug.Log(("LoadedBundle: Asynchronously loading asset: " + name).Colored(Colors.yellow));
+
+			return assetBundle.LoadAssetAsync(name)
+				.ToObservable()
+				.Do(x => Debug.Log(x)) // output progress
+				.Last() // last sequence is load completed
+				.Subscribe();
+
+			// if (request.asset)
+			// {
+			// 	GameObject go = request.asset as GameObject;
+			// 	var r = go.GetComponent<T>();
+			// 	List<T> ret = new List<T>();
+			// 	ret.Add(r);
+
+			// 	Unload();
+			// 	// callback(ret);
+			// }
 		}
 
 		/// <summary>
