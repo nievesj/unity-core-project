@@ -23,7 +23,8 @@ namespace Core.Assets
 		public LoadedBundle(AssetBundle asset)
 		{
 			assetBundle = asset;
-			manifest = asset.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
+			if (asset)
+				manifest = asset.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
 		}
 
 		public void Unload(bool unloadAll = false)
@@ -32,108 +33,27 @@ namespace Core.Assets
 				assetBundle.Unload(unloadAll);
 		}
 
-		/// <summary>
-		/// Load a single asset by name and type and return callback with loaded object
-		/// </summary>
-		/// <param name="name"></param>
-		/// <returns></returns>
-		public void LoadAssetSync<T>(string name, System.Action<List<T>> callback) where T : UnityEngine.Object
-		{
-			Debug.Log(("LoadedBundle: Synchronously loading asset: " + name).Colored(Colors.yellow));
-
-			List<T> ret = new List<T>();
-			ret.Add(assetBundle.LoadAsset<T>(name) as T);
-
-			Unload();
-
-			callback(ret);
-		}
-
-		/// <summary>
-		/// Load all assets of type T and return callback with loaded objects
-		/// </summary>
-		/// <returns></returns>
-		public void LoadAllAssetsSync<T>(System.Action<List<T>> callback) where T : UnityEngine.Object
-		{
-			Debug.Log(("LoadedBundle: Synchronously loading assets").Colored(Colors.yellow));
-
-			foreach (var s in assetBundle.GetAllAssetNames())
-				Debug.Log(("---: " + s).Colored(Colors.yellow));
-
-			Unload();
-
-			callback(assetBundle.LoadAllAssets<T>().ToList());
-		}
-
-		/// <summary>
-		/// Load asset of type T asynchronously, then return callback with loaded object
-		/// </summary>
-		/// <param name="name"></param>
-		/// <param name="callback"></param>
-		/// <returns></returns>
-		public IEnumerator LoadAssetAsync<T>(string name, System.Action<List<T>> callback) where T : UnityEngine.Object
+		public IObservable<UnityEngine.Object> LoadAssetAsync<T>(string name) where T : UnityEngine.Object
 		{
 			Debug.Log(("LoadedBundle: Asynchronously loading asset: " + name).Colored(Colors.yellow));
 
-			AssetBundleRequest request = assetBundle.LoadAssetAsync(name);
-			yield return request;
-
-			if (request.asset)
-			{
-				GameObject go = request.asset as GameObject;
-				var r = go.GetComponent<T>();
-				List<T> ret = new List<T>();
-				ret.Add(r);
-
-				Unload();
-				callback(ret);
-			}
+			return Observable.FromCoroutine<UnityEngine.Object>((observer, cancellationToken) => RunAssetBundleRequestOperation<T>(assetBundle.LoadAssetAsync(name), observer, cancellationToken));
 		}
 
-		public IObservable<UnityEngine.Object> LoadAssetAsyncRx<T>(string name) where T : UnityEngine.Object
-		{
-			Debug.Log(("LoadedBundle: Asynchronously loading asset: " + name).Colored(Colors.yellow));
-
-			return Observable.FromCoroutine<UnityEngine.Object>((observer, cancellationToken) => RunAssetBundleRequestOperation(assetBundle.LoadAssetAsync(name), observer, cancellationToken));
-		}
-
-		public IEnumerator RunAssetBundleRequestOperation(UnityEngine.AssetBundleRequest asyncOperation, IObserver<UnityEngine.Object> observer, CancellationToken cancellationToken)
+		public IEnumerator RunAssetBundleRequestOperation<T>(UnityEngine.AssetBundleRequest asyncOperation, IObserver<UnityEngine.Object> observer, CancellationToken cancellationToken) where T : UnityEngine.Object
 		{
 			while (!asyncOperation.isDone && !cancellationToken.IsCancellationRequested)
 				yield return null;
 
 			if (!cancellationToken.IsCancellationRequested)
 			{
-				observer.OnNext(asyncOperation.asset);
+				//Current use case returns the component to instantiate, if this changes then deal with it downstream.
+				var go = asyncOperation.asset as GameObject;
+				var comp = go.GetComponent<T>();
+
+				observer.OnNext(comp);
 				observer.OnCompleted();
 			}
-		}
-
-		/// <summary>
-		/// Load all assets of type T asynchronously, then return callback with loaded objects
-		/// </summary>
-		/// <param name="callback"></param>
-		/// <returns></returns>
-		public IEnumerator LoadAllAssetsAsync<T>(System.Action<List<T>> callback) where T : UnityEngine.Object
-		{
-			Debug.Log(("LoadedBundle: Asynchronously loading assets").Colored(Colors.yellow));
-
-			foreach (var s in assetBundle.GetAllAssetNames())
-				Debug.Log(("---: " + s).Colored(Colors.yellow));
-
-			AssetBundleRequest request = assetBundle.LoadAllAssetsAsync();
-			yield return request;
-
-			List<T> ret = new List<T>();
-			foreach (var ass in request.allAssets)
-			{
-				GameObject go = request.asset as GameObject;
-				var r = go.GetComponent<T>();
-				ret.Add(r);
-			}
-
-			Unload();
-			callback(ret);
 		}
 	}
 }

@@ -35,46 +35,9 @@ namespace Core.Assets
 			loadedAssets = new Dictionary<string, UnityEngine.Object>();
 		}
 
-		public void GetSingleAsset(BundleNeeded bundleNeeded, System.Action<UnityEngine.Object> callback)
+		public IObservable<UnityEngine.Object> GetSingleAsset<T>(BundleNeeded bundleNeeded) where T : UnityEngine.Object
 		{
-			GetSingleAsset<UnityEngine.Object>(bundleNeeded, callback);
-		}
-
-		public void GetSingleAsset<T>(BundleNeeded bundleNeeded, System.Action<T> callback) where T : UnityEngine.Object
-		{
-			System.Action<List<T>> returnCallback = bundle =>
-			{
-				if (bundle != null && bundle.Count > 0)
-					callback(bundle.First());
-				else
-					Debug.LogError("Bundle not found. " + bundleNeeded.AssetName);
-			};
-
-#if UNITY_EDITOR
-			if (EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES)
-			{
-				SimulateAssetBundle<T>(bundleNeeded, returnCallback);
-
-				return;
-			}
-#endif
-
-			serviceFramework.StartCoroutine(GetBundle<T>(bundleNeeded, returnCallback));
-		}
-
-		public IObservable<UnityEngine.Object> GetSingleAssetRx<T>(BundleNeeded bundleNeeded) where T : UnityEngine.Object
-		{
-			return GetBundleRx<T>(bundleNeeded);
-		}
-
-		public void GetAllAssets(BundleNeeded bundleNeeded, System.Action<List<UnityEngine.Object>> callback)
-		{
-			GetAllAssets<UnityEngine.Object>(bundleNeeded, callback);
-		}
-
-		public void GetAllAssets<T>(BundleNeeded bundleNeeded, System.Action<List<T>> callback) where T : UnityEngine.Object
-		{
-			serviceFramework.StartCoroutine(DownloadBundleManifest<T>(bundleNeeded, callback));
+			return GetBundle<T>(bundleNeeded);
 		}
 
 		public void UnloadAsset(string name, bool unloadAllDependencies)
@@ -89,7 +52,7 @@ namespace Core.Assets
 		}
 
 #if UNITY_EDITOR
-		protected void SimulateAssetBundle<T>(BundleNeeded bundleNeeded, System.Action<List<T>> callback) where T : UnityEngine.Object
+		protected IEnumerator SimulateAssetBundle<T>(BundleNeeded bundleNeeded, IObserver<UnityEngine.Object> observer, CancellationToken cancellationToken) where T : UnityEngine.Object
 		{
 			Debug.Log(("AssetBundleLoader: Simulated | Requesting: " + bundleNeeded.AssetName + " | " + bundleNeeded.BundleName).Colored(Colors.aqua));
 
@@ -105,44 +68,34 @@ namespace Core.Assets
 					assets.Add(asset);
 					break;
 				}
+
+				yield return null;
 			}
 
-			callback(assets);
+			observer.OnNext(assets.First());
+			observer.OnCompleted();
 		}
 #endif
 
-		protected IEnumerator DownloadBundleManifest<T>(BundleNeeded bundleNeeded, System.Action<List<T>> callback) where T : UnityEngine.Object
+		protected IObservable<UnityEngine.Object> GetBundle<T>(BundleNeeded bundleNeeded) where T : UnityEngine.Object
 		{
-			yield return GetBundle<T>(bundleNeeded, callback);
-		}
-
-		protected IEnumerator GetBundle<T>(BundleNeeded bundleNeeded, System.Action<List<T>> callback) where T : UnityEngine.Object
-		{
+#if UNITY_EDITOR
+			if (EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES)
+			{
+				return Observable.FromCoroutine<UnityEngine.Object>((observer, cancellationToken) => SimulateAssetBundle<T>(bundleNeeded, observer, cancellationToken));
+			}
+#endif
 			if (!assetService.UseStreamingAssets)
 			{
-				yield return GetBundleFromWebOrCache<T>(bundleNeeded, callback);
+				return Observable.FromCoroutine<UnityEngine.Object>((observer, cancellationToken) => GetBundleFromWebOrCacheOperation<T>(bundleNeeded, observer, cancellationToken));
 			}
 			else
 			{
-				yield return GetBundleFromStreamingAssets<T>(bundleNeeded, callback);
+				return GetBundleFromStreamingAssets<T>(bundleNeeded);
 			}
 		}
 
-		protected IObservable<UnityEngine.Object> GetBundleRx<T>(BundleNeeded bundleNeeded) where T : UnityEngine.Object
-		{
-			// if (!assetService.UseStreamingAssets)
-			// {
-			// 	// yield return GetBundleFromWebOrCache<T>(bundleNeeded, callback);
-			// }
-			// else
-			// {
-			// 	return GetBundleFromStreamingAssetsRx<T>(bundleNeeded);
-			// }
-
-			return GetBundleFromStreamingAssetsRx<T>(bundleNeeded);
-		}
-
-		protected IEnumerator GetBundleFromWebOrCache<T>(BundleNeeded bundleNeeded, System.Action<List<T>> callback) where T : UnityEngine.Object
+		protected IEnumerator GetBundleFromWebOrCacheOperation<T>(BundleNeeded bundleNeeded, IObserver<UnityEngine.Object> observer, CancellationToken cancellationToken) where T : UnityEngine.Object
 		{
 			UnityWebRequest www = null;
 			AssetBundle bundle;
@@ -162,6 +115,10 @@ namespace Core.Assets
 					break;
 			}
 
+			//TODO: implement this better ro the request can be cancelled
+			// while (!www.isDone && !cancellationToken.IsCancellationRequested)
+			// 	yield return null;
+
 			yield return www.SendWebRequest();
 
 			bundle = DownloadHandlerAssetBundle.GetContent(www);
@@ -169,25 +126,19 @@ namespace Core.Assets
 			if (www.isNetworkError)
 				Debug.LogError("AssetBundleLoader: Can't load asset bundle: " + www.error);
 			else
-				ProcessDownloadedBundle<T>(bundleNeeded, new LoadedBundle(bundle), callback);
+			{
+				ProcessDownloadedBundle<T>(bundleNeeded, new LoadedBundle(bundle))
+					.Subscribe(xs =>
+					{
+						observer.OnNext(xs);
+						observer.OnCompleted();
+					});
+			}
 
 			www.Dispose();
 		}
 
-		protected IEnumerator GetBundleFromStreamingAssets<T>(BundleNeeded bundleNeeded, System.Action<List<T>> callback) where T : UnityEngine.Object
-		{
-			Debug.Log(("AssetBundleLoader: Using StreamingAssets - " + " Requesting:" + bundleNeeded.AssetName + " | " + bundleNeeded.BundleName).Colored(Colors.aqua));
-
-			var bundleLoadRequest = AssetBundle.LoadFromFileAsync(Path.Combine(Application.streamingAssetsPath, GetAssetPathFromLocalStreamingAssets(bundleNeeded)));
-			yield return bundleLoadRequest;
-
-			if (bundleLoadRequest.assetBundle == null)
-				Debug.LogError("AssetBundleLoader: Failed to load AssetBundle!");
-			else
-				ProcessDownloadedBundle<T>(bundleNeeded, new LoadedBundle(bundleLoadRequest.assetBundle), callback);
-		}
-
-		protected IObservable<UnityEngine.Object> GetBundleFromStreamingAssetsRx<T>(BundleNeeded bundleNeeded) where T : UnityEngine.Object
+		protected IObservable<UnityEngine.Object> GetBundleFromStreamingAssets<T>(BundleNeeded bundleNeeded) where T : UnityEngine.Object
 		{
 			Debug.Log(("AssetBundleLoader: Using StreamingAssets - " + " Requesting:" + bundleNeeded.AssetName + " | " + bundleNeeded.BundleName).Colored(Colors.aqua));
 			string path = Path.Combine(Application.streamingAssetsPath, GetAssetPathFromLocalStreamingAssets(bundleNeeded));
@@ -200,7 +151,7 @@ namespace Core.Assets
 			while (!assetBundleCreateRequest.isDone && !cancellationToken.IsCancellationRequested)
 				yield return null;
 
-			var t = ProcessDownloadedBundleRx<T>(bundleNeeded, new LoadedBundle(assetBundleCreateRequest.assetBundle))
+			ProcessDownloadedBundle<T>(bundleNeeded, new LoadedBundle(assetBundleCreateRequest.assetBundle))
 				.Subscribe(xs =>
 				{
 					observer.OnNext(xs);
@@ -240,50 +191,12 @@ namespace Core.Assets
 				return bundleNeeded.AssetCategory.ToString().ToLower() + "/" + bundleNeeded.ManifestName;
 		}
 
-		protected void ProcessDownloadedBundle<T>(BundleNeeded bundleNeeded, LoadedBundle bundle, System.Action<List<T>> callback) where T : UnityEngine.Object
+		protected IObservable<UnityEngine.Object> ProcessDownloadedBundle<T>(BundleNeeded bundleNeeded, LoadedBundle bundle) where T : UnityEngine.Object
 		{
 			if (!downloadedBundles.ContainsKey(bundleNeeded.BundleName))
 				downloadedBundles.Add(bundleNeeded.BundleName, bundle);
 
-			switch (bundleNeeded.Options.AssetLoadProcess)
-			{
-				case AssetLoadProcess.LoadSingleAsync:
-					serviceFramework.StartCoroutine(bundle.LoadAssetAsync<T>(bundleNeeded.AssetName, callback));
-					break;
-				case AssetLoadProcess.LoadSingleSync:
-					bundle.LoadAssetSync<T>(bundleNeeded.AssetName, callback);
-					break;
-				case AssetLoadProcess.LoadAllAsync:
-					serviceFramework.StartCoroutine(bundle.LoadAllAssetsAsync<T>(callback));
-					break;
-				case AssetLoadProcess.LoadAllSync:
-					bundle.LoadAllAssetsSync<T>(callback);
-					break;
-			}
-		}
-
-		protected IObservable<UnityEngine.Object> ProcessDownloadedBundleRx<T>(BundleNeeded bundleNeeded, LoadedBundle bundle) where T : UnityEngine.Object
-		{
-			if (!downloadedBundles.ContainsKey(bundleNeeded.BundleName))
-				downloadedBundles.Add(bundleNeeded.BundleName, bundle);
-
-			return bundle.LoadAssetAsyncRx<T>(bundleNeeded.AssetName);
-
-			// switch (bundleNeeded.Options.AssetLoadProcess)
-			// {
-			// 	case AssetLoadProcess.LoadSingleAsync:
-			// 		serviceFramework.StartCoroutine(bundle.LoadAssetAsync<T>(bundleNeeded.AssetName, callback));
-			// 		break;
-			// 	case AssetLoadProcess.LoadSingleSync:
-			// 		bundle.LoadAssetSync<T>(bundleNeeded.AssetName, callback);
-			// 		break;
-			// 	case AssetLoadProcess.LoadAllAsync:
-			// 		serviceFramework.StartCoroutine(bundle.LoadAllAssetsAsync<T>(callback));
-			// 		break;
-			// 	case AssetLoadProcess.LoadAllSync:
-			// 		bundle.LoadAllAssetsSync<T>(callback);
-			// 		break;
-			// }
+			return bundle.LoadAssetAsync<T>(bundleNeeded.AssetName);
 		}
 	}
 }

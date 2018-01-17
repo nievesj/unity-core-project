@@ -127,12 +127,14 @@ namespace Core.LevelLoaderService
 			BundleNeeded level = new BundleNeeded(AssetCategoryRoot.Levels, name.ToLower(), name.ToLower());
 			Resources.UnloadUnusedAssets();
 
-			assetService.BundleLoader.GetSingleAssetRx<Level>(level)
+			assetService.BundleLoader.GetSingleAsset<Level>(level)
 				.Subscribe(loadedLevel =>
 				{
 					Debug.Log(("LevelLoaderService: Loaded level - " + loadedLevel.name).Colored(Colors.lightblue));
-					var ob = GameObject.Instantiate(loadedLevel) as GameObject;
-					currentLevel = ob.GetComponent<Level>();
+
+					currentLevel = GameObject.Instantiate<Level>(loadedLevel as Level);
+
+					// currentLevel = ob.GetComponent<Level>();
 
 					currentLevel.name = loadedLevel.name;
 

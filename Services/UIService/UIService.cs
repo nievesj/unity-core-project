@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Core.Assets;
 using Core.Service;
 using Core.Signals;
+using UniRx;
 using UnityEngine;
 
 namespace Core.UI
@@ -120,15 +121,19 @@ namespace Core.UI
 			onWindowOnpened.Dispatch(window);
 		}
 
-		protected void Load(string window, System.Action<UIWindow> callback)
+		protected void Load(string name, System.Action<UIWindow> callback)
 		{
-			BundleNeeded level = new BundleNeeded(AssetCategoryRoot.Windows, window.ToLower(), window.ToLower());
-			assetService.BundleLoader.GetSingleAsset<UIWindow>(level, loadedWindow =>
-			{
-				Debug.Log(("UIService: Loaded window - " + loadedWindow.name).Colored(Colors.lightblue));
+			BundleNeeded bundleNeeded = new BundleNeeded(AssetCategoryRoot.Windows, name.ToLower(), name.ToLower());
+			assetService.BundleLoader.GetSingleAsset<UIWindow>(bundleNeeded)
+				.Subscribe(loadedWindow =>
+				{
+					Debug.Log(("UIService: Loaded window - " + loadedWindow.name).Colored(Colors.lightblue));
 
-				callback(loadedWindow);
-			});
+					// var go = loadedWindow as GameObject;
+					// var comp = go.GetComponent<UIWindow>();
+
+					OnLoadedWindow(loadedWindow as UIWindow);
+				});
 		}
 
 		protected void OnLoadedWindow(UIWindow window)

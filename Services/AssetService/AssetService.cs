@@ -73,14 +73,14 @@ namespace Core.Assets
 
 			if (!EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES)
 			{
-				BundleLoader.GetSingleAsset<AssetBundleManifest>(game, loadedObject =>
-				{
+				// BundleLoader.GetSingleAsset<AssetBundleManifest>(game, loadedObject =>
+				// {
 
-					// Debug.Log(("AssetService: Loaded Manifest - " + loadedObject.name).Colored(Colors.lightblue));
-					// ManifestInfo info = new ManifestInfo(www.downloadHandler.text);
+				// 	// Debug.Log(("AssetService: Loaded Manifest - " + loadedObject.name).Colored(Colors.lightblue));
+				// 	// ManifestInfo info = new ManifestInfo(www.downloadHandler.text);
 
-					//TODO: check dependencies and load anything that has not been loaded thus far ...
-				});
+				// 	//TODO: check dependencies and load anything that has not been loaded thus far ...
+				// });
 			}
 		}
 	}
