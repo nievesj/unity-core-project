@@ -94,22 +94,19 @@ namespace Core.Assets
 		{
 			Debug.Log(("LoadedBundle: Asynchronously loading asset: " + name).Colored(Colors.yellow));
 
-			return assetBundle.LoadAssetAsync(name)
-				.ToObservable()
-				.Do(x => Debug.Log(x)) // output progress
-				.Last() // last sequence is load completed
-				.Subscribe();
+			return Observable.FromCoroutine<UnityEngine.Object>((observer, cancellationToken) => RunAssetBundleRequestOperation(assetBundle.LoadAssetAsync(name), observer, cancellationToken));
+		}
 
-			// if (request.asset)
-			// {
-			// 	GameObject go = request.asset as GameObject;
-			// 	var r = go.GetComponent<T>();
-			// 	List<T> ret = new List<T>();
-			// 	ret.Add(r);
+		public IEnumerator RunAssetBundleRequestOperation(UnityEngine.AssetBundleRequest asyncOperation, IObserver<UnityEngine.Object> observer, CancellationToken cancellationToken)
+		{
+			while (!asyncOperation.isDone && !cancellationToken.IsCancellationRequested)
+				yield return null;
 
-			// 	Unload();
-			// 	// callback(ret);
-			// }
+			if (!cancellationToken.IsCancellationRequested)
+			{
+				observer.OnNext(asyncOperation.asset);
+				observer.OnCompleted();
+			}
 		}
 
 		/// <summary>

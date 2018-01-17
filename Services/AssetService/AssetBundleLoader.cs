@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Core.Service;
+using UniRx;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -59,6 +60,11 @@ namespace Core.Assets
 #endif
 
 			serviceFramework.StartCoroutine(GetBundle<T>(bundleNeeded, returnCallback));
+		}
+
+		public IObservable<UnityEngine.Object> GetSingleAssetRx<T>(BundleNeeded bundleNeeded) where T : UnityEngine.Object
+		{
+			return GetBundleRx<T>(bundleNeeded);
 		}
 
 		public void GetAllAssets(BundleNeeded bundleNeeded, System.Action<List<UnityEngine.Object>> callback)
@@ -122,6 +128,20 @@ namespace Core.Assets
 			}
 		}
 
+		protected IObservable<UnityEngine.Object> GetBundleRx<T>(BundleNeeded bundleNeeded) where T : UnityEngine.Object
+		{
+			// if (!assetService.UseStreamingAssets)
+			// {
+			// 	// yield return GetBundleFromWebOrCache<T>(bundleNeeded, callback);
+			// }
+			// else
+			// {
+			// 	return GetBundleFromStreamingAssetsRx<T>(bundleNeeded);
+			// }
+
+			return GetBundleFromStreamingAssetsRx<T>(bundleNeeded);
+		}
+
 		protected IEnumerator GetBundleFromWebOrCache<T>(BundleNeeded bundleNeeded, System.Action<List<T>> callback) where T : UnityEngine.Object
 		{
 			UnityWebRequest www = null;
@@ -165,6 +185,27 @@ namespace Core.Assets
 				Debug.LogError("AssetBundleLoader: Failed to load AssetBundle!");
 			else
 				ProcessDownloadedBundle<T>(bundleNeeded, new LoadedBundle(bundleLoadRequest.assetBundle), callback);
+		}
+
+		protected IObservable<UnityEngine.Object> GetBundleFromStreamingAssetsRx<T>(BundleNeeded bundleNeeded) where T : UnityEngine.Object
+		{
+			Debug.Log(("AssetBundleLoader: Using StreamingAssets - " + " Requesting:" + bundleNeeded.AssetName + " | " + bundleNeeded.BundleName).Colored(Colors.aqua));
+			string path = Path.Combine(Application.streamingAssetsPath, GetAssetPathFromLocalStreamingAssets(bundleNeeded));
+
+			return Observable.FromCoroutine<UnityEngine.Object>((observer, cancellationToken) => RunAssetBundleCreateRequestOperation<T>(AssetBundle.LoadFromFileAsync(path), bundleNeeded, observer, cancellationToken));
+		}
+
+		public IEnumerator RunAssetBundleCreateRequestOperation<T>(UnityEngine.AssetBundleCreateRequest assetBundleCreateRequest, BundleNeeded bundleNeeded, IObserver<UnityEngine.Object> observer, CancellationToken cancellationToken) where T : UnityEngine.Object
+		{
+			while (!assetBundleCreateRequest.isDone && !cancellationToken.IsCancellationRequested)
+				yield return null;
+
+			var t = ProcessDownloadedBundleRx<T>(bundleNeeded, new LoadedBundle(assetBundleCreateRequest.assetBundle))
+				.Subscribe(xs =>
+				{
+					observer.OnNext(xs);
+					observer.OnCompleted();
+				});
 		}
 
 		protected string GetAssetPath(BundleNeeded bundleNeeded)
@@ -219,6 +260,30 @@ namespace Core.Assets
 					bundle.LoadAllAssetsSync<T>(callback);
 					break;
 			}
+		}
+
+		protected IObservable<UnityEngine.Object> ProcessDownloadedBundleRx<T>(BundleNeeded bundleNeeded, LoadedBundle bundle) where T : UnityEngine.Object
+		{
+			if (!downloadedBundles.ContainsKey(bundleNeeded.BundleName))
+				downloadedBundles.Add(bundleNeeded.BundleName, bundle);
+
+			return bundle.LoadAssetAsyncRx<T>(bundleNeeded.AssetName);
+
+			// switch (bundleNeeded.Options.AssetLoadProcess)
+			// {
+			// 	case AssetLoadProcess.LoadSingleAsync:
+			// 		serviceFramework.StartCoroutine(bundle.LoadAssetAsync<T>(bundleNeeded.AssetName, callback));
+			// 		break;
+			// 	case AssetLoadProcess.LoadSingleSync:
+			// 		bundle.LoadAssetSync<T>(bundleNeeded.AssetName, callback);
+			// 		break;
+			// 	case AssetLoadProcess.LoadAllAsync:
+			// 		serviceFramework.StartCoroutine(bundle.LoadAllAssetsAsync<T>(callback));
+			// 		break;
+			// 	case AssetLoadProcess.LoadAllSync:
+			// 		bundle.LoadAllAssetsSync<T>(callback);
+			// 		break;
+			// }
 		}
 	}
 }

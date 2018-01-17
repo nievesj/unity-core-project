@@ -5,6 +5,7 @@ using Core.Assets;
 using Core.Service;
 using Core.Signals;
 using Core.UI;
+using UniRx;
 using UnityEngine;
 
 namespace Core.LevelLoaderService
@@ -125,19 +126,23 @@ namespace Core.LevelLoaderService
 		{
 			BundleNeeded level = new BundleNeeded(AssetCategoryRoot.Levels, name.ToLower(), name.ToLower());
 			Resources.UnloadUnusedAssets();
-			assetService.BundleLoader.GetSingleAsset<Level>(level, loadedLevel =>
-			{
-				Debug.Log(("LevelLoaderService: Loaded level - " + loadedLevel.name).Colored(Colors.lightblue));
-				currentLevel = GameObject.Instantiate(loadedLevel);
-				currentLevel.name = loadedLevel.name;
 
-				currentLevel.OnLevelCompleted.Add(UnloadLevel);
+			assetService.BundleLoader.GetSingleAssetRx<Level>(level)
+				.Subscribe(loadedLevel =>
+				{
+					Debug.Log(("LevelLoaderService: Loaded level - " + loadedLevel.name).Colored(Colors.lightblue));
+					var ob = GameObject.Instantiate(loadedLevel) as GameObject;
+					currentLevel = ob.GetComponent<Level>();
 
-				if (loadingScreen)
-					loadingScreen.Close();
+					currentLevel.name = loadedLevel.name;
 
-				onLevelLoaded.Dispatch(currentLevel);
-			});
+					currentLevel.OnLevelCompleted.Add(UnloadLevel);
+
+					if (loadingScreen)
+						loadingScreen.Close();
+
+					onLevelLoaded.Dispatch(currentLevel);
+				});
 		}
 
 		public void UnloadLevel(Level level)
