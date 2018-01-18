@@ -21,7 +21,6 @@ namespace Core.Assets
 		protected AssetService assetService;
 		protected ServiceFramework serviceFramework;
 		protected AssetBundleCreateRequest bundleRequest;
-		protected Hash128 Hash { get { return default(Hash128); } }
 		protected Dictionary<string, LoadedBundle> downloadedBundles;
 		protected Dictionary<string, UnityEngine.Object> loadedAssets;
 		protected Dictionary<string, UnityEngine.Object> editorAssets;
@@ -98,24 +97,34 @@ namespace Core.Assets
 		protected IEnumerator GetBundleFromWebOrCacheOperation<T>(BundleNeeded bundleNeeded, IObserver<UnityEngine.Object> observer, CancellationToken cancellationToken) where T : UnityEngine.Object
 		{
 			UnityWebRequest www = null;
+			ManifestInfo manifestInfo = null;
 			AssetBundle bundle;
 
-			Debug.Log(("AssetBundleLoader: " + bundleNeeded.Options.AssetCacheState + " | Requesting: " + bundleNeeded.AssetName + " | " + bundleNeeded.BundleName).Colored(Colors.aqua));
+			Debug.Log(("AssetBundleLoader: " + bundleNeeded.AssetCacheState + " | Requesting: " + bundleNeeded.AssetName + " | " + bundleNeeded.BundleName).Colored(Colors.aqua));
 
 			//look at this again, I might need to keep the crc and hash, at least just the hash from the server..
 			//https://github.com/UnityCommunity/UnityLibrary/blob/master/Assets/Scripts/AssetBundles/AssetBundleLoader.cs
 
-			switch (bundleNeeded.Options.AssetCacheState)
+			switch (bundleNeeded.AssetCacheState)
 			{
 				case AssetCacheState.Cache:
-					www = UnityWebRequest.GetAssetBundle(GetAssetPath(bundleNeeded), Hash, 0);
+					//make this another co-routine and add more error checking...
+					var manifestPath = GetManifestPath(bundleNeeded);
+
+					www = UnityWebRequest.Get(manifestPath);
+					yield return www.SendWebRequest();
+
+					manifestInfo = new ManifestInfo(www.downloadHandler.text);
+					Debug.Log(("AssetBundleLoader: Aquired Manifest | Hash: " + manifestInfo.Hash + " | Version: " + manifestInfo.Version + " | CRC: " + manifestInfo.CRC).Colored(Colors.aqua));
+
+					www = UnityWebRequest.GetAssetBundle(GetAssetPath(bundleNeeded), manifestInfo.Hash, 0);
 					break;
 				case AssetCacheState.NoCache:
 					www = UnityWebRequest.GetAssetBundle(GetAssetPath(bundleNeeded));
 					break;
 			}
 
-			//TODO: implement this better ro the request can be cancelled
+			//TODO: implement this better so the request can be cancelled
 			// while (!www.isDone && !cancellationToken.IsCancellationRequested)
 			// 	yield return null;
 
@@ -127,7 +136,7 @@ namespace Core.Assets
 				Debug.LogError("AssetBundleLoader: Can't load asset bundle: " + www.error);
 			else
 			{
-				ProcessDownloadedBundle<T>(bundleNeeded, new LoadedBundle(bundle))
+				ProcessDownloadedBundle<T>(bundleNeeded, new LoadedBundle(bundle, manifestInfo))
 					.Subscribe(xs =>
 					{
 						observer.OnNext(xs);
@@ -169,8 +178,10 @@ namespace Core.Assets
 
 		protected string GetManifestPath(BundleNeeded bundleNeeded)
 		{
+			Debug.Log(("AssetBundleLoader: Loading Manifest " + bundleNeeded.ManifestName).Colored(Colors.aqua));
+
 			if (bundleNeeded.AssetCategory.Equals(AssetCategoryRoot.None))
-				return assetService.AssetBundlesURL + bundleNeeded.ManifestName;
+				return assetService.AssetBundlesURL + bundleNeeded.ManifestName + "?r=" + (Random.value * 9999999); //this random value prevents caching on the web server;
 			else
 				return assetService.AssetBundlesURL + bundleNeeded.AssetCategory.ToString().ToLower() + "/" + bundleNeeded.ManifestName;
 		}

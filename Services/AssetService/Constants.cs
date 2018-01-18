@@ -1,3 +1,4 @@
+using Core.Service;
 using UnityEngine;
 
 namespace Core.Assets
@@ -9,16 +10,11 @@ namespace Core.Assets
 
 	public struct AssetOptions
 	{
-
-		private AssetLoadProcess assetLoadProcess;
-		public AssetLoadProcess AssetLoadProcess { get { return assetLoadProcess; } }
-
 		private AssetCacheState assetCacheState;
 		public AssetCacheState AssetCacheState { get { return assetCacheState; } }
 
-		public AssetOptions(AssetLoadProcess pro, AssetCacheState sta)
+		public AssetOptions(AssetCacheState sta)
 		{
-			assetLoadProcess = pro;
 			assetCacheState = sta;
 		}
 	}
@@ -28,9 +24,6 @@ namespace Core.Assets
 		private AssetCategoryRoot assetCategory;
 		public AssetCategoryRoot AssetCategory { get { return assetCategory; } }
 
-		private AssetOptions options;
-		public AssetOptions Options { get { return options; } }
-
 		private string bundleName;
 		public string BundleName { get { return bundleName; } }
 
@@ -38,13 +31,13 @@ namespace Core.Assets
 
 		private string assetName;
 		public string AssetName { get { return assetName; } }
+		public AssetCacheState AssetCacheState { get { return ServiceFramework.Instance.GetService<IAssetService>().AssetCacheState; } }
 
 		public BundleNeeded(AssetCategoryRoot cat, string bundle, string asset)
 		{
 			assetCategory = cat;
 			bundleName = bundle;
 			assetName = asset;
-			options = new AssetOptions(AssetLoadProcess.LoadSingleAsync, AssetCacheState.Cache);
 		}
 
 		public BundleNeeded(AssetCategoryRoot cat, AssetOptions opts, string bundle, string asset)
@@ -52,11 +45,10 @@ namespace Core.Assets
 			assetCategory = cat;
 			bundleName = bundle;
 			assetName = asset;
-			options = opts;
 		}
 	}
 
-	public struct ManifestInfo
+	public class ManifestInfo
 	{
 		private uint crc;
 		private int version;

@@ -12,7 +12,7 @@ namespace Core.Assets
 		string AssetBundlesURL { get; }
 		AssetBundleLoader BundleLoader { get; }
 
-		uint AssetBundleVersionNumber { get; }
+		AssetCacheState AssetCacheState { get; }
 	}
 
 	public class AssetService : IAssetService
@@ -25,6 +25,8 @@ namespace Core.Assets
 		public string AssetBundlesURL { get { return configuration.AssetBundlesURL + AssetBundleUtilities.ClientPlatform + "/"; } }
 
 		public bool UseStreamingAssets { get { return configuration.UseStreamingAssets; } }
+
+		public AssetCacheState AssetCacheState { get { return configuration.UseCache ? AssetCacheState.Cache : AssetCacheState.NoCache; } }
 
 		protected AssetBundleLoader assetBundlebundleLoader;
 		public AssetBundleLoader BundleLoader { get { return assetBundlebundleLoader; } }

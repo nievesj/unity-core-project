@@ -14,17 +14,24 @@ namespace Core.Assets
 	public class LoadedBundle
 	{
 		protected AssetBundle assetBundle;
-		protected AssetBundleManifest manifest;
+		protected ManifestInfo manifestInfo;
 
 		public AssetBundle AssetBundle { get { return assetBundle; } }
+		public ManifestInfo ManifestInfo { get { return manifestInfo; } }
+
 		public string Name { get { return assetBundle.name; } }
-		public AssetBundleManifest Manifest { get { return manifest; } }
 
 		public LoadedBundle(AssetBundle asset)
 		{
 			assetBundle = asset;
-			if (asset)
-				manifest = asset.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
+			// if (asset)
+			// 	manifest = asset.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
+		}
+
+		public LoadedBundle(AssetBundle asset, ManifestInfo info)
+		{
+			assetBundle = asset;
+			manifestInfo = info;
 		}
 
 		public void Unload(bool unloadAll = false)
