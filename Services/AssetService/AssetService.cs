@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Core.Service;
 using Core.Signals;
+using UniRx;
 using UnityEngine;
 
 namespace Core.Assets
@@ -10,9 +11,12 @@ namespace Core.Assets
 	public interface IAssetService : IService
 	{
 		string AssetBundlesURL { get; }
-		AssetBundleLoader BundleLoader { get; }
 
 		AssetCacheState AssetCacheState { get; }
+
+		IObservable<UnityEngine.Object> GetAndLoadAsset<T>(BundleNeeded bundleNeeded) where T : UnityEngine.Object;
+
+		void UnloadAsset(string name, bool unloadAllDependencies);
 	}
 
 	public class AssetService : IAssetService
@@ -29,7 +33,6 @@ namespace Core.Assets
 		public AssetCacheState AssetCacheState { get { return configuration.UseCache ? AssetCacheState.Cache : AssetCacheState.NoCache; } }
 
 		protected AssetBundleLoader assetBundlebundleLoader;
-		public AssetBundleLoader BundleLoader { get { return assetBundlebundleLoader; } }
 
 		protected Signal<IService> serviceConfigured = new Signal<IService>();
 		public Signal<IService> ServiceConfigured { get { return serviceConfigured; } }
@@ -60,6 +63,16 @@ namespace Core.Assets
 			serviceStopped.Dispatch(this);
 		}
 
+		public IObservable<UnityEngine.Object> GetAndLoadAsset<T>(BundleNeeded bundleNeeded) where T : UnityEngine.Object
+		{
+			return assetBundlebundleLoader.GetSingleAsset<T>(bundleNeeded);
+		}
+
+		public void UnloadAsset(string name, bool unloadAllDependencies)
+		{
+			assetBundlebundleLoader.UnloadAsset(name, unloadAllDependencies);
+		}
+
 		protected void OnGameStart(ServiceFramework application)
 		{
 			LoadGameBundle();
@@ -73,17 +86,14 @@ namespace Core.Assets
 			if (!configuration.UseCache)
 				Caching.ClearCache();
 
-			if (!EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES)
-			{
-				// BundleLoader.GetSingleAsset<AssetBundleManifest>(game, loadedObject =>
-				// {
+			// GetAndLoadAsset<AssetBundleManifest>(game)
+			// 	.Subscribe(loadedObject =>
+			// 	{
+			// 		Debug.Log(("AssetService: Loaded Manifest - " + loadedObject.name).Colored(Colors.lightblue));
+			// 		// ManifestInfo info = new ManifestInfo(www.downloadHandler.text);
 
-				// 	// Debug.Log(("AssetService: Loaded Manifest - " + loadedObject.name).Colored(Colors.lightblue));
-				// 	// ManifestInfo info = new ManifestInfo(www.downloadHandler.text);
-
-				// 	//TODO: check dependencies and load anything that has not been loaded thus far ...
-				// });
-			}
+			// 		//TODO: check dependencies and load anything that has not been loaded thus far ...
+			// 	});
 		}
 	}
 }

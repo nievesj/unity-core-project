@@ -127,7 +127,7 @@ namespace Core.LevelLoaderService
 			BundleNeeded level = new BundleNeeded(AssetCategoryRoot.Levels, name.ToLower(), name.ToLower());
 			Resources.UnloadUnusedAssets();
 
-			assetService.BundleLoader.GetSingleAsset<Level>(level)
+			assetService.GetAndLoadAsset<Level>(level)
 				.Subscribe(loadedLevel =>
 				{
 					Debug.Log(("LevelLoaderService: Loaded level - " + loadedLevel.name).Colored(Colors.lightblue));
@@ -153,7 +153,7 @@ namespace Core.LevelLoaderService
 			{
 				Debug.Log(("LevelLoaderService: Unloading level  - " + currentLevel.name).Colored(Colors.lightblue));
 				GameObject.Destroy(level.gameObject);
-				assetService.BundleLoader.UnloadAsset(level.LevelName, true);
+				assetService.UnloadAsset(level.LevelName, true);
 			}
 
 			Debug.Log(("LevelLoaderService: Releasing unused resources").Colored(Colors.lightblue));

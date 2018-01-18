@@ -54,7 +54,10 @@ namespace Core.Assets
 
 			if (!cancellationToken.IsCancellationRequested)
 			{
-				//Current use case returns the component to instantiate, if this changes then deal with it downstream.
+				if (!asyncOperation.asset)
+					observer.OnError(new System.Exception("RunAssetBundleRequestOperation: Error getting bundle."));
+
+				//Current use case returns the component, if this changes then deal with it downstream but for now this should be ok
 				var go = asyncOperation.asset as GameObject;
 				var comp = go.GetComponent<T>();
 

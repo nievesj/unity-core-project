@@ -88,7 +88,7 @@ namespace Core.UI
 		public void Open(string window)
 		{
 			if (mainCanvas)
-				Load(window, OnLoadedWindow);
+				LoadAndActivateWindow(window);
 			else
 				Debug.LogError("UIService: StartService - Main Canvas is missing.");
 		}
@@ -106,7 +106,7 @@ namespace Core.UI
 			activeWindows.Remove(window.name);
 
 			onWindowClosed.Dispatch(window);
-			assetService.BundleLoader.UnloadAsset(window.name, true);
+			assetService.UnloadAsset(window.name, true);
 
 			Object.Destroy(window.gameObject);
 		}
@@ -121,16 +121,13 @@ namespace Core.UI
 			onWindowOnpened.Dispatch(window);
 		}
 
-		protected void Load(string name, System.Action<UIWindow> callback)
+		protected void LoadAndActivateWindow(string name)
 		{
 			BundleNeeded bundleNeeded = new BundleNeeded(AssetCategoryRoot.Windows, name.ToLower(), name.ToLower());
-			assetService.BundleLoader.GetSingleAsset<UIWindow>(bundleNeeded)
+			assetService.GetAndLoadAsset<UIWindow>(bundleNeeded)
 				.Subscribe(loadedWindow =>
 				{
 					Debug.Log(("UIService: Loaded window - " + loadedWindow.name).Colored(Colors.lightblue));
-
-					// var go = loadedWindow as GameObject;
-					// var comp = go.GetComponent<UIWindow>();
 
 					OnLoadedWindow(loadedWindow as UIWindow);
 				});
