@@ -1,6 +1,3 @@
-[submodule "Plugins/UniRx"]
-	path = Plugins/UniRx
-	url = https://github.com/neuecc/UniRx.git
 [submodule "Plugins/AssetBundles-Browser"]
 	path = Plugins/AssetBundles-Browser
-	url = https://nievesj@github.com/Unity-Technologies/AssetBundles-Browser.git
+	url = https://github.com/Unity-Technologies/AssetBundles-Browser.git
