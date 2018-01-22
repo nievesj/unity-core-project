@@ -18,7 +18,7 @@ namespace Core.ControlSystem
 		protected MouseTouchControls controls;
 		public MouseTouchControls Controls { get { return controls; } }
 
-		protected ServiceFramework app;
+		protected Services app;
 
 		protected Signal<IService> serviceConfigured = new Signal<IService>();
 		public Signal<IService> ServiceConfigured { get { return serviceConfigured; } }
@@ -39,13 +39,13 @@ namespace Core.ControlSystem
 			serviceConfigured.Dispatch(this);
 		}
 
-		public void StartService(ServiceFramework application)
+		public void StartService(Services application)
 		{
 			app = application;
 			serviceStarted.Dispatch(this);
 		}
 
-		public void StopService(ServiceFramework application)
+		public void StopService(Services application)
 		{
 			serviceStopped.Dispatch(this);
 		}

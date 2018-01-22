@@ -23,7 +23,7 @@ namespace Core.UI
 	public class UIService : IUIService
 	{
 		protected UIServiceConfiguration configuration;
-		protected ServiceFramework app;
+		protected Services app;
 
 		protected AssetService assetService;
 		protected RectTransform mainCanvas;
@@ -55,12 +55,12 @@ namespace Core.UI
 			serviceConfigured.Dispatch(this);
 		}
 
-		public void StartService(ServiceFramework application)
+		public void StartService(Services application)
 		{
 			app = application;
 			serviceStarted.Dispatch(this);
 
-			assetService = ServiceFramework.Instance.GetService<IAssetService>() as AssetService;
+			assetService = Services.GetService<IAssetService>() as AssetService;
 			activeWindows = new Dictionary<string, UIWindow>();
 
 			//instantiate main canvas
@@ -74,7 +74,7 @@ namespace Core.UI
 				Debug.LogError("UIService: StartService - Main Canvas has not been configured.");
 		}
 
-		public void StopService(ServiceFramework application)
+		public void StopService(Services application)
 		{
 			serviceStopped.Dispatch(this);
 			Object.Destroy(mainCanvas.gameObject);

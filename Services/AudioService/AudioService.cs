@@ -18,7 +18,7 @@ namespace Core.Audio
 	public class AudioService : IAudioService
 	{
 		protected AudioServiceConfiguration configuration;
-		protected ServiceFramework app;
+		protected Services app;
 		protected Poller<AudioSource> poller;
 
 		protected Signal<IService> serviceConfigured = new Signal<IService>();
@@ -36,14 +36,14 @@ namespace Core.Audio
 			serviceConfigured.Dispatch(this);
 		}
 
-		public void StartService(ServiceFramework application)
+		public void StartService(Services application)
 		{
 			app = application;
-			ServiceFramework.OnGameStart.Add(OnGameStart);
+			Services.OnGameStart.Add(OnGameStart);
 			serviceStarted.Dispatch(this);
 		}
 
-		public void StopService(ServiceFramework application)
+		public void StopService(Services application)
 		{
 			if (poller != null)
 				poller.Destroy();
@@ -51,7 +51,7 @@ namespace Core.Audio
 			serviceStopped.Dispatch(this);
 		}
 
-		protected void OnGameStart(ServiceFramework application)
+		protected void OnGameStart(Services application)
 		{
 			if (configuration.audioSourcePrefab)
 			{
@@ -64,7 +64,7 @@ namespace Core.Audio
 		public void PlayClip(AudioPlayer ap)
 		{
 			Play(ap);
-			ServiceFramework.Instance.StartCoroutine(WaitUntilDonePlaying(ap));
+			Services.Instance.StartCoroutine(WaitUntilDonePlaying(ap));
 		}
 
 		public void PlayMusic(AudioPlayer ap)

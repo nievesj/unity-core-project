@@ -19,13 +19,13 @@ namespace Core.Assets
 	public class AssetBundleLoader
 	{
 		protected AssetService assetService;
-		protected ServiceFramework serviceFramework;
+		protected Services serviceFramework;
 		protected AssetBundleCreateRequest bundleRequest;
 		protected Dictionary<string, LoadedBundle> downloadedBundles;
 		protected Dictionary<string, UnityEngine.Object> loadedAssets;
 		protected Dictionary<string, UnityEngine.Object> editorAssets;
 
-		public AssetBundleLoader(IAssetService service, ServiceFramework app)
+		public AssetBundleLoader(IAssetService service, Services app)
 		{
 			assetService = service as AssetService;
 			serviceFramework = app;

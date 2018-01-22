@@ -11,8 +11,6 @@ namespace Core.UI
 		public bool cacheWindows = false;
 		public UIWindows HUD = UIWindows.UIHUD;
 
-		public override void ShowEditorUI() {}
-
 		protected override IService GetServiceClass()
 		{
 			return new UIService();

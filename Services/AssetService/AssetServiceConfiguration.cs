@@ -23,10 +23,5 @@ namespace Core.Assets
 		{
 			return new AssetService();
 		}
-
-		public override void ShowEditorUI()
-		{
-
-		}
 	}
 }

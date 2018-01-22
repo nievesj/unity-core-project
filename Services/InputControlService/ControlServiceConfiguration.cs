@@ -13,10 +13,5 @@ namespace Core.ControlSystem
 		{
 			return new ControlService();
 		}
-
-		public override void ShowEditorUI()
-		{
-
-		}
 	}
 }

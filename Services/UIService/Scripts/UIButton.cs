@@ -17,7 +17,7 @@ namespace Core.UI
 
 		protected void Awake()
 		{
-			audioService = ServiceFramework.Instance.GetService<IAudioService>();
+			audioService = Services.GetService<IAudioService>();
 			button = GetComponent<Button>();
 
 			button.onClick.AddListener(OnClick);

@@ -12,7 +12,7 @@ namespace Core.UI
 
 		public void OnGearClick()
 		{
-			var levelLoader = ServiceFramework.Instance.GetService<ILevelLoaderService>() as LevelLoaderService.LevelLoaderService;
+			var levelLoader = Services.GetService<ILevelLoaderService>() as LevelLoaderService.LevelLoaderService;
 			levelLoader.LoadLevel(Levels.MainLevel);
 
 			Close();

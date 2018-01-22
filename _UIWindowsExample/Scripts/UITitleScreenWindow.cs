@@ -15,7 +15,7 @@ namespace MatchGame
 		{
 			base.Initialize(svc);
 
-			levelLoader = ServiceFramework.Instance.GetService<ILevelLoaderService>() as LevelLoaderService;
+			levelLoader = Services.GetService<ILevelLoaderService>() as LevelLoaderService;
 		}
 
 		public void OnStartClick()

@@ -25,7 +25,7 @@ namespace Core.LevelLoaderService
 	public class LevelLoaderService : ILevelLoaderService
 	{
 		protected LevelLoaderServiceConfiguration configuration;
-		protected ServiceFramework app;
+		protected Services app;
 
 		protected AssetService assetService;
 		protected IUIService uiService;
@@ -58,23 +58,23 @@ namespace Core.LevelLoaderService
 			serviceConfigured.Dispatch(this);
 		}
 
-		public void StartService(ServiceFramework application)
+		public void StartService(Services application)
 		{
 			app = application;
 			serviceStarted.Dispatch(this);
 
-			ServiceFramework.OnGameStart.Add(OnGameStart);
+			Services.OnGameStart.Add(OnGameStart);
 		}
 
-		public void StopService(ServiceFramework application)
+		public void StopService(Services application)
 		{
 			serviceStopped.Dispatch(this);
 		}
 
-		protected void OnGameStart(ServiceFramework application)
+		protected void OnGameStart(Services application)
 		{
-			uiService = ServiceFramework.Instance.GetService<IUIService>();
-			assetService = ServiceFramework.Instance.GetService<IAssetService>() as AssetService;
+			uiService = Services.GetService<IUIService>();
+			assetService = Services.GetService<IAssetService>() as AssetService;
 
 			//Load first level
 			if (configuration.levels != null && configuration.levels.Count > 0)

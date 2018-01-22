@@ -22,7 +22,7 @@ namespace Core.Assets
 	public class AssetService : IAssetService
 	{
 		protected AssetServiceConfiguration configuration;
-		protected ServiceFramework app;
+		protected Services app;
 
 		public uint AssetBundleVersionNumber { get { return 1; } }
 
@@ -49,16 +49,16 @@ namespace Core.Assets
 			serviceConfigured.Dispatch(this);
 		}
 
-		public void StartService(ServiceFramework application)
+		public void StartService(Services application)
 		{
 			app = application;
 			assetBundlebundleLoader = new AssetBundleLoader(this, app);
-			ServiceFramework.OnGameStart.Add(OnGameStart);
+			Services.OnGameStart.Add(OnGameStart);
 
 			serviceStarted.Dispatch(this);
 		}
 
-		public void StopService(ServiceFramework application)
+		public void StopService(Services application)
 		{
 			serviceStopped.Dispatch(this);
 		}
@@ -73,7 +73,7 @@ namespace Core.Assets
 			assetBundlebundleLoader.UnloadAsset(name, unloadAllDependencies);
 		}
 
-		protected void OnGameStart(ServiceFramework application)
+		protected void OnGameStart(Services application)
 		{
 			LoadGameBundle();
 		}

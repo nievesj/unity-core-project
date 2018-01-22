@@ -13,7 +13,7 @@ namespace MatchGame
 		{
 			base.LevelLoaded();
 
-			uiService = ServiceFramework.Instance.GetService<IUIService>() as UIService;
+			uiService = Services.GetService<IUIService>() as UIService;
 			uiService.OnWindowClosed.Add(OnWindowClosed);
 
 			uiService.Open(UIWindows.UITitle);

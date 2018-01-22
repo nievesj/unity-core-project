@@ -31,7 +31,7 @@ namespace Core.Assets
 
 		private string assetName;
 		public string AssetName { get { return assetName; } }
-		public AssetCacheState AssetCacheState { get { return ServiceFramework.Instance.GetService<IAssetService>().AssetCacheState; } }
+		public AssetCacheState AssetCacheState { get { return Services.GetService<IAssetService>().AssetCacheState; } }
 
 		public BundleNeeded(AssetCategoryRoot cat, string bundle, string asset)
 		{

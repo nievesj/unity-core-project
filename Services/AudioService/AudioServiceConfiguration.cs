@@ -14,7 +14,5 @@ namespace Core.Audio
 		{
 			return new AudioService();
 		}
-
-		public override void ShowEditorUI() {}
 	}
 }

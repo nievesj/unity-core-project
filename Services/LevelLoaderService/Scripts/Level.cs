@@ -39,9 +39,9 @@ namespace Core.LevelLoaderService
 		{
 			Debug.Log(("Level: " + LevelName + " loaded").Colored(Colors.lightblue));
 
-			levelService = ServiceFramework.Instance.GetService<ILevelLoaderService>();
-			audioService = ServiceFramework.Instance.GetService<IAudioService>();
-			uiService = ServiceFramework.Instance.GetService<IUIService>();
+			levelService = Services.GetService<ILevelLoaderService>();
+			audioService = Services.GetService<IAudioService>();
+			uiService = Services.GetService<IUIService>();
 
 			if (uiService != null)
 			{

@@ -13,10 +13,5 @@ namespace Core.LevelLoaderService
 		{
 			return new LevelLoaderService();
 		}
-
-		public override void ShowEditorUI()
-		{
-
-		}
 	}
 }
