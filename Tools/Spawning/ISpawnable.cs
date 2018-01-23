@@ -1,14 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Core.Signals;
+using UniRx;
 using UnityEngine;
 
 namespace Core.Spawning
 {
 	public interface ISpawnable
 	{
-		Signal<ISpawnable> Spawned { get; }
-		Signal<ISpawnable> DeSpawned { get; }
+		IObservable<ISpawnable> Spawned { get; }
+		IObservable<ISpawnable> DeSpawned { get; }
 
 		void Initialize();
 		void DeInitialize();

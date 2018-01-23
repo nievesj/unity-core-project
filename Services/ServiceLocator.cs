@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Core.Signals;
 using UniRx;
 using UnityEngine;
 
@@ -9,26 +8,23 @@ namespace Core.Service
 	/// <summary>
 	/// Service Locator.
 	/// </summary>
-	public class Services : MonoBehaviour
+	public class ServiceLocator : MonoBehaviour
 	{
 		[SerializeField]
-		protected static GameConfiguration configuration;
-		protected static Dictionary<string, IService> services;
-		protected static Services _instance;
+		private static GameConfiguration configuration;
+		private static Dictionary<string, IService> services;
+		private static ServiceLocator _instance;
 
-		protected static Signal<Services> onGameStart = new Signal<Services>();
-		public static Signal<Services> OnGameStart { get { return onGameStart; } }
+		private static Subject<ServiceLocator> onGameStart = new Subject<ServiceLocator>();
+		public static IObservable<ServiceLocator> OnGameStart { get { return onGameStart; } }
 
-		protected static Signal<Services> onServicesReady = new Signal<Services>();
-		public static Signal<Services> OnServicesReady { get { return onServicesReady; } }
+		public static ServiceLocator Instance { get { return _instance; } }
 
-		public static Services Instance { get { return _instance; } }
-
-		protected static void Instantiate(Transform parent)
+		private static void Instantiate(Transform parent)
 		{
 			GameObject go = new GameObject(Constants.ServiceLocator);
 			if (!_instance)
-				_instance = go.AddComponent<Services>();
+				_instance = go.AddComponent<ServiceLocator>();
 		}
 
 		public static void SetUp(Game game)
@@ -48,13 +44,12 @@ namespace Core.Service
 						Debug.Log(("ServiceFramework: " + services.Count + " Services created and active").Colored(Colors.lime));
 						Debug.Log(("ServiceFramework: Game Started").Colored(Colors.lime));
 
-						onServicesReady.Dispatch(_instance);
-						onGameStart.Dispatch(_instance);
+						onGameStart.OnNext(_instance);
 					}
 				});
 		}
 
-		protected static IObservable<bool> CreateServices()
+		private static IObservable<bool> CreateServices()
 		{
 			var subject = new ReplaySubject<bool>();
 
@@ -130,17 +125,22 @@ namespace Core.Service
 			}
 			return null;
 		}
+
+		private void OnDestroy()
+		{
+			onGameStart.Dispose();
+		}
 	}
 
 	public interface IService
 	{
-		Signal<IService> ServiceConfigured { get; }
-		Signal<IService> ServiceStarted { get; }
-		Signal<IService> ServiceStopped { get; }
+		IObservable<IService> ServiceConfigured { get; }
+		IObservable<IService> ServiceStarted { get; }
+		IObservable<IService> ServiceStopped { get; }
 
-		void StartService(Services application);
+		void StartService(ServiceLocator application);
 
-		void StopService(Services application);
+		void StopService(ServiceLocator application);
 
 		void Configure(ServiceConfiguration config);
 	}

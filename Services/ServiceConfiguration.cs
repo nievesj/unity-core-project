@@ -13,7 +13,7 @@ namespace Core.Service
 			IService service = GetServiceClass();
 			if (service == null) return null;
 			service.Configure(this);
-			Services.AddService(name, service);
+			ServiceLocator.AddService(name, service);
 
 			return service;
 		}

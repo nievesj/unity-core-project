@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Core.Signals;
+using UniRx;
 using UnityEngine;
 
 namespace Core.ControlSystem
@@ -34,14 +34,14 @@ namespace Core.ControlSystem
 			set { controlState = value; }
 		}
 
-		protected Signal<MouseTouchControls, Vector2> onMouseDown = new Signal<MouseTouchControls, Vector2>();
-		public Signal<MouseTouchControls, Vector2> OnMouseDown { get { return onMouseDown; } }
+		protected Subject<Vector2> onMouseDown = new Subject<Vector2>();
+		public IObservable<Vector2> OnMouseDown { get { return onMouseDown; } }
 
-		protected Signal<MouseTouchControls, Vector2> onMouseUp = new Signal<MouseTouchControls, Vector2>();
-		public Signal<MouseTouchControls, Vector2> OnMouseUp { get { return onMouseUp; } }
+		protected Subject<Vector2> onMouseUp = new Subject<Vector2>();
+		public IObservable<Vector2> OnMouseUp { get { return onMouseUp; } }
 
-		protected Signal<MouseTouchControls, Vector2> onMouseDrag = new Signal<MouseTouchControls, Vector2>();
-		public Signal<MouseTouchControls, Vector2> OnMouseDrag { get { return onMouseDrag; } }
+		protected Subject<Vector2> onMouseDrag = new Subject<Vector2>();
+		public IObservable<Vector2> OnMouseDrag { get { return onMouseDrag; } }
 
 		protected MouseTouchState mouseTouchState = MouseTouchState.Nothing;
 		protected ControlState controlState = ControlState.Enabled;
@@ -107,9 +107,7 @@ namespace Core.ControlSystem
 		protected void MouseDown(Vector2 mousePosition)
 		{
 			if (mouseTouchState.Equals(MouseTouchState.Nothing))
-			{
-				OnMouseDown.Dispatch(this, (Vector2)Camera.main.ScreenToWorldPoint(mousePosition));
-			}
+				onMouseDown.OnNext((Vector2) Camera.main.ScreenToWorldPoint(mousePosition));
 
 			mouseTouchState = MouseTouchState.MouseDown;
 
@@ -122,14 +120,16 @@ namespace Core.ControlSystem
 		protected void MouseUp(Vector2 mousePosition)
 		{
 			mouseTouchState = MouseTouchState.MouseUp;
-			OnMouseUp.Dispatch(this, (Vector2)Camera.main.ScreenToWorldPoint(mousePosition));
+
+			onMouseUp.OnNext((Vector2) Camera.main.ScreenToWorldPoint(mousePosition));
 			mouseTouchState = MouseTouchState.Nothing;
 		}
 
 		protected void MouseDrag(Vector2 mousePosition)
 		{
 			mouseTouchState = MouseTouchState.MouseDrag;
-			OnMouseDrag.Dispatch(this, (Vector2)Camera.main.ScreenToWorldPoint(mousePosition));
+
+			onMouseDrag.OnNext((Vector2) Camera.main.ScreenToWorldPoint(mousePosition));
 		}
 
 		/// <summary>
@@ -141,10 +141,10 @@ namespace Core.ControlSystem
 			Vector2 position = Vector2.zero;
 
 #if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
-				if (Input.touchCount > 0)// && Input.GetTouch(0).phase == TouchPhase.Moved)
-				{
-					position = Camera.main.ScreenToWorldPoint(new Vector2(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y));
-				}
+			if (Input.touchCount > 0) // && Input.GetTouch(0).phase == TouchPhase.Moved)
+			{
+				position = Camera.main.ScreenToWorldPoint(new Vector2(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y));
+			}
 #elif UNITY_WEBGL || UNITY_EDITOR
 
 			position = Camera.main.ScreenToWorldPoint(new Vector2(Input.mousePosition.x, Input.mousePosition.y));
@@ -161,11 +161,11 @@ namespace Core.ControlSystem
 			Vector2 position = Vector2.zero;
 
 #if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
-				if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved)
-				{
-					position.x = .03f * Input.GetTouch(0).deltaPosition.x;
-					position.y = .03f * Input.GetTouch(0).deltaPosition.y;
-				}
+			if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved)
+			{
+				position.x = .03f * Input.GetTouch(0).deltaPosition.x;
+				position.y = .03f * Input.GetTouch(0).deltaPosition.y;
+			}
 #elif UNITY_WEBGL || UNITY_EDITOR
 
 			position.x = Input.GetAxis(Constants.MouseAxisY);

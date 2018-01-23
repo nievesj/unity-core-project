@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Core.Service;
-using Core.Signals;
+using UniRx;
 using UnityEngine;
 
 namespace Core.ControlSystem
@@ -18,36 +18,40 @@ namespace Core.ControlSystem
 		protected MouseTouchControls controls;
 		public MouseTouchControls Controls { get { return controls; } }
 
-		protected Services app;
+		protected ServiceLocator app;
 
-		protected Signal<IService> serviceConfigured = new Signal<IService>();
-		public Signal<IService> ServiceConfigured { get { return serviceConfigured; } }
+		protected Subject<IService> serviceConfigured = new Subject<IService>();
+		public IObservable<IService> ServiceConfigured { get { return serviceConfigured; } }
 
-		protected Signal<IService> serviceStarted = new Signal<IService>();
-		public Signal<IService> ServiceStarted { get { return serviceStarted; } }
+		protected Subject<IService> serviceStarted = new Subject<IService>();
+		public IObservable<IService> ServiceStarted { get { return serviceStarted; } }
 
-		protected Signal<IService> serviceStopped = new Signal<IService>();
-		public Signal<IService> ServiceStopped { get { return serviceStopped; } }
+		protected Subject<IService> serviceStopped = new Subject<IService>();
+		public IObservable<IService> ServiceStopped { get { return serviceStopped; } }
 
 		public void Configure(ServiceConfiguration config)
 		{
 			configuration = config as ControlServiceConfiguration;
 
-			serviceStarted.Add(CreateControlObject);
-			serviceStopped.Add(DestroyControlObject);
+			serviceStarted.Subscribe(CreateControlObject);
+			serviceStopped.Subscribe(DestroyControlObject);
 
-			serviceConfigured.Dispatch(this);
+			serviceConfigured.OnNext(this);
 		}
 
-		public void StartService(Services application)
+		public void StartService(ServiceLocator application)
 		{
 			app = application;
-			serviceStarted.Dispatch(this);
+			serviceStarted.OnNext(this);
 		}
 
-		public void StopService(Services application)
+		public void StopService(ServiceLocator application)
 		{
-			serviceStopped.Dispatch(this);
+			serviceStopped.OnNext(this);
+
+			serviceConfigured.Dispose();
+			serviceStarted.Dispose();
+			serviceStopped.Dispose();
 		}
 
 		protected void CreateControlObject(IService service)

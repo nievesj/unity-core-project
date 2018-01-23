@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Core.Assets;
 using Core.Service;
-using Core.Signals;
 using UniRx;
 using UnityEngine;
 
@@ -10,8 +9,8 @@ namespace Core.UI
 {
 	public interface IUIService : IService
 	{
-		Signal<UIWindow> OnWindowOpened { get; }
-		Signal<UIWindow> OnWindowClosed { get; }
+		IObservable<UIWindow> OnWindowOpened { get; }
+		IObservable<UIWindow> OnWindowClosed { get; }
 
 		void Open(UIWindows window);
 
@@ -23,44 +22,45 @@ namespace Core.UI
 	public class UIService : IUIService
 	{
 		protected UIServiceConfiguration configuration;
-		protected Services app;
+		protected ServiceLocator app;
 
 		protected AssetService assetService;
 		protected RectTransform mainCanvas;
 
 		protected Dictionary<string, UIWindow> activeWindows;
+		protected CompositeDisposable disposables = new CompositeDisposable();
 
 		//For the future to pre-load all windows as prefabs. This is needed so theres no waiting time when opening windows and the bundles are remote.
 		protected Dictionary<string, UIWindow> preLoadedWindows;
 
-		protected Signal<IService> serviceConfigured = new Signal<IService>();
-		public Signal<IService> ServiceConfigured { get { return serviceConfigured; } }
+		protected Subject<IService> serviceConfigured = new Subject<IService>();
+		public IObservable<IService> ServiceConfigured { get { return serviceConfigured; } }
 
-		protected Signal<IService> serviceStarted = new Signal<IService>();
-		public Signal<IService> ServiceStarted { get { return serviceStarted; } }
+		protected Subject<IService> serviceStarted = new Subject<IService>();
+		public IObservable<IService> ServiceStarted { get { return serviceStarted; } }
 
-		protected Signal<IService> serviceStopped = new Signal<IService>();
-		public Signal<IService> ServiceStopped { get { return serviceStopped; } }
+		protected Subject<IService> serviceStopped = new Subject<IService>();
+		public IObservable<IService> ServiceStopped { get { return serviceStopped; } }
 
-		protected Signal<UIWindow> onWindowOnpened = new Signal<UIWindow>();
-		public Signal<UIWindow> OnWindowOpened { get { return onWindowOnpened; } }
+		protected Subject<UIWindow> onWindowOnpened = new Subject<UIWindow>();
+		public IObservable<UIWindow> OnWindowOpened { get { return onWindowOnpened; } }
 
-		protected Signal<UIWindow> onWindowClosed = new Signal<UIWindow>();
-		public Signal<UIWindow> OnWindowClosed { get { return onWindowClosed; } }
+		protected Subject<UIWindow> onWindowClosed = new Subject<UIWindow>();
+		public IObservable<UIWindow> OnWindowClosed { get { return onWindowClosed; } }
 
 		public void Configure(ServiceConfiguration config)
 		{
 			configuration = config as UIServiceConfiguration;
 
-			serviceConfigured.Dispatch(this);
+			serviceConfigured.OnNext(this);
 		}
 
-		public void StartService(Services application)
+		public void StartService(ServiceLocator application)
 		{
 			app = application;
-			serviceStarted.Dispatch(this);
+			serviceStarted.OnNext(this);
 
-			assetService = Services.GetService<IAssetService>() as AssetService;
+			assetService = ServiceLocator.GetService<IAssetService>() as AssetService;
 			activeWindows = new Dictionary<string, UIWindow>();
 
 			//instantiate main canvas
@@ -74,9 +74,16 @@ namespace Core.UI
 				Debug.LogError("UIService: StartService - Main Canvas has not been configured.");
 		}
 
-		public void StopService(Services application)
+		public void StopService(ServiceLocator application)
 		{
-			serviceStopped.Dispatch(this);
+			serviceStopped.OnNext(this);
+
+			serviceConfigured.Dispose();
+			serviceStarted.Dispose();
+			serviceStopped.Dispose();
+			onWindowOnpened.Dispose();
+			onWindowClosed.Dispose();
+
 			Object.Destroy(mainCanvas.gameObject);
 		}
 
@@ -102,10 +109,10 @@ namespace Core.UI
 		{
 			Debug.Log(("UIService: Closed window - " + window.name).Colored(Colors.lightblue));
 
-			window.Closed.Remove(WindowClosed);
+			// window.Closed.Remove(WindowClosed);
 			activeWindows.Remove(window.name);
 
-			onWindowClosed.Dispatch(window);
+			onWindowClosed.OnNext(window);
 			assetService.UnloadAsset(window.name, true);
 
 			Object.Destroy(window.gameObject);
@@ -113,12 +120,12 @@ namespace Core.UI
 
 		protected void WindowOpened(UIWindow window)
 		{
-			window.Opened.Remove(WindowOpened);
+			// window.Opened.Remove(WindowOpened);
 
 			if (!activeWindows.ContainsKey(window.name))
 				activeWindows.Add(window.name, window);
 
-			onWindowOnpened.Dispatch(window);
+			onWindowOnpened.OnNext(window);
 		}
 
 		protected void LoadAndActivateWindow(string name)
@@ -137,8 +144,8 @@ namespace Core.UI
 		{
 			var obj = Object.Instantiate<UIWindow>(window, mainCanvas);
 
-			obj.Closed.Add(WindowClosed);
-			obj.Opened.Add(WindowOpened);
+			obj.Closed.Subscribe(WindowClosed);
+			obj.Opened.Subscribe(WindowOpened);
 			obj.Initialize(this);
 		}
 	}

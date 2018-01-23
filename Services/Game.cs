@@ -13,7 +13,7 @@ namespace Core.Service
 		protected void Awake()
 		{
 			DontDestroyOnLoad(this.gameObject);
-			Services.SetUp(this);
+			ServiceLocator.SetUp(this);
 		}
 	}
 }

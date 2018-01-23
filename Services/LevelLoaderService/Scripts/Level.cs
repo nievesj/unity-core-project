@@ -2,12 +2,20 @@
 using System.Collections.Generic;
 using Core.Audio;
 using Core.Service;
-using Core.Signals;
 using Core.UI;
+using UniRx;
 using UnityEngine;
 
 namespace Core.LevelLoaderService
 {
+	public enum LevelState
+	{
+		Loaded,
+		Started,
+		InProgress,
+		Completed
+	}
+
 	public class Level : MonoBehaviour
 	{
 		public bool displayHUD;
@@ -20,33 +28,40 @@ namespace Core.LevelLoaderService
 		protected IAudioService audioService;
 		protected IUIService uiService;
 		protected UIWindow hud;
+		protected CompositeDisposable disposables = new CompositeDisposable();
+
 		protected LevelState levelState;
 		public LevelState State { get { return levelState; } }
 
-		protected Signal<Level> onLevelLoaded = new Signal<Level>();
-		public Signal<Level> OnLevelLoaded { get { return onLevelLoaded; } }
+		protected Subject<Level> onLevelLoaded = new Subject<Level>();
+		public IObservable<Level> OnLevelLoaded { get { return onLevelLoaded; } }
 
-		protected Signal<Level> onLevelStarted = new Signal<Level>();
-		public Signal<Level> OnLevelStarted { get { return onLevelStarted; } }
+		protected Subject<Level> onLevelStarted = new Subject<Level>();
+		public IObservable<Level> OnLevelStarted { get { return onLevelStarted; } }
 
-		protected Signal<Level> onLevelCompleted = new Signal<Level>();
-		public Signal<Level> OnLevelCompleted { get { return onLevelCompleted; } }
+		protected Subject<Level> onLevelCompleted = new Subject<Level>();
+		public IObservable<Level> OnLevelCompleted { get { return onLevelCompleted; } }
 
-		protected Signal<Level> onLevelUnloaded = new Signal<Level>();
-		public Signal<Level> OnLevelUnloaded { get { return onLevelUnloaded; } }
+		protected Subject<Level> onLevelUnloaded = new Subject<Level>();
+		public IObservable<Level> OnLevelUnloaded { get { return onLevelUnloaded; } }
 
 		protected virtual void Awake()
 		{
 			Debug.Log(("Level: " + LevelName + " loaded").Colored(Colors.lightblue));
 
-			levelService = Services.GetService<ILevelLoaderService>();
-			audioService = Services.GetService<IAudioService>();
-			uiService = Services.GetService<IUIService>();
+			levelService = ServiceLocator.GetService<ILevelLoaderService>();
+			audioService = ServiceLocator.GetService<IAudioService>();
+			uiService = ServiceLocator.GetService<IUIService>();
 
 			if (uiService != null)
 			{
-				uiService.OnWindowOpened.Add(OnWindowOpened);
-				uiService.OnWindowClosed.Add(OnWindowClosed);
+				uiService.OnWindowOpened
+					.Subscribe(OnWindowOpened)
+					.AddTo(disposables);
+
+				uiService.OnWindowClosed
+					.Subscribe(OnWindowClosed)
+					.AddTo(disposables);;
 			}
 
 			levelState = LevelState.Loaded;
@@ -59,7 +74,7 @@ namespace Core.LevelLoaderService
 
 			levelState = LevelState.Started;
 
-			onLevelStarted.Dispatch(this);
+			onLevelStarted.OnNext(this);
 			levelState = LevelState.InProgress;
 
 			if (audioService != null && backgroundMusic != null && backgroundMusic.Clip != null)
@@ -71,7 +86,7 @@ namespace Core.LevelLoaderService
 
 		protected virtual void LevelLoaded()
 		{
-			onLevelLoaded.Dispatch(this);
+			onLevelLoaded.OnNext(this);
 		}
 
 		/// <summary>
@@ -82,7 +97,7 @@ namespace Core.LevelLoaderService
 			Debug.Log(("Level: " + LevelName + " completed").Colored(Colors.lightblue));
 
 			levelState = LevelState.Completed;
-			onLevelCompleted.Dispatch(this);
+			onLevelCompleted.OnNext(this);
 		}
 
 		public virtual void Unload()
@@ -90,7 +105,7 @@ namespace Core.LevelLoaderService
 			if (audioService != null && backgroundMusic != null && backgroundMusic.Clip != null)
 				audioService.StopClip(backgroundMusic);
 
-			onLevelUnloaded.Dispatch(this);
+			onLevelUnloaded.OnNext(this);
 		}
 
 		protected virtual void OnWindowOpened(UIWindow window)
@@ -103,8 +118,7 @@ namespace Core.LevelLoaderService
 		{
 			if (window is UIHud)
 			{
-				uiService.OnWindowOpened.Remove(OnWindowOpened);
-				uiService.OnWindowClosed.Remove(OnWindowClosed);
+				disposables.Dispose();
 			}
 		}
 
@@ -115,6 +129,11 @@ namespace Core.LevelLoaderService
 
 			if (audioService != null && backgroundMusic != null && backgroundMusic.Clip != null)
 				audioService.StopClip(backgroundMusic);
+
+			onLevelLoaded.Dispose();
+			onLevelStarted.Dispose();
+			onLevelCompleted.Dispose();
+			onLevelUnloaded.Dispose();
 		}
 	}
 }

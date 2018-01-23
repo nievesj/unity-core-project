@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Core.Assets;
 using Core.Service;
-using Core.Signals;
 using Core.UI;
 using UniRx;
 using UnityEngine;
@@ -18,14 +17,14 @@ namespace Core.LevelLoaderService
 
 		Level CurrentLevel { get; }
 
-		Signal<Level> OnLevelLoaded { get; }
-		Signal<Level> OnLevelUnloaded { get; }
+		IObservable<Level> OnLevelLoaded { get; }
+		IObservable<Level> OnLevelUnloaded { get; }
 	}
 
 	public class LevelLoaderService : ILevelLoaderService
 	{
 		protected LevelLoaderServiceConfiguration configuration;
-		protected Services app;
+		protected ServiceLocator app;
 
 		protected AssetService assetService;
 		protected IUIService uiService;
@@ -35,46 +34,56 @@ namespace Core.LevelLoaderService
 
 		protected string currentLevelName;
 		protected UIWindow loadingScreen;
+		protected CompositeDisposable disposables = new CompositeDisposable();
 
-		protected Signal<IService> serviceConfigured = new Signal<IService>();
-		public Signal<IService> ServiceConfigured { get { return serviceConfigured; } }
+		protected Subject<IService> serviceConfigured = new Subject<IService>();
+		public IObservable<IService> ServiceConfigured { get { return serviceConfigured; } }
 
-		protected Signal<IService> serviceStarted = new Signal<IService>();
-		public Signal<IService> ServiceStarted { get { return serviceStarted; } }
+		protected Subject<IService> serviceStarted = new Subject<IService>();
+		public IObservable<IService> ServiceStarted { get { return serviceStarted; } }
 
-		protected Signal<IService> serviceStopped = new Signal<IService>();
-		public Signal<IService> ServiceStopped { get { return serviceStopped; } }
+		protected Subject<IService> serviceStopped = new Subject<IService>();
+		public IObservable<IService> ServiceStopped { get { return serviceStopped; } }
 
-		protected Signal<Level> onLevelLoaded = new Signal<Level>();
-		public Signal<Level> OnLevelLoaded { get { return onLevelLoaded; } }
+		protected Subject<Level> onLevelLoaded = new Subject<Level>();
+		public IObservable<Level> OnLevelLoaded { get { return onLevelLoaded; } }
 
-		protected Signal<Level> onLevelUnloaded = new Signal<Level>();
-		public Signal<Level> OnLevelUnloaded { get { return onLevelUnloaded; } }
+		protected Subject<Level> onLevelUnloaded = new Subject<Level>();
+		public IObservable<Level> OnLevelUnloaded { get { return onLevelUnloaded; } }
 
 		public void Configure(ServiceConfiguration config)
 		{
 			configuration = config as LevelLoaderServiceConfiguration;
 
-			serviceConfigured.Dispatch(this);
+			serviceConfigured.OnNext(this);
 		}
 
-		public void StartService(Services application)
+		public void StartService(ServiceLocator application)
 		{
 			app = application;
-			serviceStarted.Dispatch(this);
+			serviceStarted.OnNext(this);
 
-			Services.OnGameStart.Add(OnGameStart);
+			ServiceLocator.OnGameStart.Subscribe(OnGameStart);
 		}
 
-		public void StopService(Services application)
+		public void StopService(ServiceLocator application)
 		{
-			serviceStopped.Dispatch(this);
+			serviceStopped.OnNext(this);
+
+			serviceConfigured.Dispose();
+			serviceStarted.Dispose();
+			serviceStopped.Dispose();
+
+			onLevelLoaded.Dispose();
+			onLevelUnloaded.Dispose();
+
+			disposables.Dispose();
 		}
 
-		protected void OnGameStart(Services application)
+		protected void OnGameStart(ServiceLocator application)
 		{
-			uiService = Services.GetService<IUIService>();
-			assetService = Services.GetService<IAssetService>() as AssetService;
+			uiService = ServiceLocator.GetService<IUIService>();
+			assetService = ServiceLocator.GetService<IAssetService>() as AssetService;
 
 			//Load first level
 			if (configuration.levels != null && configuration.levels.Count > 0)
@@ -94,8 +103,7 @@ namespace Core.LevelLoaderService
 
 		protected void OnLoadingWindowClosed(UIWindow window)
 		{
-			uiService.OnWindowOpened.Remove(OnLoadingWindowOpened);
-			uiService.OnWindowClosed.Remove(OnLoadingWindowClosed);
+			disposables.Dispose();
 		}
 
 		public void LoadLevel(Levels level)
@@ -113,8 +121,18 @@ namespace Core.LevelLoaderService
 			currentLevelName = name;
 			if (uiService != null)
 			{
-				uiService.OnWindowOpened.Add(OnLoadingWindowOpened);
-				uiService.OnWindowClosed.Add(OnLoadingWindowClosed);
+				//not entirely sure this is ok, but works for now. Might be a problem with stacked windows.
+				//once I get more familiar with Rx I will revise this.
+				if (disposables.IsDisposed)
+					disposables = new CompositeDisposable();
+
+				uiService.OnWindowOpened
+					.Subscribe(OnLoadingWindowOpened)
+					.AddTo(disposables);
+
+				uiService.OnWindowClosed
+					.Subscribe(OnLoadingWindowClosed)
+					.AddTo(disposables);;
 
 				uiService.Open(UIWindows.UILoading);
 			}
@@ -138,12 +156,12 @@ namespace Core.LevelLoaderService
 
 					currentLevel.name = loadedLevel.name;
 
-					currentLevel.OnLevelCompleted.Add(UnloadLevel);
+					currentLevel.OnLevelCompleted.Subscribe(UnloadLevel);
 
 					if (loadingScreen)
 						loadingScreen.Close();
 
-					onLevelLoaded.Dispatch(currentLevel);
+					onLevelLoaded.OnNext(currentLevel);
 				});
 		}
 
@@ -159,7 +177,7 @@ namespace Core.LevelLoaderService
 			Debug.Log(("LevelLoaderService: Releasing unused resources").Colored(Colors.lightblue));
 			Resources.UnloadUnusedAssets();
 
-			onLevelUnloaded.Dispatch(null);
+			onLevelUnloaded.OnNext(null);
 		}
 	}
 }

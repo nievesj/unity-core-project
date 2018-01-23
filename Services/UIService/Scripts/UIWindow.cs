@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Core.Signals;
+using UniRx;
 using UnityEngine;
 
 namespace Core.UI
@@ -12,17 +12,17 @@ namespace Core.UI
 		public UIWindowTransitionOptions inTransition, outTransition;
 		public RectTransform RTransform { get { return GetComponent<RectTransform>(); } }
 
-		protected Signal<UIWindow> opened = new Signal<UIWindow>();
-		public Signal<UIWindow> Opened { get { return opened; } }
+		protected Subject<UIWindow> opened = new Subject<UIWindow>();
+		public IObservable<UIWindow> Opened { get { return opened; } }
 
-		protected Signal<UIWindow> closed = new Signal<UIWindow>();
-		public Signal<UIWindow> Closed { get { return closed; } }
+		protected Subject<UIWindow> closed = new Subject<UIWindow>();
+		public IObservable<UIWindow> Closed { get { return closed; } }
 
-		protected Signal<UIWindow> onShow = new Signal<UIWindow>();
-		public Signal<UIWindow> OnShow { get { return onShow; } }
+		protected Subject<UIWindow> onShow = new Subject<UIWindow>();
+		public IObservable<UIWindow> OnShow { get { return onShow; } }
 
-		protected Signal<UIWindow> onHide = new Signal<UIWindow>();
-		public Signal<UIWindow> OnHide { get { return onHide; } }
+		protected Subject<UIWindow> onHide = new Subject<UIWindow>();
+		public IObservable<UIWindow> OnHide { get { return onHide; } }
 
 		public virtual void Start()
 		{
@@ -57,22 +57,26 @@ namespace Core.UI
 
 		protected virtual void OnWindowOpened(UIWindow window)
 		{
-			opened.Dispatch(this);
+			opened.OnNext(this);
+			opened.OnCompleted();
 		}
 
 		protected virtual void OnWindowClosed(UIWindow window)
 		{
-			closed.Dispatch(this);
+			closed.OnNext(this);
+			closed.OnCompleted();
 		}
 
 		protected virtual void OnWindowShow(UIWindow window)
 		{
-			onShow.Dispatch(this);
+			onShow.OnNext(this);
+			onShow.OnCompleted();
 		}
 
 		protected virtual void OnWindowHide(UIWindow window)
 		{
-			onHide.Dispatch(this);
+			onHide.OnNext(this);
+			onHide.OnCompleted();
 		}
 	}
 }

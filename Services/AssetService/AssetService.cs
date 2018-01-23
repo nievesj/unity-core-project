@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using Core.Service;
-using Core.Signals;
 using UniRx;
 using UnityEngine;
 
@@ -22,7 +21,7 @@ namespace Core.Assets
 	public class AssetService : IAssetService
 	{
 		protected AssetServiceConfiguration configuration;
-		protected Services app;
+		protected ServiceLocator app;
 
 		public uint AssetBundleVersionNumber { get { return 1; } }
 
@@ -34,33 +33,37 @@ namespace Core.Assets
 
 		protected AssetBundleLoader assetBundlebundleLoader;
 
-		protected Signal<IService> serviceConfigured = new Signal<IService>();
-		public Signal<IService> ServiceConfigured { get { return serviceConfigured; } }
+		protected Subject<IService> serviceConfigured = new Subject<IService>();
+		public IObservable<IService> ServiceConfigured { get { return serviceConfigured; } }
 
-		protected Signal<IService> serviceStarted = new Signal<IService>();
-		public Signal<IService> ServiceStarted { get { return serviceStarted; } }
+		protected Subject<IService> serviceStarted = new Subject<IService>();
+		public IObservable<IService> ServiceStarted { get { return serviceStarted; } }
 
-		protected Signal<IService> serviceStopped = new Signal<IService>();
-		public Signal<IService> ServiceStopped { get { return serviceStopped; } }
+		protected Subject<IService> serviceStopped = new Subject<IService>();
+		public IObservable<IService> ServiceStopped { get { return serviceStopped; } }
 
 		public void Configure(ServiceConfiguration config)
 		{
 			configuration = config as AssetServiceConfiguration;
-			serviceConfigured.Dispatch(this);
+			serviceConfigured.OnNext(this);
 		}
 
-		public void StartService(Services application)
+		public void StartService(ServiceLocator application)
 		{
 			app = application;
 			assetBundlebundleLoader = new AssetBundleLoader(this, app);
-			Services.OnGameStart.Add(OnGameStart);
 
-			serviceStarted.Dispatch(this);
+			ServiceLocator.OnGameStart.Subscribe(OnGameStart);
+			serviceStarted.OnNext(this);
 		}
 
-		public void StopService(Services application)
+		public void StopService(ServiceLocator application)
 		{
-			serviceStopped.Dispatch(this);
+			serviceStopped.OnNext(this);
+
+			serviceConfigured.Dispose();
+			serviceStarted.Dispose();
+			serviceStopped.Dispose();
 		}
 
 		public IObservable<UnityEngine.Object> GetAndLoadAsset<T>(BundleNeeded bundleNeeded) where T : UnityEngine.Object
@@ -73,7 +76,7 @@ namespace Core.Assets
 			assetBundlebundleLoader.UnloadAsset(name, unloadAllDependencies);
 		}
 
-		protected void OnGameStart(Services application)
+		protected void OnGameStart(ServiceLocator application)
 		{
 			LoadGameBundle();
 		}

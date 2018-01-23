@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Core.Polling;
 using Core.Service;
-using Core.Signals;
+using UniRx;
 using UnityEngine;
 
 namespace Core.Audio
@@ -18,40 +18,45 @@ namespace Core.Audio
 	public class AudioService : IAudioService
 	{
 		protected AudioServiceConfiguration configuration;
-		protected Services app;
+		protected ServiceLocator app;
 		protected Poller<AudioSource> poller;
 
-		protected Signal<IService> serviceConfigured = new Signal<IService>();
-		public Signal<IService> ServiceConfigured { get { return serviceConfigured; } }
+		protected Subject<IService> serviceConfigured = new Subject<IService>();
+		public IObservable<IService> ServiceConfigured { get { return serviceConfigured; } }
 
-		protected Signal<IService> serviceStarted = new Signal<IService>();
-		public Signal<IService> ServiceStarted { get { return serviceStarted; } }
+		protected Subject<IService> serviceStarted = new Subject<IService>();
+		public IObservable<IService> ServiceStarted { get { return serviceStarted; } }
 
-		protected Signal<IService> serviceStopped = new Signal<IService>();
-		public Signal<IService> ServiceStopped { get { return serviceStopped; } }
+		protected Subject<IService> serviceStopped = new Subject<IService>();
+		public IObservable<IService> ServiceStopped { get { return serviceStopped; } }
 
 		public void Configure(ServiceConfiguration config)
 		{
 			configuration = config as AudioServiceConfiguration;
-			serviceConfigured.Dispatch(this);
+			serviceConfigured.OnNext(this);
 		}
 
-		public void StartService(Services application)
+		public void StartService(ServiceLocator application)
 		{
 			app = application;
-			Services.OnGameStart.Add(OnGameStart);
-			serviceStarted.Dispatch(this);
+			ServiceLocator.OnGameStart.Subscribe(OnGameStart);
+
+			serviceStarted.OnNext(this);
 		}
 
-		public void StopService(Services application)
+		public void StopService(ServiceLocator application)
 		{
 			if (poller != null)
 				poller.Destroy();
 
-			serviceStopped.Dispatch(this);
+			serviceStopped.OnNext(this);
+
+			serviceConfigured.Dispose();
+			serviceStarted.Dispose();
+			serviceStopped.Dispose();
 		}
 
-		protected void OnGameStart(Services application)
+		protected void OnGameStart(ServiceLocator application)
 		{
 			if (configuration.audioSourcePrefab)
 			{
@@ -64,7 +69,7 @@ namespace Core.Audio
 		public void PlayClip(AudioPlayer ap)
 		{
 			Play(ap);
-			Services.Instance.StartCoroutine(WaitUntilDonePlaying(ap));
+			ServiceLocator.Instance.StartCoroutine(WaitUntilDonePlaying(ap));
 		}
 
 		public void PlayMusic(AudioPlayer ap)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Core.LevelLoaderService;
 using Core.Service;
 using Core.UI;
+using UniRx;
 using UnityEngine;
 
 namespace MatchGame
@@ -13,8 +14,8 @@ namespace MatchGame
 		{
 			base.LevelLoaded();
 
-			uiService = Services.GetService<IUIService>() as UIService;
-			uiService.OnWindowClosed.Add(OnWindowClosed);
+			uiService = ServiceLocator.GetService<IUIService>() as UIService;
+			uiService.OnWindowClosed.Subscribe(OnWindowClosed);
 
 			uiService.Open(UIWindows.UITitle);
 		}
@@ -25,7 +26,7 @@ namespace MatchGame
 
 			if (window is UITitleScreenWindow)
 			{
-				uiService.OnWindowClosed.Remove(OnWindowClosed);
+				// uiService.OnWindowClosed.Dispose();
 				Unload();
 			}
 		}
