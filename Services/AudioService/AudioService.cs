@@ -40,7 +40,6 @@ namespace Core.Audio
 		{
 			app = application;
 			ServiceLocator.OnGameStart.Subscribe(OnGameStart);
-
 			serviceStarted.OnNext(this);
 		}
 

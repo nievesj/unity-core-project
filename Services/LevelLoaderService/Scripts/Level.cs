@@ -33,17 +33,17 @@ namespace Core.LevelLoaderService
 		protected LevelState levelState;
 		public LevelState State { get { return levelState; } }
 
-		protected Subject<Level> onLevelLoaded = new Subject<Level>();
-		public IObservable<Level> OnLevelLoaded { get { return onLevelLoaded; } }
+		// protected Subject<Level> onLevelLoaded = new Subject<Level>();
+		// public IObservable<Level> OnLevelLoaded { get { return onLevelLoaded; } }
 
-		protected Subject<Level> onLevelStarted = new Subject<Level>();
-		public IObservable<Level> OnLevelStarted { get { return onLevelStarted; } }
+		// protected Subject<Level> onLevelStarted = new Subject<Level>();
+		// public IObservable<Level> OnLevelStarted { get { return onLevelStarted; } }
 
-		protected Subject<Level> onLevelCompleted = new Subject<Level>();
-		public IObservable<Level> OnLevelCompleted { get { return onLevelCompleted; } }
+		// protected Subject<Level> onLevelCompleted = new Subject<Level>();
+		// public IObservable<Level> OnLevelCompleted { get { return onLevelCompleted; } }
 
-		protected Subject<Level> onLevelUnloaded = new Subject<Level>();
-		public IObservable<Level> OnLevelUnloaded { get { return onLevelUnloaded; } }
+		// protected Subject<Level> onLevelUnloaded = new Subject<Level>();
+		// public IObservable<Level> OnLevelUnloaded { get { return onLevelUnloaded; } }
 
 		protected virtual void Awake()
 		{
@@ -74,7 +74,7 @@ namespace Core.LevelLoaderService
 
 			levelState = LevelState.Started;
 
-			onLevelStarted.OnNext(this);
+			// onLevelStarted.OnNext(this);
 			levelState = LevelState.InProgress;
 
 			if (audioService != null && backgroundMusic != null && backgroundMusic.Clip != null)
@@ -86,7 +86,7 @@ namespace Core.LevelLoaderService
 
 		protected virtual void LevelLoaded()
 		{
-			onLevelLoaded.OnNext(this);
+			// onLevelLoaded.OnNext(this);
 		}
 
 		/// <summary>
@@ -97,7 +97,7 @@ namespace Core.LevelLoaderService
 			Debug.Log(("Level: " + LevelName + " completed").Colored(Colors.lightblue));
 
 			levelState = LevelState.Completed;
-			onLevelCompleted.OnNext(this);
+			// onLevelCompleted.OnNext(this);
 		}
 
 		public virtual void Unload()
@@ -105,7 +105,7 @@ namespace Core.LevelLoaderService
 			if (audioService != null && backgroundMusic != null && backgroundMusic.Clip != null)
 				audioService.StopClip(backgroundMusic);
 
-			onLevelUnloaded.OnNext(this);
+			// onLevelUnloaded.OnNext(this);
 		}
 
 		protected virtual void OnWindowOpened(UIWindow window)
@@ -130,10 +130,11 @@ namespace Core.LevelLoaderService
 			if (audioService != null && backgroundMusic != null && backgroundMusic.Clip != null)
 				audioService.StopClip(backgroundMusic);
 
-			onLevelLoaded.Dispose();
-			onLevelStarted.Dispose();
-			onLevelCompleted.Dispose();
-			onLevelUnloaded.Dispose();
+			//TODO: Game stops working if I dispose of these 
+			// onLevelLoaded.Dispose();
+			// onLevelStarted.Dispose();
+			// onLevelCompleted.Dispose();
+			// onLevelUnloaded.Dispose();
 		}
 	}
 }

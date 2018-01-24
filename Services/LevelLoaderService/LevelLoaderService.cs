@@ -11,9 +11,9 @@ namespace Core.LevelLoaderService
 {
 	public interface ILevelLoaderService : IService
 	{
-		void UnloadLevel(Level level);
-		void LoadLevel(Levels level);
-		void LoadLevel(string name);
+		IObservable<Level> UnloadLevel(Level level);
+		IObservable<Level> LoadLevel(Levels level);
+		IObservable<Level> LoadLevel(string name);
 
 		Level CurrentLevel { get; }
 
@@ -85,88 +85,46 @@ namespace Core.LevelLoaderService
 			uiService = ServiceLocator.GetService<IUIService>();
 			assetService = ServiceLocator.GetService<IAssetService>() as AssetService;
 
-			//Load first level
+			//Load first level - TODO move this elsewhere. LevelLoader should not care which level to load next or first.
 			if (configuration.levels != null && configuration.levels.Count > 0)
 				LoadLevel(configuration.levels[0]);
 			else
 				Debug.LogError("LevelLoaderService: No levels configured");
 		}
 
-		protected void OnLoadingWindowOpened(UIWindow window)
+		public IObservable<Level> LoadLevel(Levels level)
 		{
-			if (window is UILoadingWindow)
-			{
-				loadingScreen = window;
-				Load(currentLevelName);
-			}
+			return LoadLevel(level.ToString());
 		}
 
-		protected void OnLoadingWindowClosed(UIWindow window)
-		{
-			disposables.Dispose();
-		}
-
-		public void LoadLevel(Levels level)
-		{
-			LoadLevel(level.ToString());
-		}
-
-		public void LoadLevel(string name)
+		public IObservable<Level> LoadLevel(string name)
 		{
 			if (currentLevel)
-			{
 				UnloadLevel(currentLevel);
-			}
 
-			currentLevelName = name;
-			if (uiService != null)
-			{
-				//not entirely sure this is ok, but works for now. Might be a problem with stacked windows.
-				//once I get more familiar with Rx I will revise this.
-				if (disposables.IsDisposed)
-					disposables = new CompositeDisposable();
-
-				uiService.OnWindowOpened
-					.Subscribe(OnLoadingWindowOpened)
-					.AddTo(disposables);
-
-				uiService.OnWindowClosed
-					.Subscribe(OnLoadingWindowClosed)
-					.AddTo(disposables);;
-
-				uiService.Open(UIWindows.UILoading);
-			}
-			else
-				Load(currentLevelName);
-		}
-
-		protected void Load(string name)
-		{
 			BundleNeeded level = new BundleNeeded(AssetCategoryRoot.Levels, name.ToLower(), name.ToLower());
-			Resources.UnloadUnusedAssets();
-
-			assetService.GetAndLoadAsset<Level>(level)
+			var ret = assetService.GetAndLoadAsset<Level>(level)
 				.Subscribe(loadedLevel =>
 				{
+					Resources.UnloadUnusedAssets();
 					Debug.Log(("LevelLoaderService: Loaded level - " + loadedLevel.name).Colored(Colors.lightblue));
 
 					currentLevel = GameObject.Instantiate<Level>(loadedLevel as Level);
-
-					// currentLevel = ob.GetComponent<Level>();
-
 					currentLevel.name = loadedLevel.name;
-
-					currentLevel.OnLevelCompleted.Subscribe(UnloadLevel);
 
 					if (loadingScreen)
 						loadingScreen.Close();
 
 					onLevelLoaded.OnNext(currentLevel);
 				});
+
+			return ret as IObservable<Level>;
 		}
 
-		public void UnloadLevel(Level level)
+		public IObservable<Level> UnloadLevel(Level level)
 		{
+			var subject = new Subject<Level>();
+
 			if (level)
 			{
 				Debug.Log(("LevelLoaderService: Unloading level  - " + currentLevel.name).Colored(Colors.lightblue));
@@ -174,10 +132,13 @@ namespace Core.LevelLoaderService
 				assetService.UnloadAsset(level.LevelName, true);
 			}
 
-			Debug.Log(("LevelLoaderService: Releasing unused resources").Colored(Colors.lightblue));
-			Resources.UnloadUnusedAssets();
+			subject.OnNext(null);
+			subject.OnCompleted();
 
+			Resources.UnloadUnusedAssets();
 			onLevelUnloaded.OnNext(null);
+
+			return subject;
 		}
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 
 namespace Core.UI
@@ -22,11 +23,16 @@ namespace Core.UI
 		public LeanTweenType tweenType;
 		public float time;
 
-		public void PlayTransition(UIWindow window, System.Action<UIWindow> OnComplete = null, bool isOutTransition = false)
+		private UIWindow _window;
+
+		public IObservable<UIWindow> PlayTransition(UIWindow window, bool isOutTransition = false)
 		{
+			IObservable<UIWindow> ret = null;
+
 			var start = Vector2.zero;
 			var end = Vector2.zero;
 			var rtrans = window.RTransform;
+			_window = window;
 
 			switch (transitionType)
 			{
@@ -40,7 +46,7 @@ namespace Core.UI
 						end = Vector2.zero;
 					}
 
-					Scale(rtrans, start, end, OnComplete);
+					ret = Scale(rtrans, start, end);
 					break;
 
 				case TransitionType.Left:
@@ -55,7 +61,7 @@ namespace Core.UI
 						end.x -= rtrans.rect.width;
 					}
 
-					Move(rtrans, start, end, OnComplete);
+					ret = Move(rtrans, start, end);
 					break;
 				case TransitionType.Right:
 					start = rtrans.anchoredPosition;
@@ -69,7 +75,7 @@ namespace Core.UI
 						end.x += rtrans.rect.width;
 					}
 
-					Move(rtrans, start, end, OnComplete);
+					ret = Move(rtrans, start, end);
 					break;
 				case TransitionType.Top:
 					start = rtrans.anchoredPosition;
@@ -83,7 +89,7 @@ namespace Core.UI
 						end.y += Screen.height;
 					}
 
-					Move(rtrans, start, end, OnComplete);
+					ret = Move(rtrans, start, end);
 					break;
 				case TransitionType.Bottom:
 					start = rtrans.anchoredPosition;
@@ -97,7 +103,7 @@ namespace Core.UI
 						end.y -= Screen.height;
 					}
 
-					Move(rtrans, start, end, OnComplete);
+					ret = Move(rtrans, start, end);
 					break;
 				case TransitionType.Fade:
 					float fstart = 0;
@@ -109,39 +115,52 @@ namespace Core.UI
 						fend = 0;
 					}
 
-					Fade(rtrans, fstart, fend, OnComplete);
+					ret = Fade(rtrans, fstart, fend);
 					break;
 			}
+			return ret;
 		}
 
-		void Scale(RectTransform window, Vector2 start, Vector2 end, System.Action<UIWindow> OnComplete)
+		IObservable<UIWindow> Scale(RectTransform window, Vector2 start, Vector2 end)
 		{
+			var subject = new Subject<UIWindow>();
+
 			LeanTween.scale(window, start, 0);
 			LeanTween.scale(window, end, time).setEase(tweenType).setOnComplete(() =>
 			{
-				if (OnComplete != null)
-					OnComplete(null);
+				subject.OnNext(_window);
+				subject.OnCompleted();
 			});
+
+			return subject;
 		}
 
-		void Move(RectTransform window, Vector2 start, Vector2 end, System.Action<UIWindow> OnComplete)
+		IObservable<UIWindow> Move(RectTransform window, Vector2 start, Vector2 end)
 		{
+			var subject = new Subject<UIWindow>();
+
 			LeanTween.move(window, start, 0);
 			LeanTween.move(window, end, time).setEase(tweenType).setOnComplete(() =>
 			{
-				if (OnComplete != null)
-					OnComplete(null);
+				subject.OnNext(_window);
+				subject.OnCompleted();
 			});
+
+			return subject;
 		}
 
-		void Fade(RectTransform window, float start, float end, System.Action<UIWindow> OnComplete)
+		IObservable<UIWindow> Fade(RectTransform window, float start, float end)
 		{
+			var subject = new Subject<UIWindow>();
+
 			LeanTween.alpha(window, start, 0);
 			LeanTween.alpha(window, end, time).setEase(tweenType).setOnComplete(() =>
 			{
-				if (OnComplete != null)
-					OnComplete(null);
+				subject.OnNext(_window);
+				subject.OnCompleted();
 			});
+
+			return subject;
 		}
 	}
 }

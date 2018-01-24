@@ -27,7 +27,7 @@ namespace Core.UI
 		public virtual void Start()
 		{
 			if (inTransition != null && !inTransition.transitionType.Equals(TransitionType.NotUsed))
-				inTransition.PlayTransition(this, OnWindowOpened);
+				inTransition.PlayTransition(this).Subscribe(OnWindowOpened);
 			else
 				OnWindowOpened(this);
 		}
@@ -37,12 +37,19 @@ namespace Core.UI
 			uiService = svc;
 		}
 
-		public virtual void Close()
+		public virtual IObservable<UIWindow> Close()
 		{
+			var subject = new Subject<UIWindow>();
+
+			subject.OnNext(this);
+			subject.OnCompleted();
+
 			if (outTransition != null && !inTransition.transitionType.Equals(TransitionType.NotUsed))
-				outTransition.PlayTransition(this, OnWindowClosed, true);
+				outTransition.PlayTransition(this, true).Subscribe(OnWindowClosed);
 			else
 				OnWindowClosed(this);
+
+			return subject;
 		}
 
 		public virtual void Show()
@@ -52,7 +59,7 @@ namespace Core.UI
 
 		public virtual void Hide()
 		{
-			outTransition.PlayTransition(this, null, true);
+			outTransition.PlayTransition(this, true);
 		}
 
 		protected virtual void OnWindowOpened(UIWindow window)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Core.LevelLoaderService;
 using Core.Service;
 using Core.UI;
+using UniRx;
 using UnityEngine;
 
 namespace Core.UI
@@ -13,10 +14,20 @@ namespace Core.UI
 		public void OnGearClick()
 		{
 			var levelLoader = ServiceLocator.GetService<ILevelLoaderService>() as LevelLoaderService.LevelLoaderService;
-			levelLoader.LoadLevel(Levels.MainLevel);
+			// Close()
+			// 	.Subscribe(hud =>
+			// 	{
+			// 		levelLoader.LoadLevel(Levels.MainLevel);
+			// 	});
 
+			// levelLoader.LoadLevel(Levels.MainLevel)
+			// 	.Subscribe(level =>
+			// 	{
+			// 		Close();
+			// 	});
+
+			levelLoader.LoadLevel(Levels.MainLevel);
 			Close();
 		}
-
 	}
 }

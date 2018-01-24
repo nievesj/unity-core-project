@@ -12,11 +12,11 @@ namespace Core.UI
 		IObservable<UIWindow> OnWindowOpened { get; }
 		IObservable<UIWindow> OnWindowClosed { get; }
 
-		void Open(UIWindows window);
+		IObservable<UIWindow> Open(UIWindows window);
 
-		void Open(string window);
+		IObservable<UIWindow> Open(string window);
 
-		void OpenHUD();
+		IObservable<UIWindow> OpenHUD();
 	}
 
 	public class UIService : IUIService
@@ -28,7 +28,6 @@ namespace Core.UI
 		protected RectTransform mainCanvas;
 
 		protected Dictionary<string, UIWindow> activeWindows;
-		protected CompositeDisposable disposables = new CompositeDisposable();
 
 		//For the future to pre-load all windows as prefabs. This is needed so theres no waiting time when opening windows and the bundles are remote.
 		protected Dictionary<string, UIWindow> preLoadedWindows;
@@ -87,22 +86,38 @@ namespace Core.UI
 			Object.Destroy(mainCanvas.gameObject);
 		}
 
-		public void Open(UIWindows window)
+		public IObservable<UIWindow> Open(UIWindows window)
 		{
-			Open(window.ToString());
+			return Open(window.ToString());
 		}
 
-		public void Open(string window)
+		public IObservable<UIWindow> Open(string window)
 		{
-			if (mainCanvas)
-				LoadAndActivateWindow(window);
-			else
-				Debug.LogError("UIService: StartService - Main Canvas is missing.");
+			BundleNeeded bundleNeeded = new BundleNeeded(AssetCategoryRoot.Windows, window.ToLower(), window.ToLower());
+			var ret = assetService.GetAndLoadAsset<UIWindow>(bundleNeeded)
+				.Subscribe(loadedWindow =>
+				{
+					if (mainCanvas)
+					{
+						var obj = Object.Instantiate<UIWindow>(loadedWindow as UIWindow, mainCanvas);
+
+						obj.Closed.Subscribe(WindowClosed);
+						obj.Opened.Subscribe(WindowOpened);
+						obj.Initialize(this);
+						Debug.Log(("UIService: Loaded window - " + loadedWindow.name).Colored(Colors.lightblue));
+					}
+					else
+					{
+						Debug.LogError("UIService: StartService - Main Canvas is missing.");
+					}
+				});
+
+			return ret as IObservable<UIWindow>;
 		}
 
-		public void OpenHUD()
+		public IObservable<UIWindow> OpenHUD()
 		{
-			Open(configuration.HUD);
+			return Open(configuration.HUD);
 		}
 
 		protected void WindowClosed(UIWindow window)
@@ -111,10 +126,8 @@ namespace Core.UI
 
 			// window.Closed.Remove(WindowClosed);
 			activeWindows.Remove(window.name);
-
 			onWindowClosed.OnNext(window);
 			assetService.UnloadAsset(window.name, true);
-
 			Object.Destroy(window.gameObject);
 		}
 
@@ -126,18 +139,6 @@ namespace Core.UI
 				activeWindows.Add(window.name, window);
 
 			onWindowOnpened.OnNext(window);
-		}
-
-		protected void LoadAndActivateWindow(string name)
-		{
-			BundleNeeded bundleNeeded = new BundleNeeded(AssetCategoryRoot.Windows, name.ToLower(), name.ToLower());
-			assetService.GetAndLoadAsset<UIWindow>(bundleNeeded)
-				.Subscribe(loadedWindow =>
-				{
-					Debug.Log(("UIService: Loaded window - " + loadedWindow.name).Colored(Colors.lightblue));
-
-					OnLoadedWindow(loadedWindow as UIWindow);
-				});
 		}
 
 		protected void OnLoadedWindow(UIWindow window)

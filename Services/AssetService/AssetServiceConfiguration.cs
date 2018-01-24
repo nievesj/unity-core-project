@@ -7,6 +7,8 @@ namespace Core.Assets
 {
 	public class AssetServiceConfiguration : ServiceConfiguration
 	{
+		override protected IService ServiceClass { get { return new AssetService(); } }
+
 		[SerializeField]
 		protected string assetBundlesURL;
 		public string AssetBundlesURL { get { return assetBundlesURL; } set { assetBundlesURL = value; } }
@@ -18,10 +20,5 @@ namespace Core.Assets
 		[SerializeField]
 		protected bool useCache = true;
 		public bool UseCache { get { return useCache; } set { useCache = value; } }
-
-		protected override IService GetServiceClass()
-		{
-			return new AssetService();
-		}
 	}
 }

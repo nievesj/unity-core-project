@@ -7,11 +7,8 @@ namespace Core.ControlSystem
 {
 	public class ControlServiceConfiguration : ServiceConfiguration
 	{
-		public GameObject MouseTouchControls;
+		override protected IService ServiceClass { get { return new ControlService(); } }
 
-		protected override IService GetServiceClass()
-		{
-			return new ControlService();
-		}
+		public GameObject MouseTouchControls;
 	}
 }

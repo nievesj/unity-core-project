@@ -7,11 +7,8 @@ namespace Core.LevelLoaderService
 {
 	public class LevelLoaderServiceConfiguration : ServiceConfiguration
 	{
-		public List<string> levels;
+		override protected IService ServiceClass { get { return new LevelLoaderService(); } }
 
-		protected override IService GetServiceClass()
-		{
-			return new LevelLoaderService();
-		}
+		public List<string> levels;
 	}
 }

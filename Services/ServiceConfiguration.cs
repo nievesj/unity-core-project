@@ -6,11 +6,11 @@ namespace Core.Service
 {
 	public abstract class ServiceConfiguration : ScriptableObject
 	{
-		protected abstract IService GetServiceClass();
+		abstract protected IService ServiceClass { get; }
 
 		public IService CreateService()
 		{
-			IService service = GetServiceClass();
+			IService service = ServiceClass;
 			if (service == null) return null;
 			service.Configure(this);
 			ServiceLocator.AddService(name, service);

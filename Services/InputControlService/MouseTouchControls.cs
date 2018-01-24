@@ -47,6 +47,18 @@ namespace Core.ControlSystem
 		protected ControlState controlState = ControlState.Enabled;
 		protected Vector2 InputDeltaMovementChange = Vector2.zero;
 
+		public void Init()
+		{
+			//workaround until I figure out a better way of doing this
+			onMouseDown.Dispose();
+			onMouseUp.Dispose();
+			onMouseDrag.Dispose();
+
+			onMouseDown = new Subject<Vector2>();
+			onMouseUp = new Subject<Vector2>();
+			onMouseDrag = new Subject<Vector2>();
+		}
+
 		protected void Update()
 		{
 
@@ -172,7 +184,6 @@ namespace Core.ControlSystem
 			position.y = Input.GetAxis(Constants.MouseAxisX);
 #endif
 			return position;
-
 		}
 	}
 }
