@@ -3,11 +3,6 @@ using UnityEngine;
 
 namespace Core.Assets
 {
-	public class Constants
-	{
-
-	}
-
 	public struct AssetOptions
 	{
 		private AssetCacheState assetCacheState;
@@ -119,7 +114,7 @@ namespace Core.Assets
 		StandaloneLinux64,
 		StandaloneLinuxUniversal,
 		WP8Player,
-		StandaloneOSXIntel64,
+		StandaloneOSX,
 		BlackBerry,
 		Tizen,
 		PSP2,
@@ -131,17 +126,6 @@ namespace Core.Assets
 		WiiU,
 		tvOS,
 		Switch
-	}
-
-	/// <summary>
-	/// Loading process
-	/// </summary>
-	public enum AssetLoadProcess
-	{
-		LoadSingleSync,
-		LoadSingleAsync,
-		LoadAllSync,
-		LoadAllAsync,
 	}
 
 	/// <summary>

@@ -41,8 +41,8 @@ namespace Core.Service
 				{
 					if (allServicesCreated)
 					{
-						Debug.Log(("ServiceFramework: " + services.Count + " Services created and active").Colored(Colors.lime));
-						Debug.Log(("ServiceFramework: Game Started").Colored(Colors.lime));
+						Debug.Log(("ServiceLocator: " + services.Count + " Services created and active").Colored(Colors.lime));
+						Debug.Log(("ServiceLocator: Game Started").Colored(Colors.lime));
 
 						onGameStart.OnNext(_instance);
 						onGameStart.OnCompleted();

@@ -43,8 +43,8 @@ namespace Core.Assets
 								return AssetDeviceType.Android;
 							case BuildTarget.StandaloneWindows64:
 								return AssetDeviceType.StandaloneWindows64;
-							case BuildTarget.StandaloneOSXIntel64:
-								return AssetDeviceType.StandaloneOSXIntel;
+							case BuildTarget.StandaloneOSX:
+								return AssetDeviceType.StandaloneOSX;
 							default:
 								throw new System.Exception("Build target unsupported as client platform: " + EditorUserBuildSettings.activeBuildTarget);
 						}
