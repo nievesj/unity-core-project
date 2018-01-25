@@ -17,8 +17,8 @@ namespace Core.LevelLoaderService
 
 		Level CurrentLevel { get; }
 
-		IObservable<Level> OnLevelLoaded { get; }
-		IObservable<Level> OnLevelUnloaded { get; }
+		// IObservable<Level> OnLevelLoaded { get; }
+		// IObservable<Level> OnLevelUnloaded { get; }
 	}
 
 	public class LevelLoaderService : ILevelLoaderService
@@ -34,7 +34,6 @@ namespace Core.LevelLoaderService
 
 		protected string currentLevelName;
 		protected UIWindow loadingScreen;
-		protected CompositeDisposable disposables = new CompositeDisposable();
 
 		protected Subject<IService> serviceConfigured = new Subject<IService>();
 		public IObservable<IService> ServiceConfigured { get { return serviceConfigured; } }
@@ -45,23 +44,19 @@ namespace Core.LevelLoaderService
 		protected Subject<IService> serviceStopped = new Subject<IService>();
 		public IObservable<IService> ServiceStopped { get { return serviceStopped; } }
 
-		protected Subject<Level> onLevelLoaded = new Subject<Level>();
-		public IObservable<Level> OnLevelLoaded { get { return onLevelLoaded; } }
-
-		protected Subject<Level> onLevelUnloaded = new Subject<Level>();
-		public IObservable<Level> OnLevelUnloaded { get { return onLevelUnloaded; } }
-
 		public void Configure(ServiceConfiguration config)
 		{
 			configuration = config as LevelLoaderServiceConfiguration;
 
 			serviceConfigured.OnNext(this);
+			serviceConfigured.OnCompleted();
 		}
 
 		public void StartService(ServiceLocator application)
 		{
 			app = application;
 			serviceStarted.OnNext(this);
+			serviceStarted.OnCompleted();
 
 			ServiceLocator.OnGameStart.Subscribe(OnGameStart);
 		}
@@ -69,15 +64,7 @@ namespace Core.LevelLoaderService
 		public void StopService(ServiceLocator application)
 		{
 			serviceStopped.OnNext(this);
-
-			serviceConfigured.Dispose();
-			serviceStarted.Dispose();
-			serviceStopped.Dispose();
-
-			onLevelLoaded.Dispose();
-			onLevelUnloaded.Dispose();
-
-			disposables.Dispose();
+			serviceStopped.OnCompleted();
 		}
 
 		protected void OnGameStart(ServiceLocator application)
@@ -114,8 +101,6 @@ namespace Core.LevelLoaderService
 
 					if (loadingScreen)
 						loadingScreen.Close();
-
-					onLevelLoaded.OnNext(currentLevel);
 				});
 
 			return ret as IObservable<Level>;
@@ -136,7 +121,6 @@ namespace Core.LevelLoaderService
 			subject.OnCompleted();
 
 			Resources.UnloadUnusedAssets();
-			onLevelUnloaded.OnNext(null);
 
 			return subject;
 		}

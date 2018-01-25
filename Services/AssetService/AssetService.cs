@@ -46,6 +46,7 @@ namespace Core.Assets
 		{
 			configuration = config as AssetServiceConfiguration;
 			serviceConfigured.OnNext(this);
+			serviceConfigured.OnCompleted();
 		}
 
 		public void StartService(ServiceLocator application)
@@ -55,15 +56,13 @@ namespace Core.Assets
 
 			ServiceLocator.OnGameStart.Subscribe(OnGameStart);
 			serviceStarted.OnNext(this);
+			serviceStarted.OnCompleted();
 		}
 
 		public void StopService(ServiceLocator application)
 		{
 			serviceStopped.OnNext(this);
-
-			serviceConfigured.Dispose();
-			serviceStarted.Dispose();
-			serviceStopped.Dispose();
+			serviceStopped.OnCompleted();
 		}
 
 		public IObservable<UnityEngine.Object> GetAndLoadAsset<T>(BundleNeeded bundleNeeded) where T : UnityEngine.Object
@@ -89,13 +88,12 @@ namespace Core.Assets
 			if (!configuration.UseCache)
 				Caching.ClearCache();
 
+			//TODO: check dependencies and load anything that has not been loaded thus far ...
 			// GetAndLoadAsset<AssetBundleManifest>(game)
 			// 	.Subscribe(loadedObject =>
 			// 	{
 			// 		Debug.Log(("AssetService: Loaded Manifest - " + loadedObject.name).Colored(Colors.lightblue));
 			// 		// ManifestInfo info = new ManifestInfo(www.downloadHandler.text);
-
-			// 		//TODO: check dependencies and load anything that has not been loaded thus far ...
 			// 	});
 		}
 	}

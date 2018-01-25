@@ -10,20 +10,16 @@ namespace MatchGame
 {
 	public class TitleScreen : Level
 	{
-		protected override void LevelLoaded()
+		protected override void Awake()
 		{
-			base.LevelLoaded();
+			base.Awake();
 
-			uiService = ServiceLocator.GetService<IUIService>() as UIService;
 			uiService.OnWindowClosed.Subscribe(OnWindowClosed);
-
-			uiService.Open(UIWindows.UITitle);
+			uiService.OpenWindow(UIWindows.UITitle);
 		}
 
-		protected override void OnWindowClosed(UIWindow window)
+		protected void OnWindowClosed(UIWindow window)
 		{
-			base.OnWindowClosed(window);
-
 			if (window is UITitleScreenWindow)
 			{
 				// uiService.OnWindowClosed.Dispose();

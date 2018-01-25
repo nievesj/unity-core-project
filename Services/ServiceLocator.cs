@@ -45,6 +45,7 @@ namespace Core.Service
 						Debug.Log(("ServiceFramework: Game Started").Colored(Colors.lime));
 
 						onGameStart.OnNext(_instance);
+						onGameStart.OnCompleted();
 					}
 				});
 		}

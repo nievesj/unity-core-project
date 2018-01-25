@@ -12,11 +12,9 @@ namespace Core.UI
 		IObservable<UIWindow> OnWindowOpened { get; }
 		IObservable<UIWindow> OnWindowClosed { get; }
 
-		IObservable<UIWindow> Open(UIWindows window);
+		IObservable<UIWindow> OpenWindow(UIWindows window);
 
-		IObservable<UIWindow> Open(string window);
-
-		IObservable<UIWindow> OpenHUD();
+		IObservable<UIWindow> CloseWindow(UIWindow window);
 	}
 
 	public class UIService : IUIService
@@ -52,12 +50,12 @@ namespace Core.UI
 			configuration = config as UIServiceConfiguration;
 
 			serviceConfigured.OnNext(this);
+			serviceConfigured.OnCompleted();
 		}
 
 		public void StartService(ServiceLocator application)
 		{
 			app = application;
-			serviceStarted.OnNext(this);
 
 			assetService = ServiceLocator.GetService<IAssetService>() as AssetService;
 			activeWindows = new Dictionary<string, UIWindow>();
@@ -70,31 +68,30 @@ namespace Core.UI
 				GameObject.DontDestroyOnLoad(mainCanvas);
 			}
 			else
-				Debug.LogError("UIService: StartService - Main Canvas has not been configured.");
+				serviceStarted.OnError(new System.Exception("UIService: StartService - Main Canvas has not been configured."));
+
+			serviceStarted.OnNext(this);
+			serviceStarted.OnCompleted();
 		}
 
 		public void StopService(ServiceLocator application)
 		{
 			serviceStopped.OnNext(this);
-
-			serviceConfigured.Dispose();
-			serviceStarted.Dispose();
-			serviceStopped.Dispose();
-			onWindowOnpened.Dispose();
-			onWindowClosed.Dispose();
+			serviceStopped.OnCompleted();
 
 			Object.Destroy(mainCanvas.gameObject);
 		}
 
-		public IObservable<UIWindow> Open(UIWindows window)
+		public IObservable<UIWindow> OpenWindow(UIWindows window)
 		{
-			return Open(window.ToString());
+			return OpenWindow(window.ToString());
 		}
 
-		public IObservable<UIWindow> Open(string window)
+		public IObservable<UIWindow> OpenWindow(string window)
 		{
 			BundleNeeded bundleNeeded = new BundleNeeded(AssetCategoryRoot.Windows, window.ToLower(), window.ToLower());
-			var ret = assetService.GetAndLoadAsset<UIWindow>(bundleNeeded)
+
+			return assetService.GetAndLoadAsset<UIWindow>(bundleNeeded)
 				.Subscribe(loadedWindow =>
 				{
 					if (mainCanvas)
@@ -110,21 +107,19 @@ namespace Core.UI
 					{
 						Debug.LogError("UIService: StartService - Main Canvas is missing.");
 					}
-				});
-
-			return ret as IObservable<UIWindow>;
+				}) as IObservable<UIWindow>;
 		}
 
-		public IObservable<UIWindow> OpenHUD()
+		public IObservable<UIWindow> CloseWindow(UIWindow window)
 		{
-			return Open(configuration.HUD);
+			return window.Close()
+				.Subscribe(WindowClosed) as IObservable<UIWindow>;
 		}
 
 		protected void WindowClosed(UIWindow window)
 		{
 			Debug.Log(("UIService: Closed window - " + window.name).Colored(Colors.lightblue));
 
-			// window.Closed.Remove(WindowClosed);
 			activeWindows.Remove(window.name);
 			onWindowClosed.OnNext(window);
 			assetService.UnloadAsset(window.name, true);
@@ -133,8 +128,6 @@ namespace Core.UI
 
 		protected void WindowOpened(UIWindow window)
 		{
-			// window.Opened.Remove(WindowOpened);
-
 			if (!activeWindows.ContainsKey(window.name))
 				activeWindows.Add(window.name, window);
 

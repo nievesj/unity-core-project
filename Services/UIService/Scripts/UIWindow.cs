@@ -41,13 +41,13 @@ namespace Core.UI
 		{
 			var subject = new Subject<UIWindow>();
 
-			subject.OnNext(this);
-			subject.OnCompleted();
-
 			if (outTransition != null && !inTransition.transitionType.Equals(TransitionType.NotUsed))
 				outTransition.PlayTransition(this, true).Subscribe(OnWindowClosed);
 			else
 				OnWindowClosed(this);
+
+			subject.OnNext(this);
+			subject.OnCompleted();
 
 			return subject;
 		}
