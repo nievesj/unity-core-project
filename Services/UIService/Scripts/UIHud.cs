@@ -13,7 +13,7 @@ namespace Core.UI
 
 		public void OnGearClick()
 		{
-			var levelLoader = ServiceLocator.GetService<ILevelLoaderService>() as LevelLoaderService.LevelLoaderService;
+			var levelLoader = ServiceLocator.GetService<ILevelLoaderService>()as LevelLoaderService.LevelLoaderService;
 			// Close()
 			// 	.Subscribe(hud =>
 			// 	{
@@ -26,7 +26,7 @@ namespace Core.UI
 			// 		Close();
 			// 	});
 
-			levelLoader.LoadLevel(Levels.MainLevel);
+			levelLoader.LoadLevel(Levels.MainLevel.ToString());
 			Close();
 		}
 	}

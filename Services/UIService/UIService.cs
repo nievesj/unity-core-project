@@ -12,9 +12,10 @@ namespace Core.UI
 		IObservable<UIWindow> OnWindowOpened { get; }
 		IObservable<UIWindow> OnWindowClosed { get; }
 
-		IObservable<UIWindow> OpenWindow(UIWindows window);
-
+		IObservable<UIWindow> OpenWindow(string window);
 		IObservable<UIWindow> CloseWindow(UIWindow window);
+		bool IsWindowOpen(string window);
+		UIWindow GetOpenWindow(string window);
 	}
 
 	public class UIService : IUIService
@@ -27,8 +28,8 @@ namespace Core.UI
 
 		protected Dictionary<string, UIWindow> activeWindows;
 
-		//For the future to pre-load all windows as prefabs. This is needed so theres no waiting time when opening windows and the bundles are remote.
-		protected Dictionary<string, UIWindow> preLoadedWindows;
+		//TODO: Add an option to preload windows as prefabs. This is needed so theres no waiting time when opening windows and the bundles are remote.
+		// protected Dictionary<string, UIWindow> preLoadedWindows;
 
 		protected Subject<IService> serviceConfigured = new Subject<IService>();
 		public IObservable<IService> ServiceConfigured { get { return serviceConfigured; } }
@@ -57,7 +58,7 @@ namespace Core.UI
 		{
 			app = application;
 
-			assetService = ServiceLocator.GetService<IAssetService>() as AssetService;
+			assetService = ServiceLocator.GetService<IAssetService>()as AssetService;
 			activeWindows = new Dictionary<string, UIWindow>();
 
 			//instantiate main canvas
@@ -90,30 +91,46 @@ namespace Core.UI
 		public IObservable<UIWindow> OpenWindow(string window)
 		{
 			BundleNeeded bundleNeeded = new BundleNeeded(AssetCategoryRoot.Windows, window.ToLower(), window.ToLower());
+			var observable = new Subject<UIWindow>();
 
-			return assetService.GetAndLoadAsset<UIWindow>(bundleNeeded)
-				.Subscribe(loadedWindow =>
-				{
-					if (mainCanvas)
-					{
-						var obj = Object.Instantiate<UIWindow>(loadedWindow as UIWindow, mainCanvas);
+			System.Action<UnityEngine.Object> OnWindowLoaded = loadedWindow =>
+			{
+				if (!mainCanvas)
+					observable.OnError(new System.Exception("UIService: StartService - Main Canvas is missing."));
 
-						obj.Closed.Subscribe(WindowClosed);
-						obj.Opened.Subscribe(WindowOpened);
-						obj.Initialize(this);
-						Debug.Log(("UIService: Loaded window - " + loadedWindow.name).Colored(Colors.lightblue));
-					}
-					else
-					{
-						Debug.LogError("UIService: StartService - Main Canvas is missing.");
-					}
-				}) as IObservable<UIWindow>;
+				var obj = Object.Instantiate<UIWindow>(loadedWindow as UIWindow, mainCanvas);
+
+				obj.name = loadedWindow.name;
+				obj.Closed.Subscribe(WindowClosed);
+				obj.Opened.Subscribe(WindowOpened);
+				obj.Initialize(this);
+
+				observable.OnNext(obj);
+				observable.OnCompleted();
+
+				Debug.Log(("UIService: Loaded window - " + loadedWindow.name).Colored(Colors.lightblue));
+			};
+
+			assetService.GetAndLoadAsset<UIWindow>(bundleNeeded)
+				.Subscribe(OnWindowLoaded);
+
+			return observable;
+		}
+
+		public bool IsWindowOpen(string window)
+		{
+			return activeWindows.ContainsKey(window)? true : false;
+		}
+
+		public UIWindow GetOpenWindow(string window)
+		{
+			return activeWindows.ContainsKey(window)? activeWindows[window] : null;
 		}
 
 		public IObservable<UIWindow> CloseWindow(UIWindow window)
 		{
 			return window.Close()
-				.Subscribe(WindowClosed) as IObservable<UIWindow>;
+				.Subscribe(WindowClosed)as IObservable<UIWindow>;
 		}
 
 		protected void WindowClosed(UIWindow window)

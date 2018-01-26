@@ -13,7 +13,6 @@ namespace Core.Spawning
 
 		protected ISpawnable spawnedObject;
 
-
 		public ISpawnable Spawn()
 		{
 			GameObject go = Instantiate(prefab, transform.position, Quaternion.identity);

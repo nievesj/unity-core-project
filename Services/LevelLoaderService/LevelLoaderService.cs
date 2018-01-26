@@ -12,13 +12,9 @@ namespace Core.LevelLoaderService
 	public interface ILevelLoaderService : IService
 	{
 		IObservable<Level> UnloadLevel(Level level);
-		IObservable<Level> LoadLevel(Levels level);
 		IObservable<Level> LoadLevel(string name);
 
 		Level CurrentLevel { get; }
-
-		// IObservable<Level> OnLevelLoaded { get; }
-		// IObservable<Level> OnLevelUnloaded { get; }
 	}
 
 	public class LevelLoaderService : ILevelLoaderService
@@ -70,18 +66,13 @@ namespace Core.LevelLoaderService
 		protected void OnGameStart(ServiceLocator application)
 		{
 			uiService = ServiceLocator.GetService<IUIService>();
-			assetService = ServiceLocator.GetService<IAssetService>() as AssetService;
+			assetService = ServiceLocator.GetService<IAssetService>()as AssetService;
 
 			//Load first level - TODO move this elsewhere. LevelLoader should not care which level to load next or first.
-			if (configuration.levels != null && configuration.levels.Count > 0)
-				LoadLevel(configuration.levels[0]);
-			else
-				Debug.LogError("LevelLoaderService: No levels configured");
-		}
-
-		public IObservable<Level> LoadLevel(Levels level)
-		{
-			return LoadLevel(level.ToString());
+			// if (configuration.levels != null && configuration.levels.Count > 0)
+			// 	LoadLevel(configuration.levels[0]);
+			// else
+			// 	Debug.LogError("LevelLoaderService: No levels configured");
 		}
 
 		public IObservable<Level> LoadLevel(string name)
@@ -90,20 +81,27 @@ namespace Core.LevelLoaderService
 				UnloadLevel(currentLevel);
 
 			BundleNeeded level = new BundleNeeded(AssetCategoryRoot.Levels, name.ToLower(), name.ToLower());
-			var ret = assetService.GetAndLoadAsset<Level>(level)
-				.Subscribe(loadedLevel =>
-				{
-					Resources.UnloadUnusedAssets();
-					Debug.Log(("LevelLoaderService: Loaded level - " + loadedLevel.name).Colored(Colors.lightblue));
+			var observable = new Subject<Level>();
 
-					currentLevel = GameObject.Instantiate<Level>(loadedLevel as Level);
-					currentLevel.name = loadedLevel.name;
+			Action<UnityEngine.Object> OnLevelLoaded = loadedLevel =>
+			{
+				Resources.UnloadUnusedAssets();
+				Debug.Log(("LevelLoaderService: Loaded level - " + loadedLevel.name).Colored(Colors.lightblue));
 
-					if (loadingScreen)
-						loadingScreen.Close();
-				});
+				currentLevel = GameObject.Instantiate<Level>(loadedLevel as Level);
+				currentLevel.name = loadedLevel.name;
 
-			return ret as IObservable<Level>;
+				if (loadingScreen)
+					loadingScreen.Close();
+
+				observable.OnNext(currentLevel);
+				observable.OnCompleted();
+			};
+
+			assetService.GetAndLoadAsset<Level>(level)
+				.Subscribe(OnLevelLoaded);
+
+			return observable;
 		}
 
 		public IObservable<Level> UnloadLevel(Level level)

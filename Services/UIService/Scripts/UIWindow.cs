@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
@@ -40,26 +41,25 @@ namespace Core.UI
 		public virtual IObservable<UIWindow> Close()
 		{
 			var subject = new Subject<UIWindow>();
+			Action<UIWindow> OnCLosed = window =>
+			{
+				subject.OnNext(this);
+				subject.OnCompleted();
+
+				OnWindowClosed(this);
+			};
 
 			if (outTransition != null && !inTransition.transitionType.Equals(TransitionType.NotUsed))
-				outTransition.PlayTransition(this, true).Subscribe(OnWindowClosed);
+				outTransition.PlayTransition(this, true).Subscribe(OnCLosed);
 			else
-				OnWindowClosed(this);
-
-			subject.OnNext(this);
-			subject.OnCompleted();
+				OnCLosed(this);
 
 			return subject;
 		}
 
-		public virtual void Show()
+		public virtual void UIClose()
 		{
-			inTransition.PlayTransition(this);
-		}
-
-		public virtual void Hide()
-		{
-			outTransition.PlayTransition(this, true);
+			Close();
 		}
 
 		protected virtual void OnWindowOpened(UIWindow window)
@@ -85,5 +85,7 @@ namespace Core.UI
 			onHide.OnNext(this);
 			onHide.OnCompleted();
 		}
+
+		protected virtual void OnDestroy() {}
 	}
 }

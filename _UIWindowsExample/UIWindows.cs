@@ -4,11 +4,13 @@ using UnityEngine;
 
 namespace Core.UI
 {
+	//TODO: this is not the best approach to reference levels. Remove from here.
 	public enum UIWindows
 	{
 		NotUsed,
 		UILoading,
 		UIHUD,
-		UITitle
+		UITitle,
+		UITitleScreenWindow,
 	}
 }

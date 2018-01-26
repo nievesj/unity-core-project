@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace MatchGame
 {
+	[System.Obsolete("Tagged to be removed. Do not use anymore.", true)]
 	public class TitleScreen : Level
 	{
 		protected override void Awake()
@@ -15,7 +16,7 @@ namespace MatchGame
 			base.Awake();
 
 			uiService.OnWindowClosed.Subscribe(OnWindowClosed);
-			uiService.OpenWindow(UIWindows.UITitle);
+			uiService.OpenWindow(UIWindows.UITitle.ToString());
 		}
 
 		protected void OnWindowClosed(UIWindow window)
