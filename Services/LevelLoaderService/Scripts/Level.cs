@@ -25,7 +25,6 @@ namespace Core.LevelLoaderService
 		protected ILevelLoaderService levelService;
 		protected IAudioService audioService;
 		protected IUIService uiService;
-		protected CompositeDisposable disposables = new CompositeDisposable();
 
 		protected LevelState levelState;
 		public LevelState State { get { return levelState; } }

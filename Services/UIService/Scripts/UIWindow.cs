@@ -25,7 +25,7 @@ namespace Core.UI
 		protected Subject<UIWindow> onHide = new Subject<UIWindow>();
 		public IObservable<UIWindow> OnHide { get { return onHide; } }
 
-		public virtual void Start()
+		protected virtual void Start()
 		{
 			if (inTransition != null && !inTransition.transitionType.Equals(TransitionType.NotUsed))
 				inTransition.PlayTransition(this).Subscribe(OnWindowOpened);
