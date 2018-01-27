@@ -57,7 +57,7 @@ namespace Core.Polling
 			if (!pool.Count.Equals(sizeLimit))
 				pool.Push(obj);
 			else
-				GameObject.Destroy(obj);
+				GameObject.Destroy(obj.gameObject);
 		}
 
 		public void Destroy()
@@ -88,6 +88,7 @@ namespace Core.Polling
 
 		public void ResizePool(int val)
 		{
+			sizeLimit = val;
 			if (pool.Count < val)
 			{
 				for (int i = pool.Count; i <= val - 1; i++)
