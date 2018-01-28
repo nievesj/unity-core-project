@@ -40,14 +40,14 @@ namespace Core.Assets
 				assetBundle.Unload(unloadAll);
 		}
 
-		public IObservable<UnityEngine.Object> LoadAssetAsync<T>(string name) where T : UnityEngine.Object
+		public IObservable<T> LoadAssetAsync<T>(string name)where T : UnityEngine.Object
 		{
 			Debug.Log(("LoadedBundle: Asynchronously loading asset: " + name).Colored(Colors.yellow));
 
-			return Observable.FromCoroutine<UnityEngine.Object>((observer, cancellationToken) => RunAssetBundleRequestOperation<T>(assetBundle.LoadAssetAsync(name), observer, cancellationToken));
+			return Observable.FromCoroutine<T>((observer, cancellationToken)=> RunAssetBundleRequestOperation<T>(assetBundle.LoadAssetAsync(name), observer, cancellationToken));
 		}
 
-		public IEnumerator RunAssetBundleRequestOperation<T>(UnityEngine.AssetBundleRequest asyncOperation, IObserver<UnityEngine.Object> observer, CancellationToken cancellationToken) where T : UnityEngine.Object
+		public IEnumerator RunAssetBundleRequestOperation<T>(UnityEngine.AssetBundleRequest asyncOperation, IObserver<T> observer, CancellationToken cancellationToken)where T : UnityEngine.Object
 		{
 			while (!asyncOperation.isDone && !cancellationToken.IsCancellationRequested)
 				yield return null;

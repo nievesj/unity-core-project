@@ -34,7 +34,7 @@ namespace Core.Assets
 			loadedAssets = new Dictionary<string, UnityEngine.Object>();
 		}
 
-		public IObservable<UnityEngine.Object> GetSingleAsset<T>(BundleNeeded bundleNeeded) where T : UnityEngine.Object
+		public IObservable<T> GetSingleAsset<T>(BundleNeeded bundleNeeded)where T : UnityEngine.Object
 		{
 			return GetBundle<T>(bundleNeeded);
 		}
@@ -50,17 +50,17 @@ namespace Core.Assets
 			}
 		}
 
-		protected IObservable<UnityEngine.Object> GetBundle<T>(BundleNeeded bundleNeeded) where T : UnityEngine.Object
+		protected IObservable<T> GetBundle<T>(BundleNeeded bundleNeeded)where T : UnityEngine.Object
 		{
 #if UNITY_EDITOR
 			if (EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES)
 			{
-				return Observable.FromCoroutine<UnityEngine.Object>((observer, cancellationToken) => SimulateAssetBundle<T>(bundleNeeded, observer, cancellationToken));
+				return Observable.FromCoroutine<T>((observer, cancellationToken)=> SimulateAssetBundle<T>(bundleNeeded, observer, cancellationToken));
 			}
 #endif
 			if (!assetService.UseStreamingAssets)
 			{
-				return Observable.FromCoroutine<UnityEngine.Object>((observer, cancellationToken) => GetBundleFromWebOrCacheOperation<T>(bundleNeeded, observer, cancellationToken));
+				return Observable.FromCoroutine<T>((observer, cancellationToken)=> GetBundleFromWebOrCacheOperation<T>(bundleNeeded, observer, cancellationToken));
 			}
 			else
 			{
@@ -69,7 +69,7 @@ namespace Core.Assets
 		}
 
 #if UNITY_EDITOR
-		protected IEnumerator SimulateAssetBundle<T>(BundleNeeded bundleNeeded, IObserver<UnityEngine.Object> observer, CancellationToken cancellationToken) where T : UnityEngine.Object
+		protected IEnumerator SimulateAssetBundle<T>(BundleNeeded bundleNeeded, IObserver<T> observer, CancellationToken cancellationToken)where T : UnityEngine.Object
 		{
 			Debug.Log(("AssetBundleLoader: Simulated | Requesting: " + bundleNeeded.AssetName + " | " + bundleNeeded.BundleName).Colored(Colors.aqua));
 
@@ -94,7 +94,7 @@ namespace Core.Assets
 		}
 #endif
 
-		protected IEnumerator GetBundleFromWebOrCacheOperation<T>(BundleNeeded bundleNeeded, IObserver<UnityEngine.Object> observer, CancellationToken cancellationToken) where T : UnityEngine.Object
+		protected IEnumerator GetBundleFromWebOrCacheOperation<T>(BundleNeeded bundleNeeded, IObserver<T> observer, CancellationToken cancellationToken)where T : UnityEngine.Object
 		{
 			UnityWebRequest www = null;
 			ManifestInfo manifestInfo = null;
@@ -150,15 +150,15 @@ namespace Core.Assets
 			www.Dispose();
 		}
 
-		protected IObservable<UnityEngine.Object> GetBundleFromStreamingAssets<T>(BundleNeeded bundleNeeded) where T : UnityEngine.Object
+		protected IObservable<T> GetBundleFromStreamingAssets<T>(BundleNeeded bundleNeeded)where T : UnityEngine.Object
 		{
 			Debug.Log(("AssetBundleLoader: Using StreamingAssets - " + " Requesting:" + bundleNeeded.AssetName + " | " + bundleNeeded.BundleName).Colored(Colors.aqua));
 			string path = Path.Combine(Application.streamingAssetsPath, GetAssetPathFromLocalStreamingAssets(bundleNeeded));
 
-			return Observable.FromCoroutine<UnityEngine.Object>((observer, cancellationToken) => RunAssetBundleCreateRequestOperation<T>(AssetBundle.LoadFromFileAsync(path), bundleNeeded, observer, cancellationToken));
+			return Observable.FromCoroutine<T>((observer, cancellationToken)=> RunAssetBundleCreateRequestOperation<T>(AssetBundle.LoadFromFileAsync(path), bundleNeeded, observer, cancellationToken));
 		}
 
-		protected IEnumerator RunAssetBundleCreateRequestOperation<T>(UnityEngine.AssetBundleCreateRequest assetBundleCreateRequest, BundleNeeded bundleNeeded, IObserver<UnityEngine.Object> observer, CancellationToken cancellationToken) where T : UnityEngine.Object
+		protected IEnumerator RunAssetBundleCreateRequestOperation<T>(UnityEngine.AssetBundleCreateRequest assetBundleCreateRequest, BundleNeeded bundleNeeded, IObserver<T> observer, CancellationToken cancellationToken)where T : UnityEngine.Object
 		{
 			while (!assetBundleCreateRequest.isDone && !cancellationToken.IsCancellationRequested)
 				yield return null;
@@ -179,7 +179,7 @@ namespace Core.Assets
 			if (bundleNeeded.AssetCategory.Equals(AssetCategoryRoot.None))
 				return assetService.AssetBundlesURL + bundleNeeded.BundleName + "?r=" + (Random.value * 9999999); //this random value prevents caching on the web server
 			else
-				return assetService.AssetBundlesURL + bundleNeeded.AssetCategory.ToString().ToLower() + "/" + bundleNeeded.BundleName;
+				return assetService.AssetBundlesURL + bundleNeeded.AssetCategory.ToString().ToLower()+ "/" + bundleNeeded.BundleName;
 		}
 
 		protected string GetManifestPath(BundleNeeded bundleNeeded)
@@ -189,7 +189,7 @@ namespace Core.Assets
 			if (bundleNeeded.AssetCategory.Equals(AssetCategoryRoot.None))
 				return assetService.AssetBundlesURL + bundleNeeded.ManifestName + "?r=" + (Random.value * 9999999); //this random value prevents caching on the web server;
 			else
-				return assetService.AssetBundlesURL + bundleNeeded.AssetCategory.ToString().ToLower() + "/" + bundleNeeded.ManifestName;
+				return assetService.AssetBundlesURL + bundleNeeded.AssetCategory.ToString().ToLower()+ "/" + bundleNeeded.ManifestName;
 		}
 
 		protected string GetAssetPathFromLocalStreamingAssets(BundleNeeded bundleNeeded)
@@ -197,7 +197,7 @@ namespace Core.Assets
 			if (bundleNeeded.AssetCategory.Equals(AssetCategoryRoot.None))
 				return bundleNeeded.BundleName;
 			else
-				return bundleNeeded.AssetCategory.ToString().ToLower() + "/" + bundleNeeded.BundleName;
+				return bundleNeeded.AssetCategory.ToString().ToLower()+ "/" + bundleNeeded.BundleName;
 		}
 
 		protected string GetAssetPathFromLocalStreamingAssetsManifest(BundleNeeded bundleNeeded)
@@ -205,10 +205,10 @@ namespace Core.Assets
 			if (bundleNeeded.AssetCategory.Equals(AssetCategoryRoot.None))
 				return bundleNeeded.ManifestName;
 			else
-				return bundleNeeded.AssetCategory.ToString().ToLower() + "/" + bundleNeeded.ManifestName;
+				return bundleNeeded.AssetCategory.ToString().ToLower()+ "/" + bundleNeeded.ManifestName;
 		}
 
-		protected IObservable<UnityEngine.Object> ProcessDownloadedBundle<T>(BundleNeeded bundleNeeded, LoadedBundle bundle) where T : UnityEngine.Object
+		protected IObservable<T> ProcessDownloadedBundle<T>(BundleNeeded bundleNeeded, LoadedBundle bundle)where T : UnityEngine.Object
 		{
 			if (!downloadedBundles.ContainsKey(bundleNeeded.BundleName))
 				downloadedBundles.Add(bundleNeeded.BundleName, bundle);

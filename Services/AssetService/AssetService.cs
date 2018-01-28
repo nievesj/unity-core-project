@@ -13,7 +13,7 @@ namespace Core.Assets
 
 		AssetCacheState AssetCacheState { get; }
 
-		IObservable<UnityEngine.Object> GetAndLoadAsset<T>(BundleNeeded bundleNeeded) where T : UnityEngine.Object;
+		IObservable<T> GetAndLoadAsset<T>(BundleNeeded bundleNeeded)where T : UnityEngine.Object;
 
 		void UnloadAsset(string name, bool unloadAllDependencies);
 	}
@@ -65,7 +65,7 @@ namespace Core.Assets
 			serviceStopped.OnCompleted();
 		}
 
-		public IObservable<UnityEngine.Object> GetAndLoadAsset<T>(BundleNeeded bundleNeeded) where T : UnityEngine.Object
+		public IObservable<T> GetAndLoadAsset<T>(BundleNeeded bundleNeeded)where T : UnityEngine.Object
 		{
 			return assetBundlebundleLoader.GetSingleAsset<T>(bundleNeeded);
 		}

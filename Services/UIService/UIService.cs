@@ -88,33 +88,33 @@ namespace Core.UI
 			return OpenWindow(window.ToString());
 		}
 
+		//FIXME: this method is not returning an observable. WHY?!?
 		public IObservable<UIWindow> OpenWindow(string window)
 		{
 			BundleNeeded bundleNeeded = new BundleNeeded(AssetCategoryRoot.Windows, window.ToLower(), window.ToLower());
-			var observable = new Subject<UIWindow>();
+			return Observable.Create<UIWindow>(
+				(IObserver<UIWindow> observer)=>
+				{
+					System.Action<UIWindow> OnWindowLoaded = loadedWindow =>
+					{
+						if (!mainCanvas)
+							observer.OnError(new System.Exception("UIService: StartService - Main Canvas is missing."));
 
-			System.Action<UnityEngine.Object> OnWindowLoaded = loadedWindow =>
-			{
-				if (!mainCanvas)
-					observable.OnError(new System.Exception("UIService: StartService - Main Canvas is missing."));
+						var obj = Object.Instantiate<UIWindow>(loadedWindow, mainCanvas);
 
-				var obj = Object.Instantiate<UIWindow>(loadedWindow as UIWindow, mainCanvas);
+						obj.name = loadedWindow.name;
+						obj.Closed.Subscribe(WindowClosed);
+						obj.Opened.Subscribe(WindowOpened);
+						obj.Initialize(this);
 
-				obj.name = loadedWindow.name;
-				obj.Closed.Subscribe(WindowClosed);
-				obj.Opened.Subscribe(WindowOpened);
-				obj.Initialize(this);
+						observer.OnNext(obj);
+						observer.OnCompleted();
 
-				observable.OnNext(obj);
-				observable.OnCompleted();
+						Debug.Log(("UIService: Loaded window - " + loadedWindow.name).Colored(Colors.lightblue));
+					};
 
-				Debug.Log(("UIService: Loaded window - " + loadedWindow.name).Colored(Colors.lightblue));
-			};
-
-			assetService.GetAndLoadAsset<UIWindow>(bundleNeeded)
-				.Subscribe(OnWindowLoaded);
-
-			return observable;
+					return assetService.GetAndLoadAsset<UIWindow>(bundleNeeded).Subscribe(OnWindowLoaded);
+				});
 		}
 
 		public bool IsWindowOpen(string window)

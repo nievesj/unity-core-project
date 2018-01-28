@@ -80,28 +80,28 @@ namespace Core.LevelLoaderService
 			if (currentLevel)
 				UnloadLevel(currentLevel);
 
-			BundleNeeded level = new BundleNeeded(AssetCategoryRoot.Levels, name.ToLower(), name.ToLower());
-			var observable = new Subject<Level>();
+			BundleNeeded bundleNeeded = new BundleNeeded(AssetCategoryRoot.Levels, name.ToLower(), name.ToLower());
 
-			Action<UnityEngine.Object> OnLevelLoaded = loadedLevel =>
-			{
-				Resources.UnloadUnusedAssets();
-				Debug.Log(("LevelLoaderService: Loaded level - " + loadedLevel.name).Colored(Colors.lightblue));
+			return Observable.Create<Level>(
+				(IObserver<Level> observer)=>
+				{
+					Action<Level> OnLevelLoaded = loadedLevel =>
+					{
+						Resources.UnloadUnusedAssets();
+						Debug.Log(("LevelLoaderService: Loaded level - " + loadedLevel.name).Colored(Colors.lightblue));
 
-				currentLevel = GameObject.Instantiate<Level>(loadedLevel as Level);
-				currentLevel.name = loadedLevel.name;
+						currentLevel = GameObject.Instantiate<Level>(loadedLevel);
+						currentLevel.name = loadedLevel.name;
 
-				if (loadingScreen)
-					loadingScreen.Close();
+						if (loadingScreen)
+							loadingScreen.Close();
 
-				observable.OnNext(currentLevel);
-				observable.OnCompleted();
-			};
+						observer.OnNext(currentLevel);
+						// observer.OnCompleted();
+					};
 
-			assetService.GetAndLoadAsset<Level>(level)
-				.Subscribe(OnLevelLoaded);
-
-			return observable;
+					return assetService.GetAndLoadAsset<Level>(bundleNeeded).Subscribe(OnLevelLoaded);
+				});
 		}
 
 		public IObservable<Level> UnloadLevel(Level level)
