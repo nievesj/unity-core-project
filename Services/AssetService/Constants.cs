@@ -90,7 +90,8 @@ namespace Core.Assets
 		SceneContent,
 		GameContent,
 		Windows,
-		Audio
+		Audio,
+		Prefabs
 	}
 
 	/// <summary>

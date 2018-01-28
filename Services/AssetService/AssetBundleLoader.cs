@@ -152,7 +152,7 @@ namespace Core.Assets
 
 		protected IObservable<T> GetBundleFromStreamingAssets<T>(BundleNeeded bundleNeeded)where T : UnityEngine.Object
 		{
-			Debug.Log(("AssetBundleLoader: Using StreamingAssets - " + " Requesting:" + bundleNeeded.AssetName + " | " + bundleNeeded.BundleName).Colored(Colors.aqua));
+			Debug.Log(("AssetBundleLoader: Using StreamingAssets - " + " Requesting:" + bundleNeeded.AssetCategory + " | " + bundleNeeded.BundleName).Colored(Colors.aqua));
 			string path = Path.Combine(Application.streamingAssetsPath, GetAssetPathFromLocalStreamingAssets(bundleNeeded));
 
 			return Observable.FromCoroutine<T>((observer, cancellationToken)=> RunAssetBundleCreateRequestOperation<T>(AssetBundle.LoadFromFileAsync(path), bundleNeeded, observer, cancellationToken));
