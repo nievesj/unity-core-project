@@ -19,7 +19,7 @@ namespace Core.Audio
 	{
 		protected AudioServiceConfiguration configuration;
 		protected ServiceLocator app;
-		protected Poller<AudioSource> poller;
+		protected Pooler<AudioSource> poller;
 
 		protected Subject<IService> serviceConfigured = new Subject<IService>();
 		public IObservable<IService> ServiceConfigured { get { return serviceConfigured; } }
@@ -59,7 +59,7 @@ namespace Core.Audio
 		{
 			if (configuration.audioSourcePrefab)
 			{
-				poller = new Poller<AudioSource>(configuration.audioSourcePrefab.gameObject, configuration.poolAmount);
+				poller = new Pooler<AudioSource>(configuration.audioSourcePrefab.gameObject, configuration.poolAmount);
 			}
 			else
 				Debug.LogError("AudioService : OnGameStart - Failed to create pool. Configuration is missing the AudioSource prefab.");
@@ -118,10 +118,10 @@ namespace Core.Audio
 
 		protected IEnumerator WaitUntilDonePlaying(AudioPlayer ap)
 		{
-			CustomYieldInstruction wait = new WaitUntil(() => ap.Player.clip.loadState == AudioDataLoadState.Loaded);
+			CustomYieldInstruction wait = new WaitUntil(()=> ap.Player.clip.loadState == AudioDataLoadState.Loaded);
 			yield return wait;
 
-			wait = new WaitWhile(() => ap.Player.isPlaying);
+			wait = new WaitWhile(()=> ap.Player.isPlaying);
 			yield return wait;
 
 			Debug.Log(("AudioService: Done Playing Clip - " + ap.Clip.name).Colored(Colors.magenta));

@@ -7,12 +7,12 @@ namespace Core.Audio
 {
 	public class AudioSources
 	{
-		Poller<AudioSource> poller;
+		Pooler<AudioSource> poller;
 		AudioSource prefab;
 
 		public void Initialize(AudioSource obj, int pollingAmount)
 		{
-			poller = new Poller<AudioSource>(obj.gameObject, pollingAmount);
+			poller = new Pooler<AudioSource>(obj.gameObject, pollingAmount);
 		}
 
 	}

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Core.Polling
 {
-	public class Poller<T> where T : Component
+	public class Pooler<T> where T : Component
 	{
 		protected Stack<T> pool;
 		protected GameObject prefab;
@@ -15,7 +15,7 @@ namespace Core.Polling
 
 		private int sizeLimit = 1;
 
-		public Poller(GameObject prefab, int amount)
+		public Pooler(GameObject prefab, int amount)
 		{
 			var go = new GameObject(Constants.PooledObject + prefab.name);
 			pollerTransform = go.transform;
