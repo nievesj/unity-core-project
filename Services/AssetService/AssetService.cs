@@ -69,7 +69,7 @@ namespace Core.Assets
 
 		public IObservable<T> GetAndLoadAsset<T>(BundleRequest bundleNeeded)where T : UnityEngine.Object
 		{
-			return assetBundlebundleLoader.GetSingleAsset<T>(bundleNeeded);
+			return assetBundlebundleLoader.LoadAsset<T>(bundleNeeded);
 		}
 
 		public void UnloadAsset(string name, bool unloadAllDependencies)

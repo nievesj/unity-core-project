@@ -31,7 +31,7 @@ namespace Core.Assets
 			loadedAssets = new Dictionary<string, UnityEngine.Object>();
 		}
 
-		public IObservable<T> GetSingleAsset<T>(BundleRequest bundleNeeded)where T : UnityEngine.Object
+		public IObservable<T> LoadAsset<T>(BundleRequest bundleNeeded)where T : UnityEngine.Object
 		{
 			return GetBundle<T>(bundleNeeded);
 		}
