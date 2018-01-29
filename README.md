@@ -42,7 +42,7 @@ What platforms are compatible?
 ---
 Has been tested on iOS, Android, Mac, Windows and [WebGL](http://www.josemnieves.com/unity/core_example_webgl_test/). 
 
-Here is a live WebGL rest of the example project: http://www.josemnieves.com/unity/core_example_webgl_test/
+Here is a live WebGL test of the example project: http://www.josemnieves.com/unity/core_example_webgl_test/
 
 
 
