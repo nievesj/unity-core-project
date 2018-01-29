@@ -5,7 +5,13 @@ What is _Core?
 ---
 _Core is a collection utilities and libraries to help speed up development in Unity3D by providing the following functionality:
 * Asset Bundle loading system
+	* Can load assets from the streaming assets folder
+	* Can load assets from a web server
+	* Can cache downloaded bundles
+	* Can simulate asset bundles on editor
 * Basic window system
+	* Open / Close window
+	* Observable events for when a window is opened or closed
 * Basic audio system
 * Pooler tool
 * Base game starting point ([Example Project](https://github.com/nievesj/unity_core_example) )
@@ -35,7 +41,7 @@ What platforms are compatible?
 ---
 Has been tested on iOS, Android, Mac, Windows and [WebGL](http://www.josemnieves.com/unity/core_example_webgl_test/). 
 
-Here is a live WebGL test of the example project: http://www.josemnieves.com/unity/core_example_webgl_test/
+Here is a live WebGL rest of the example project: http://www.josemnieves.com/unity/core_example_webgl_test/
 
 
 
