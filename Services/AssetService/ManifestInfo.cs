@@ -39,7 +39,8 @@ namespace Core.Assets
 
 					System.Action<string> OnManifestCacheWebLoaded = man =>
 					{
-						Create(man);
+						try { Create(man); }
+						catch (Exception e) { observer.OnError(e); }
 
 						observer.OnNext(this);
 						observer.OnCompleted();
@@ -99,8 +100,7 @@ namespace Core.Assets
 			}
 			catch (System.Exception e)
 			{
-				Debug.LogError("ManifestInfo: Check URL | " + e.Message);
-				Debug.LogError(text);
+				throw new Exception(e.Message);
 			}
 		}
 
