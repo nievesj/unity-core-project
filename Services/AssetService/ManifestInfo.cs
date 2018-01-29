@@ -72,7 +72,7 @@ namespace Core.Assets
 				});
 		}
 
-		protected void Create(string text)
+		private void Create(string text)
 		{
 			try
 			{
@@ -104,7 +104,7 @@ namespace Core.Assets
 			}
 		}
 
-		protected IObservable<string> CacheManifest(string man)
+		private IObservable<string> CacheManifest(string man)
 		{
 			return Observable.Create<string>(
 				(IObserver<string> observer)=>
@@ -123,7 +123,7 @@ namespace Core.Assets
 				});
 		}
 
-		protected IObservable<string> GetCachedManifest()
+		private IObservable<string> GetCachedManifest()
 		{
 			return Observable.Create<string>(
 				(IObserver<string> observer)=>
@@ -143,12 +143,12 @@ namespace Core.Assets
 				});
 		}
 
-		protected IObservable<string> GetManifestFromWeb()
+		private IObservable<string> GetManifestFromWeb()
 		{
 			return Observable.FromCoroutine<string>((observer, cancellationToken)=> GetManifestOperation(observer, cancellationToken));
 		}
 
-		protected IEnumerator GetManifestOperation(IObserver<string> observer, CancellationToken cancellationToken)
+		private IEnumerator GetManifestOperation(IObserver<string> observer, CancellationToken cancellationToken)
 		{
 			Debug.Log(("ManifestInfo: Downloading Manifest | " + bundle.ManifestName).Colored(Colors.brown));
 
@@ -164,7 +164,7 @@ namespace Core.Assets
 			www.Dispose();
 		}
 
-		protected IObservable<bool> IsManifestExpired(int expiredDays)
+		private IObservable<bool> IsManifestExpired(int expiredDays)
 		{
 			return Observable.Create<bool>(
 				(IObserver<bool> observer)=>
@@ -206,7 +206,7 @@ namespace Core.Assets
 				});
 		}
 
-		protected TimeSpan GetAgeManifest()
+		private TimeSpan GetAgeManifest()
 		{
 			var fileContents = OpenFile(bundle.ManifestAgeFile);
 
@@ -216,13 +216,13 @@ namespace Core.Assets
 			return diff;
 		}
 
-		protected void SaveAgeManifest()
+		private void SaveAgeManifest()
 		{
 			string jsonData = JsonUtility.ToJson((JsonDateTime)System.DateTime.Now, true);
 			SaveFile(bundle.ManifestAgeFile, jsonData);
 		}
 
-		protected void SaveFile(string file, string data)
+		private void SaveFile(string file, string data)
 		{
 			try
 			{
@@ -238,7 +238,7 @@ namespace Core.Assets
 			}
 		}
 
-		protected string OpenFile(string file)
+		private string OpenFile(string file)
 		{
 			try
 			{
