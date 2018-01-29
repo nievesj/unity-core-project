@@ -10,10 +10,11 @@ namespace Core.Assets
 	public interface IAssetService : IService
 	{
 		string AssetBundlesURL { get; }
+		int ManifestCacheExpiringPeriodInDays { get; }
 
 		AssetCacheState AssetCacheState { get; }
 
-		IObservable<T> GetAndLoadAsset<T>(BundleNeeded bundleNeeded)where T : UnityEngine.Object;
+		IObservable<T> GetAndLoadAsset<T>(BundleRequest bundleNeeded)where T : UnityEngine.Object;
 
 		void UnloadAsset(string name, bool unloadAllDependencies);
 	}
@@ -26,6 +27,7 @@ namespace Core.Assets
 		public uint AssetBundleVersionNumber { get { return 1; } }
 
 		public string AssetBundlesURL { get { return configuration.AssetBundlesURL + AssetBundleUtilities.ClientPlatform + "/"; } }
+		public int ManifestCacheExpiringPeriodInDays { get { return configuration.ManifestCachePeriod; } }
 
 		public bool UseStreamingAssets { get { return configuration.UseStreamingAssets; } }
 
@@ -52,7 +54,7 @@ namespace Core.Assets
 		public void StartService(ServiceLocator application)
 		{
 			app = application;
-			assetBundlebundleLoader = new AssetBundleLoader(this, app);
+			assetBundlebundleLoader = new AssetBundleLoader(this);
 
 			ServiceLocator.OnGameStart.Subscribe(OnGameStart);
 			serviceStarted.OnNext(this);
@@ -65,7 +67,7 @@ namespace Core.Assets
 			serviceStopped.OnCompleted();
 		}
 
-		public IObservable<T> GetAndLoadAsset<T>(BundleNeeded bundleNeeded)where T : UnityEngine.Object
+		public IObservable<T> GetAndLoadAsset<T>(BundleRequest bundleNeeded)where T : UnityEngine.Object
 		{
 			return assetBundlebundleLoader.GetSingleAsset<T>(bundleNeeded);
 		}
@@ -82,19 +84,11 @@ namespace Core.Assets
 
 		protected void LoadGameBundle()
 		{
-			BundleNeeded game = new BundleNeeded(AssetCategoryRoot.None, AssetBundleUtilities.ClientPlatform.ToString(), AssetBundleUtilities.ClientPlatform.ToString());
+			BundleRequest game = new BundleRequest(AssetCategoryRoot.None, AssetBundleUtilities.ClientPlatform.ToString(), AssetBundleUtilities.ClientPlatform.ToString());
 			Resources.UnloadUnusedAssets();
 
 			if (!configuration.UseCache)
 				Caching.ClearCache();
-
-			//TODO: check dependencies and load anything that has not been loaded thus far ...
-			// GetAndLoadAsset<AssetBundleManifest>(game)
-			// 	.Subscribe(loadedObject =>
-			// 	{
-			// 		Debug.Log(("AssetService: Loaded Manifest - " + loadedObject.name).Colored(Colors.lightblue));
-			// 		// ManifestInfo info = new ManifestInfo(www.downloadHandler.text);
-			// 	});
 		}
 	}
 }

@@ -19,22 +19,19 @@ namespace Core.Assets
 	public class AssetBundleLoader
 	{
 		protected AssetService assetService;
-		protected ServiceLocator serviceFramework;
 		protected AssetBundleCreateRequest bundleRequest;
 		protected Dictionary<string, LoadedBundle> downloadedBundles;
 		protected Dictionary<string, UnityEngine.Object> loadedAssets;
-		protected Dictionary<string, UnityEngine.Object> editorAssets;
 
-		public AssetBundleLoader(IAssetService service, ServiceLocator app)
+		public AssetBundleLoader(IAssetService service)
 		{
 			assetService = service as AssetService;
-			serviceFramework = app;
 
 			downloadedBundles = new Dictionary<string, LoadedBundle>();
 			loadedAssets = new Dictionary<string, UnityEngine.Object>();
 		}
 
-		public IObservable<T> GetSingleAsset<T>(BundleNeeded bundleNeeded)where T : UnityEngine.Object
+		public IObservable<T> GetSingleAsset<T>(BundleRequest bundleNeeded)where T : UnityEngine.Object
 		{
 			return GetBundle<T>(bundleNeeded);
 		}
@@ -50,7 +47,7 @@ namespace Core.Assets
 			}
 		}
 
-		protected IObservable<T> GetBundle<T>(BundleNeeded bundleNeeded)where T : UnityEngine.Object
+		protected IObservable<T> GetBundle<T>(BundleRequest bundleNeeded)where T : UnityEngine.Object
 		{
 #if UNITY_EDITOR
 			if (EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES)
@@ -69,7 +66,7 @@ namespace Core.Assets
 		}
 
 #if UNITY_EDITOR
-		protected IEnumerator SimulateAssetBundle<T>(BundleNeeded bundleNeeded, IObserver<T> observer, CancellationToken cancellationToken)where T : UnityEngine.Object
+		protected IEnumerator SimulateAssetBundle<T>(BundleRequest bundleNeeded, IObserver<T> observer, CancellationToken cancellationToken)where T : UnityEngine.Object
 		{
 			Debug.Log(("AssetBundleLoader: Simulated | Requesting: " + bundleNeeded.AssetName + " | " + bundleNeeded.BundleName).Colored(Colors.aqua));
 
@@ -94,38 +91,23 @@ namespace Core.Assets
 		}
 #endif
 
-		protected IEnumerator GetBundleFromWebOrCacheOperation<T>(BundleNeeded bundleNeeded, IObserver<T> observer, CancellationToken cancellationToken)where T : UnityEngine.Object
+		protected IEnumerator GetBundleFromWebOrCacheOperation<T>(BundleRequest bundleNeeded, IObserver<T> observer, CancellationToken cancellationToken)where T : UnityEngine.Object
 		{
 			UnityWebRequest www = null;
-			ManifestInfo manifestInfo = null;
+			ManifestInfo manifestInfo = new ManifestInfo(bundleNeeded);
 			AssetBundle bundle;
 
 			Debug.Log(("AssetBundleLoader: " + bundleNeeded.AssetCacheState + " | Requesting: " + bundleNeeded.AssetName + " | " + bundleNeeded.BundleName).Colored(Colors.aqua));
 
-			//look at this again, I might need to keep the crc and hash, at least just the hash from the server..
-			//https://github.com/UnityCommunity/UnityLibrary/blob/master/Assets/Scripts/AssetBundles/AssetBundleLoader.cs
-
 			if (bundleNeeded.AssetCacheState.Equals(bundleNeeded.AssetCacheState))
 			{
-				var manifestPath = GetManifestPath(bundleNeeded);
+				yield return manifestInfo.GetInfo().ToYieldInstruction();
 
-				www = UnityWebRequest.Get(manifestPath);
-				yield return www.SendWebRequest();
-
-				if (www.isNetworkError)
-				{
-					Debug.LogError("AssetBundleLoader: " + www.error);
-					observer.OnError(new System.Exception(www.error));
-				}
-
-				manifestInfo = new ManifestInfo(www.downloadHandler.text);
-				Debug.Log(("AssetBundleLoader: Aquired Manifest | Hash: " + manifestInfo.Hash + " | Version: " + manifestInfo.Version + " | CRC: " + manifestInfo.CRC).Colored(Colors.aqua));
-
-				www = UnityWebRequest.GetAssetBundle(GetAssetPath(bundleNeeded), manifestInfo.Hash, 0);
+				www = UnityWebRequest.GetAssetBundle(bundleNeeded.AssetPath, manifestInfo.Hash, 0);
 			}
 			else
 			{
-				www = UnityWebRequest.GetAssetBundle(GetAssetPath(bundleNeeded));
+				www = UnityWebRequest.GetAssetBundle(bundleNeeded.AssetPath);
 			}
 
 			yield return www.SendWebRequest();
@@ -134,8 +116,7 @@ namespace Core.Assets
 
 			if (www.isNetworkError)
 			{
-				Debug.LogError("AssetBundleLoader: " + www.error);
-				observer.OnError(new System.Exception(www.error));
+				observer.OnError(new System.Exception("AssetBundleLoader: " + www.error));
 			}
 			else
 			{
@@ -150,15 +131,15 @@ namespace Core.Assets
 			www.Dispose();
 		}
 
-		protected IObservable<T> GetBundleFromStreamingAssets<T>(BundleNeeded bundleNeeded)where T : UnityEngine.Object
+		protected IObservable<T> GetBundleFromStreamingAssets<T>(BundleRequest bundleNeeded)where T : UnityEngine.Object
 		{
 			Debug.Log(("AssetBundleLoader: Using StreamingAssets - " + " Requesting:" + bundleNeeded.AssetCategory + " | " + bundleNeeded.BundleName).Colored(Colors.aqua));
-			string path = Path.Combine(Application.streamingAssetsPath, GetAssetPathFromLocalStreamingAssets(bundleNeeded));
+			string path = Path.Combine(Application.streamingAssetsPath, bundleNeeded.AssetPathFromLocalStreamingAssets);
 
 			return Observable.FromCoroutine<T>((observer, cancellationToken)=> RunAssetBundleCreateRequestOperation<T>(AssetBundle.LoadFromFileAsync(path), bundleNeeded, observer, cancellationToken));
 		}
 
-		protected IEnumerator RunAssetBundleCreateRequestOperation<T>(UnityEngine.AssetBundleCreateRequest assetBundleCreateRequest, BundleNeeded bundleNeeded, IObserver<T> observer, CancellationToken cancellationToken)where T : UnityEngine.Object
+		protected IEnumerator RunAssetBundleCreateRequestOperation<T>(UnityEngine.AssetBundleCreateRequest assetBundleCreateRequest, BundleRequest bundleNeeded, IObserver<T> observer, CancellationToken cancellationToken)where T : UnityEngine.Object
 		{
 			while (!assetBundleCreateRequest.isDone && !cancellationToken.IsCancellationRequested)
 				yield return null;
@@ -174,41 +155,7 @@ namespace Core.Assets
 				});
 		}
 
-		protected string GetAssetPath(BundleNeeded bundleNeeded)
-		{
-			if (bundleNeeded.AssetCategory.Equals(AssetCategoryRoot.None))
-				return assetService.AssetBundlesURL + bundleNeeded.BundleName + "?r=" + (Random.value * 9999999); //this random value prevents caching on the web server
-			else
-				return assetService.AssetBundlesURL + bundleNeeded.AssetCategory.ToString().ToLower()+ "/" + bundleNeeded.BundleName;
-		}
-
-		protected string GetManifestPath(BundleNeeded bundleNeeded)
-		{
-			Debug.Log(("AssetBundleLoader: Loading Manifest " + bundleNeeded.ManifestName).Colored(Colors.aqua));
-
-			if (bundleNeeded.AssetCategory.Equals(AssetCategoryRoot.None))
-				return assetService.AssetBundlesURL + bundleNeeded.ManifestName + "?r=" + (Random.value * 9999999); //this random value prevents caching on the web server;
-			else
-				return assetService.AssetBundlesURL + bundleNeeded.AssetCategory.ToString().ToLower()+ "/" + bundleNeeded.ManifestName;
-		}
-
-		protected string GetAssetPathFromLocalStreamingAssets(BundleNeeded bundleNeeded)
-		{
-			if (bundleNeeded.AssetCategory.Equals(AssetCategoryRoot.None))
-				return bundleNeeded.BundleName;
-			else
-				return bundleNeeded.AssetCategory.ToString().ToLower()+ "/" + bundleNeeded.BundleName;
-		}
-
-		protected string GetAssetPathFromLocalStreamingAssetsManifest(BundleNeeded bundleNeeded)
-		{
-			if (bundleNeeded.AssetCategory.Equals(AssetCategoryRoot.None))
-				return bundleNeeded.ManifestName;
-			else
-				return bundleNeeded.AssetCategory.ToString().ToLower()+ "/" + bundleNeeded.ManifestName;
-		}
-
-		protected IObservable<T> ProcessDownloadedBundle<T>(BundleNeeded bundleNeeded, LoadedBundle bundle)where T : UnityEngine.Object
+		protected IObservable<T> ProcessDownloadedBundle<T>(BundleRequest bundleNeeded, LoadedBundle bundle)where T : UnityEngine.Object
 		{
 			if (!downloadedBundles.ContainsKey(bundleNeeded.BundleName))
 				downloadedBundles.Add(bundleNeeded.BundleName, bundle);

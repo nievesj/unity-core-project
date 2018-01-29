@@ -32,7 +32,22 @@ namespace Core.Assets
 				EditorUITools.HorizontalLine();
 
 				configuration.AssetBundlesURL = EditorGUILayout.TextField("Asset Bundles URL", configuration.AssetBundlesURL);
-				configuration.UseCache = EditorGUILayout.ToggleLeft("Cache Asset Bundles?", configuration.UseCache);
+				EditorUITools.HorizontalLine();
+
+				if (!configuration.AssetBundlesURL.Equals(string.Empty))
+				{
+					configuration.UseCache = EditorGUILayout.ToggleLeft("Cache Asset Bundles?", configuration.UseCache);
+
+					EditorUITools.HorizontalLine();
+
+					EditorGUILayout.LabelField("Manifest Cache Expiring Period in Days?");
+					configuration.ManifestCachePeriod = EditorGUILayout.IntSlider(configuration.ManifestCachePeriod, 1, 90);
+				}
+				else
+				{
+					EditorGUILayout.LabelField("Invalid URL");
+				}
+
 			}
 
 			if (cachedUseStreamingAssets != configuration.UseStreamingAssets)

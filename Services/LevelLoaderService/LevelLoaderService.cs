@@ -67,12 +67,6 @@ namespace Core.LevelLoaderService
 		{
 			uiService = ServiceLocator.GetService<IUIService>();
 			assetService = ServiceLocator.GetService<IAssetService>()as AssetService;
-
-			//Load first level - TODO move this elsewhere. LevelLoader should not care which level to load next or first.
-			// if (configuration.levels != null && configuration.levels.Count > 0)
-			// 	LoadLevel(configuration.levels[0]);
-			// else
-			// 	Debug.LogError("LevelLoaderService: No levels configured");
 		}
 
 		public IObservable<Level> LoadLevel(string name)
@@ -80,7 +74,7 @@ namespace Core.LevelLoaderService
 			if (currentLevel)
 				UnloadLevel(currentLevel);
 
-			BundleNeeded bundleNeeded = new BundleNeeded(AssetCategoryRoot.Levels, name.ToLower(), name.ToLower());
+			BundleRequest bundleNeeded = new BundleRequest(AssetCategoryRoot.Levels, name.ToLower(), name.ToLower());
 
 			return Observable.Create<Level>(
 				(IObserver<Level> observer)=>
@@ -97,10 +91,11 @@ namespace Core.LevelLoaderService
 							loadingScreen.Close();
 
 						observer.OnNext(currentLevel);
-						// observer.OnCompleted();
+						observer.OnCompleted();
 					};
 
-					return assetService.GetAndLoadAsset<Level>(bundleNeeded).Subscribe(OnLevelLoaded);
+					return assetService.GetAndLoadAsset<Level>(bundleNeeded)
+						.Subscribe(OnLevelLoaded);
 				});
 		}
 

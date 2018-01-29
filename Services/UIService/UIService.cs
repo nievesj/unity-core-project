@@ -88,10 +88,9 @@ namespace Core.UI
 			return OpenWindow(window.ToString());
 		}
 
-		//FIXME: this method is not returning an observable. WHY?!?
 		public IObservable<UIWindow> OpenWindow(string window)
 		{
-			BundleNeeded bundleNeeded = new BundleNeeded(AssetCategoryRoot.Windows, window.ToLower(), window.ToLower());
+			BundleRequest bundleNeeded = new BundleRequest(AssetCategoryRoot.Windows, window.ToLower(), window.ToLower());
 			return Observable.Create<UIWindow>(
 				(IObserver<UIWindow> observer)=>
 				{

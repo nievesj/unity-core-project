@@ -20,5 +20,9 @@ namespace Core.Assets
 		[SerializeField]
 		protected bool useCache = true;
 		public bool UseCache { get { return useCache; } set { useCache = value; } }
+
+		[SerializeField]
+		protected int manifestCachePeriod = 5;
+		public int ManifestCachePeriod { get { return manifestCachePeriod; } set { manifestCachePeriod = value; } }
 	}
 }
