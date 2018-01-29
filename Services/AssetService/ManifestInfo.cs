@@ -37,7 +37,7 @@ namespace Core.Assets
 				{
 					var subject = new Subject<ManifestInfo>();
 
-					System.Action<string> OnManifestCacheWebLoaded = man =>
+					Action<string> OnManifestCacheWebLoaded = man =>
 					{
 						try { Create(man); }
 						catch (Exception e) { observer.OnError(e); }
@@ -46,11 +46,11 @@ namespace Core.Assets
 						observer.OnCompleted();
 					};
 
-					System.Action<bool> OnManifestExpiredCheck = isExpired =>
+					Action<bool> OnManifestExpiredCheck = isExpired =>
 					{
 						if (isExpired)
 						{
-							System.Action<string> OnManifestWebLoaded = loadedManifest =>
+							Action<string> OnManifestWebLoaded = loadedManifest =>
 							{
 								CacheManifest(loadedManifest).Subscribe(OnManifestCacheWebLoaded);
 							};
@@ -98,7 +98,7 @@ namespace Core.Assets
 				if (hashline.Length > 0)
 					hash = hashline[1].Trim();
 			}
-			catch (System.Exception e)
+			catch (Exception e)
 			{
 				throw new Exception(e.Message);
 			}
@@ -156,7 +156,7 @@ namespace Core.Assets
 			yield return www.SendWebRequest();
 
 			if (www.isNetworkError)
-				observer.OnError(new System.Exception("AssetBundleLoader: " + www.error));
+				observer.OnError(new Exception("AssetBundleLoader: " + www.error));
 
 			observer.OnNext(www.downloadHandler.text);
 			observer.OnCompleted();
@@ -210,15 +210,15 @@ namespace Core.Assets
 		{
 			var fileContents = OpenFile(bundle.ManifestAgeFile);
 
-			System.DateTime timeFromJson = JsonUtility.FromJson<JsonDateTime>(fileContents);
-			System.TimeSpan diff = System.DateTime.Now.Subtract(timeFromJson);
+			DateTime timeFromJson = JsonUtility.FromJson<JsonDateTime>(fileContents);
+			TimeSpan diff = DateTime.Now.Subtract(timeFromJson);
 
 			return diff;
 		}
 
 		private void SaveAgeManifest()
 		{
-			string jsonData = JsonUtility.ToJson((JsonDateTime)System.DateTime.Now, true);
+			string jsonData = JsonUtility.ToJson((JsonDateTime)DateTime.Now, true);
 			SaveFile(bundle.ManifestAgeFile, jsonData);
 		}
 
