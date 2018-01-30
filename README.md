@@ -15,7 +15,7 @@ _Core is a collection utilities and libraries to help speed up development in Un
 	* Transition animations 
 * Basic audio system
 * Pooler tool
-* Base game starting point ([Example Project](https://github.com/nievesj/unity_core_example) )
+* Base game starting point ([Example Project](https://github.com/nievesj/unity_core_example))
 
 Purpose
 ---
