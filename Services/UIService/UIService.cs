@@ -90,7 +90,7 @@ namespace Core.UI
 
 		public IObservable<UIWindow> OpenWindow(string window)
 		{
-			BundleRequest bundleNeeded = new BundleRequest(AssetCategoryRoot.Windows, window.ToLower(), window.ToLower());
+			BundleRequest bundleNeeded = new BundleRequest(AssetCategoryRoot.Windows, window, window);
 			return Observable.Create<UIWindow>(
 				(IObserver<UIWindow> observer)=>
 				{

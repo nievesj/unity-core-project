@@ -74,7 +74,7 @@ namespace Core.LevelLoaderService
 			if (currentLevel)
 				UnloadLevel(currentLevel);
 
-			BundleRequest bundleNeeded = new BundleRequest(AssetCategoryRoot.Levels, name.ToLower(), name.ToLower());
+			BundleRequest bundleNeeded = new BundleRequest(AssetCategoryRoot.Levels, name, name);
 
 			return Observable.Create<Level>(
 				(IObserver<Level> observer)=>

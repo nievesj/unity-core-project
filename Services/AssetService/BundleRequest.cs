@@ -86,15 +86,8 @@ namespace Core.Assets
 		public BundleRequest(AssetCategoryRoot cat, string bundle, string asset)
 		{
 			assetCategory = cat;
-			bundleName = bundle;
-			assetName = asset;
-		}
-
-		public BundleRequest(AssetCategoryRoot cat, AssetOptions opts, string bundle, string asset)
-		{
-			assetCategory = cat;
-			bundleName = bundle;
-			assetName = asset;
+			bundleName = bundle.ToLower();
+			assetName = asset.ToLower();
 		}
 	}
 
