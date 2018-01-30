@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Core.LevelLoaderService;
 using Core.UI;
+using UniRx;
 using UnityEngine;
 
 namespace Core.Service
@@ -18,7 +19,11 @@ namespace Core.Service
 		protected virtual void Awake()
 		{
 			DontDestroyOnLoad(this.gameObject);
-			ServiceLocator.SetUp(this);
+			ServiceLocator.SetUp(this)
+				.DoOnError(e => Debug.LogError("Catastrophic error, services couldn't be created. " + e.Message))
+				.Subscribe(OnGameStart);
 		}
+
+		protected virtual void OnGameStart(ServiceLocator locator) {}
 	}
 }
