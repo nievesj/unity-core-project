@@ -38,7 +38,7 @@ _Core depends on the the following components
 * [UniRx](https://github.com/neuecc/UniRx) (Reactive Extensions for Unity) Most of the _Core functionality is wrapped around Observables. 
 * [AssetBundles-Browser](https://github.com/Unity-Technologies/AssetBundles-Browser) Unity's tool for building and organizing asset bundles. This is included in the project as a Git Submodule and it may need to be pulled the first time. 
 
-What platforms are compatible?
+Which platforms are compatible?
 ---
 Has been tested on iOS, Android, Mac, Windows and [WebGL](http://www.josemnieves.com/unity/core_example_webgl_test/). 
 
