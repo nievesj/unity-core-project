@@ -14,6 +14,7 @@ _Core is a collection utilities and libraries to help speed up development in Un
 	* Observable events for when a window is opened or closed
 	* Transition animations 
 * Basic audio system
+* Mouse / Touch input control
 * Pooler tool
 * Base game starting point ([Example Project](https://github.com/nievesj/unity_core_example))
 
