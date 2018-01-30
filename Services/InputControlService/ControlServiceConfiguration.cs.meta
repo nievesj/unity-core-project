@@ -1,10 +1,13 @@
 fileFormatVersion: 2
 guid: dcc8b62a3576c461db330c1df8bcdd3a
-timeCreated: 1498937447
+timeCreated: 1517335489
 licenseType: Pro
 MonoImporter:
+  externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - MouseTouchControls: {fileID: 1645593886998800, guid: cd0c3e061673644a19c34d4cef307b28,
+      type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

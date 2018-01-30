@@ -6,6 +6,9 @@ using UnityEngine;
 
 namespace Core.UI
 {
+	/// <summary>
+	/// A 'Window' is basically a Panel, or any UI element with a canvas renderer.
+	/// </summary>
 	public class UIWindow : MonoBehaviour
 	{
 		protected IUIService uiService;
@@ -38,6 +41,10 @@ namespace Core.UI
 			uiService = svc;
 		}
 
+		/// <summary>
+		/// Close window
+		/// </summary>
+		/// <returns>Observable</returns>
 		public virtual IObservable<UIWindow> Close()
 		{
 			var subject = new Subject<UIWindow>();
@@ -57,6 +64,9 @@ namespace Core.UI
 			return subject;
 		}
 
+		/// <summary>
+		/// Utility method to trigger Close() from a UI event.
+		/// </summary>
 		public virtual void UIClose()
 		{
 			Close();

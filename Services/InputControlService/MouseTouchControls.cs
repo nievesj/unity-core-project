@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Core.ControlSystem
 {
-	public class Constants
+	internal class Constants
 	{
 		public const string MouseAxisX = "Mouse X";
 		public const string MouseAxisY = "Mouse Y";
@@ -25,6 +25,14 @@ namespace Core.ControlSystem
 		Nothing,
 	}
 
+	/// <summary>
+	/// Enables basic mouse / touch controls that can be used to interact with the game world
+	/// It only tracks one finger.
+	/// Emits the following events:
+	/// OnMouseDown
+	/// OnMouseUp
+	/// OnMouseDrag
+	/// </summary>
 	public class MouseTouchControls : MonoBehaviour
 	{
 		public float cameraMovementSpeedMobile = 0.2f;
@@ -34,22 +42,20 @@ namespace Core.ControlSystem
 			set { controlState = value; }
 		}
 
-		protected Subject<Vector2> onMouseDown = new Subject<Vector2>();
+		private MouseTouchState mouseTouchState = MouseTouchState.Nothing;
+		private ControlState controlState = ControlState.Enabled;
+
+		private Subject<Vector2> onMouseDown = new Subject<Vector2>();
 		public IObservable<Vector2> OnMouseDown { get { return onMouseDown; } }
 
-		protected Subject<Vector2> onMouseUp = new Subject<Vector2>();
+		private Subject<Vector2> onMouseUp = new Subject<Vector2>();
 		public IObservable<Vector2> OnMouseUp { get { return onMouseUp; } }
 
-		protected Subject<Vector2> onMouseDrag = new Subject<Vector2>();
+		private Subject<Vector2> onMouseDrag = new Subject<Vector2>();
 		public IObservable<Vector2> OnMouseDrag { get { return onMouseDrag; } }
-
-		protected MouseTouchState mouseTouchState = MouseTouchState.Nothing;
-		protected ControlState controlState = ControlState.Enabled;
-		protected Vector2 InputDeltaMovementChange = Vector2.zero;
 
 		public void Init()
 		{
-			//workaround until I figure out a better way of doing this
 			onMouseDown.Dispose();
 			onMouseUp.Dispose();
 			onMouseDrag.Dispose();
@@ -59,12 +65,14 @@ namespace Core.ControlSystem
 			onMouseDrag = new Subject<Vector2>();
 		}
 
-		protected void Update()
+		/// <summary>
+		/// Since we're dealing with inputs using Update is more appropiate than using a co-routine.
+		/// </summary>
+		private void Update()
 		{
-
 			if (controlState.Equals(ControlState.Enabled))
 			{
-#if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
+#if (UNITY_IOS || UNITY_ANDROID)&& !UNITY_EDITOR
 				TouchControl();
 #elif UNITY_WEBGL || UNITY_EDITOR
 				MouseControl();
@@ -75,7 +83,7 @@ namespace Core.ControlSystem
 		/// <summary>
 		/// Manages mouse controls for editor and webgl
 		/// </summary>
-		protected void MouseControl()
+		private void MouseControl()
 		{
 			if (Input.GetMouseButton(0))
 			{
@@ -90,7 +98,7 @@ namespace Core.ControlSystem
 		/// <summary>
 		/// Manages touch control for mobile devices
 		/// </summary>
-		protected void TouchControl()
+		private void TouchControl()
 		{
 			//limited to one finger, no need to track additional fingers for now...
 			if (Input.touchCount > 0)
@@ -116,10 +124,10 @@ namespace Core.ControlSystem
 			}
 		}
 
-		protected void MouseDown(Vector2 mousePosition)
+		private void MouseDown(Vector2 mousePosition)
 		{
 			if (mouseTouchState.Equals(MouseTouchState.Nothing))
-				onMouseDown.OnNext((Vector2) Camera.main.ScreenToWorldPoint(mousePosition));
+				onMouseDown.OnNext((Vector2)Camera.main.ScreenToWorldPoint(mousePosition));
 
 			mouseTouchState = MouseTouchState.MouseDown;
 
@@ -129,19 +137,19 @@ namespace Core.ControlSystem
 #endif
 		}
 
-		protected void MouseUp(Vector2 mousePosition)
+		private void MouseUp(Vector2 mousePosition)
 		{
 			mouseTouchState = MouseTouchState.MouseUp;
 
-			onMouseUp.OnNext((Vector2) Camera.main.ScreenToWorldPoint(mousePosition));
+			onMouseUp.OnNext((Vector2)Camera.main.ScreenToWorldPoint(mousePosition));
 			mouseTouchState = MouseTouchState.Nothing;
 		}
 
-		protected void MouseDrag(Vector2 mousePosition)
+		private void MouseDrag(Vector2 mousePosition)
 		{
 			mouseTouchState = MouseTouchState.MouseDrag;
 
-			onMouseDrag.OnNext((Vector2) Camera.main.ScreenToWorldPoint(mousePosition));
+			onMouseDrag.OnNext((Vector2)Camera.main.ScreenToWorldPoint(mousePosition));
 		}
 
 		/// <summary>
@@ -152,8 +160,8 @@ namespace Core.ControlSystem
 		{
 			Vector2 position = Vector2.zero;
 
-#if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
-			if (Input.touchCount > 0) // && Input.GetTouch(0).phase == TouchPhase.Moved)
+#if (UNITY_IOS || UNITY_ANDROID)&& !UNITY_EDITOR
+			if (Input.touchCount > 0)// && Input.GetTouch(0).phase == TouchPhase.Moved)
 			{
 				position = Camera.main.ScreenToWorldPoint(new Vector2(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y));
 			}
@@ -172,7 +180,7 @@ namespace Core.ControlSystem
 		{
 			Vector2 position = Vector2.zero;
 
-#if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
+#if (UNITY_IOS || UNITY_ANDROID)&& !UNITY_EDITOR
 			if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved)
 			{
 				position.x = .03f * Input.GetTouch(0).deltaPosition.x;
@@ -184,6 +192,13 @@ namespace Core.ControlSystem
 			position.y = Input.GetAxis(Constants.MouseAxisX);
 #endif
 			return position;
+		}
+
+		private void OnDestroy()
+		{
+			onMouseDown.Dispose();
+			onMouseUp.Dispose();
+			onMouseDrag.Dispose();
 		}
 	}
 }

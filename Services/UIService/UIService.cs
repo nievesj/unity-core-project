@@ -21,15 +21,11 @@ namespace Core.UI
 	public class UIService : IUIService
 	{
 		protected UIServiceConfiguration configuration;
-		protected ServiceLocator app;
 
-		protected AssetService assetService;
+		protected IAssetService assetService;
 		protected RectTransform mainCanvas;
 
 		protected Dictionary<string, UIWindow> activeWindows;
-
-		//TODO: Add an option to preload windows as prefabs. This is needed so theres no waiting time when opening windows and the bundles are remote.
-		// protected Dictionary<string, UIWindow> preLoadedWindows;
 
 		protected Subject<IService> serviceConfigured = new Subject<IService>();
 		public IObservable<IService> ServiceConfigured { get { return serviceConfigured; } }
@@ -54,11 +50,9 @@ namespace Core.UI
 			serviceConfigured.OnCompleted();
 		}
 
-		public void StartService(ServiceLocator application)
+		public void StartService()
 		{
-			app = application;
-
-			assetService = ServiceLocator.GetService<IAssetService>()as AssetService;
+			assetService = ServiceLocator.GetService<IAssetService>();
 			activeWindows = new Dictionary<string, UIWindow>();
 
 			//instantiate main canvas
@@ -75,7 +69,7 @@ namespace Core.UI
 			serviceStarted.OnCompleted();
 		}
 
-		public void StopService(ServiceLocator application)
+		public void StopService()
 		{
 			serviceStopped.OnNext(this);
 			serviceStopped.OnCompleted();
@@ -83,11 +77,11 @@ namespace Core.UI
 			Object.Destroy(mainCanvas.gameObject);
 		}
 
-		public IObservable<UIWindow> OpenWindow(UIWindows window)
-		{
-			return OpenWindow(window.ToString());
-		}
-
+		/// <summary>
+		/// Opens a window
+		/// </summary>
+		/// <param name="window">Window name</param>
+		/// <returns>Observable</returns>
 		public IObservable<UIWindow> OpenWindow(string window)
 		{
 			BundleRequest bundleNeeded = new BundleRequest(AssetCategoryRoot.Windows, window, window);
@@ -116,16 +110,31 @@ namespace Core.UI
 				});
 		}
 
+		/// <summary>
+		/// Checks if a window is already open
+		/// </summary>
+		/// <param name="window">Window name</param>
+		/// <returns>bool</returns>
 		public bool IsWindowOpen(string window)
 		{
 			return activeWindows.ContainsKey(window)? true : false;
 		}
 
+		/// <summary>
+		/// Returns the reference of an open window
+		/// </summary>
+		/// <param name="window">Window name</param>
+		/// <returns>UIWindow</returns>
 		public UIWindow GetOpenWindow(string window)
 		{
 			return activeWindows.ContainsKey(window)? activeWindows[window] : null;
 		}
 
+		/// <summary>
+		/// Closes a window
+		/// </summary>
+		/// <param name="window">Window name</param>
+		/// <returns>Observable</returns>
 		public IObservable<UIWindow> CloseWindow(UIWindow window)
 		{
 			return window.Close()
@@ -148,15 +157,6 @@ namespace Core.UI
 				activeWindows.Add(window.name, window);
 
 			onWindowOnpened.OnNext(window);
-		}
-
-		protected void OnLoadedWindow(UIWindow window)
-		{
-			var obj = Object.Instantiate<UIWindow>(window, mainCanvas);
-
-			obj.Closed.Subscribe(WindowClosed);
-			obj.Opened.Subscribe(WindowOpened);
-			obj.Initialize(this);
 		}
 	}
 }

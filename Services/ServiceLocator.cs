@@ -78,7 +78,7 @@ namespace Core.Service
 				throw new System.Exception("cannot add a null service to the ServiceFramework");
 			}
 			services.Add(name, service);
-			service.StartService(_instance);
+			service.StartService();
 		}
 
 		public static T GetService<T>()where T : class, IService
@@ -97,7 +97,7 @@ namespace Core.Service
 			T returningService = GetService<T>();
 			if (returningService != null)
 			{
-				services[serviceName].StopService(_instance);
+				services[serviceName].StopService();
 				services.Remove(serviceName);
 			}
 			return returningService;
@@ -111,7 +111,7 @@ namespace Core.Service
 				if (serviceKVP.Value is T)
 				{
 					T rtn = (T)serviceKVP.Value;
-					services[serviceKVP.Key].StopService(_instance);
+					services[serviceKVP.Key].StopService();
 					services.Remove(serviceKVP.Key);
 					return rtn;
 				}
@@ -131,9 +131,9 @@ namespace Core.Service
 		IObservable<IService> ServiceStarted { get; }
 		IObservable<IService> ServiceStopped { get; }
 
-		void StartService(ServiceLocator application);
+		void StartService();
 
-		void StopService(ServiceLocator application);
+		void StopService();
 
 		void Configure(ServiceConfiguration config);
 	}

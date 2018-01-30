@@ -18,7 +18,6 @@ namespace Core.Audio
 	public class AudioService : IAudioService
 	{
 		protected AudioServiceConfiguration configuration;
-		protected ServiceLocator app;
 		protected Pooler<AudioSource> poller;
 
 		protected Subject<IService> serviceConfigured = new Subject<IService>();
@@ -36,14 +35,13 @@ namespace Core.Audio
 			serviceConfigured.OnNext(this);
 		}
 
-		public void StartService(ServiceLocator application)
+		public void StartService()
 		{
-			app = application;
 			ServiceLocator.OnGameStart.Subscribe(OnGameStart);
 			serviceStarted.OnNext(this);
 		}
 
-		public void StopService(ServiceLocator application)
+		public void StopService()
 		{
 			if (poller != null)
 				poller.Destroy();

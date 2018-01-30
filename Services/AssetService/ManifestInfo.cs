@@ -10,6 +10,11 @@ using UnityEngine.Networking;
 
 namespace Core.Assets
 {
+	/// <summary>
+	/// Class contains the relevant information contained on a manifest file and it's used for caching bundles
+	/// 
+	/// TODO: store list of dependencies
+	/// </summary>
 	public class ManifestInfo
 	{
 		private uint crc;
@@ -30,6 +35,10 @@ namespace Core.Assets
 			bundle = bundleNeeded;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		public IObservable<ManifestInfo> GetInfo()
 		{
 			return Observable.Create<ManifestInfo>(
@@ -143,11 +152,21 @@ namespace Core.Assets
 				});
 		}
 
+		/// <summary>
+		/// Observable wrapper for GetManifestOperation 
+		/// </summary>
+		/// <returns>Observable</returns>
 		private IObservable<string> GetManifestFromWeb()
 		{
 			return Observable.FromCoroutine<string>((observer, cancellationToken)=> GetManifestOperation(observer, cancellationToken));
 		}
 
+		/// <summary>
+		/// Gets manifest file from web.
+		/// </summary>
+		/// <param name="observer">Observer</param>
+		/// <param name="cancellationToken">Cancellation token</param>
+		/// <returns>IEnumerator</returns>
 		private IEnumerator GetManifestOperation(IObserver<string> observer, CancellationToken cancellationToken)
 		{
 			Debug.Log(("ManifestInfo: Downloading Manifest | " + bundle.ManifestName).Colored(Colors.brown));
@@ -164,7 +183,12 @@ namespace Core.Assets
 			www.Dispose();
 		}
 
-		private IObservable<bool> IsManifestExpired(int expiredDays)
+		/// <summary>
+		/// Determines of a cached manifest file is expired and needs to be refreshed
+		/// </summary>
+		/// <param name="expirationDays">Days in which a file is considered expired</param>
+		/// <returns>Observable</returns>
+		private IObservable<bool> IsManifestExpired(int expirationDays)
 		{
 			return Observable.Create<bool>(
 				(IObserver<bool> observer)=>
@@ -184,9 +208,9 @@ namespace Core.Assets
 					else
 					{
 						var manifestDays = GetAgeManifest().Days;
-						if (manifestDays > expiredDays)
+						if (manifestDays > expirationDays)
 						{
-							Debug.Log(("ManifestInfo: Manifest file is longer than " + expiredDays + " days. Flagging as expired | " + bundle.ManifestName).Colored(Colors.brown));
+							Debug.Log(("ManifestInfo: Manifest file is longer than " + expirationDays + " days. Flagging as expired | " + bundle.ManifestName).Colored(Colors.brown));
 
 							try { SaveAgeManifest(); }
 							catch (Exception ex) { observer.OnError(ex); }
@@ -195,7 +219,7 @@ namespace Core.Assets
 						}
 						else
 						{
-							Debug.Log(("ManifestInfo: Manifest file still valid. Expires in " + (expiredDays - manifestDays)+ " days | " + bundle.ManifestName).Colored(Colors.brown));
+							Debug.Log(("ManifestInfo: Manifest file still valid. Expires in " + (expirationDays - manifestDays)+ " days | " + bundle.ManifestName).Colored(Colors.brown));
 						}
 					}
 
@@ -206,6 +230,10 @@ namespace Core.Assets
 				});
 		}
 
+		/// <summary>
+		/// Gets age of the manifest file, from the date it was created to the current system date
+		/// </summary>
+		/// <returns>TimeSpan in days</returns>
 		private TimeSpan GetAgeManifest()
 		{
 			var fileContents = OpenFile(bundle.ManifestAgeFile);
@@ -216,12 +244,20 @@ namespace Core.Assets
 			return diff;
 		}
 
+		/// <summary>
+		/// Saves manifest age file. This is just a simple json file with a date
+		/// </summary>
 		private void SaveAgeManifest()
 		{
 			string jsonData = JsonUtility.ToJson((JsonDateTime)DateTime.Now, true);
 			SaveFile(bundle.ManifestAgeFile, jsonData);
 		}
 
+		/// <summary>
+		/// Saves a text file
+		/// </summary>
+		/// <param name="file">File path, name should be included</param>
+		/// <param name="data">Data</param>
 		private void SaveFile(string file, string data)
 		{
 			try
@@ -238,6 +274,11 @@ namespace Core.Assets
 			}
 		}
 
+		/// <summary>
+		/// Reads a text file
+		/// </summary>
+		/// <param name="file">File path, name should be included</param>
+		/// <returns>File contents</returns>
 		private string OpenFile(string file)
 		{
 			try

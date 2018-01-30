@@ -18,8 +18,6 @@ namespace Core.ControlSystem
 		protected MouseTouchControls controls;
 		public MouseTouchControls Controls { get { return controls; } }
 
-		protected ServiceLocator app;
-
 		protected Subject<IService> serviceConfigured = new Subject<IService>();
 		public IObservable<IService> ServiceConfigured { get { return serviceConfigured; } }
 
@@ -39,13 +37,12 @@ namespace Core.ControlSystem
 			serviceConfigured.OnNext(this);
 		}
 
-		public void StartService(ServiceLocator application)
+		public void StartService()
 		{
-			app = application;
 			serviceStarted.OnNext(this);
 		}
 
-		public void StopService(ServiceLocator application)
+		public void StopService()
 		{
 			serviceStopped.OnNext(this);
 
@@ -58,7 +55,7 @@ namespace Core.ControlSystem
 		{
 			GameObject go = GameObject.Instantiate(configuration.MouseTouchControls);
 			controls = go.GetComponent<MouseTouchControls>();
-			controls.transform.SetParent(app.transform);
+			controls.transform.SetParent(ServiceLocator.Instance.transform);
 		}
 
 		protected void DestroyControlObject(IService service)

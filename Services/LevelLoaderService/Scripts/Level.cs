@@ -16,10 +16,12 @@ namespace Core.LevelLoaderService
 		Completed
 	}
 
+	/// <summary>
+	/// A level has the same purpose of a scene, but we can change them without having to load a scene.
+	/// This works well on most plaforms except for WebGL where loading scenes also clears the memory.
+	/// </summary>
 	public abstract class Level : MonoBehaviour
 	{
-		public string LevelName { get { return name; } }
-
 		public AudioPlayer backgroundMusic;
 
 		protected ILevelLoaderService levelService;
@@ -31,7 +33,7 @@ namespace Core.LevelLoaderService
 
 		protected virtual void Awake()
 		{
-			Debug.Log(("Level: " + LevelName + " loaded").Colored(Colors.lightblue));
+			Debug.Log(("Level: " + name + " loaded").Colored(Colors.lightblue));
 
 			levelService = ServiceLocator.GetService<ILevelLoaderService>();
 			audioService = ServiceLocator.GetService<IAudioService>();
@@ -42,11 +44,9 @@ namespace Core.LevelLoaderService
 
 		protected virtual void Start()
 		{
-			Debug.Log(("Level: " + LevelName + " started").Colored(Colors.lightblue));
+			Debug.Log(("Level: " + name + " started").Colored(Colors.lightblue));
 
 			levelState = LevelState.Started;
-
-			// onLevelStarted.OnNext(this);
 			levelState = LevelState.InProgress;
 
 			if (audioService != null && backgroundMusic != null && backgroundMusic.Clip != null)
@@ -57,8 +57,6 @@ namespace Core.LevelLoaderService
 		{
 			if (audioService != null && backgroundMusic != null && backgroundMusic.Clip != null)
 				audioService.StopClip(backgroundMusic);
-
-			// onLevelUnloaded.OnNext(this);
 		}
 
 		protected virtual void OnDestroy()

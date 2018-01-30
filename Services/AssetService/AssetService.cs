@@ -22,7 +22,6 @@ namespace Core.Assets
 	public class AssetService : IAssetService
 	{
 		protected AssetServiceConfiguration configuration;
-		protected ServiceLocator app;
 
 		public uint AssetBundleVersionNumber { get { return 1; } }
 
@@ -51,9 +50,8 @@ namespace Core.Assets
 			serviceConfigured.OnCompleted();
 		}
 
-		public void StartService(ServiceLocator application)
+		public void StartService()
 		{
-			app = application;
 			assetBundlebundleLoader = new AssetBundleLoader(this);
 
 			ServiceLocator.OnGameStart.Subscribe(OnGameStart);
@@ -61,17 +59,27 @@ namespace Core.Assets
 			serviceStarted.OnCompleted();
 		}
 
-		public void StopService(ServiceLocator application)
+		public void StopService()
 		{
 			serviceStopped.OnNext(this);
 			serviceStopped.OnCompleted();
 		}
 
-		public IObservable<T> GetAndLoadAsset<T>(BundleRequest bundleNeeded)where T : UnityEngine.Object
+		/// <summary>
+		/// Gets and loads the required asset bundle
+		/// </summary>
+		/// <param name="bundleRequest">Bundle to request</param>
+		/// <returns>Observable</returns>
+		public IObservable<T> GetAndLoadAsset<T>(BundleRequest bundleRequest)where T : UnityEngine.Object
 		{
-			return assetBundlebundleLoader.LoadAsset<T>(bundleNeeded);
+			return assetBundlebundleLoader.LoadAsset<T>(bundleRequest);
 		}
 
+		/// <summary>
+		/// Unloads asset and removes it from memory
+		/// </summary>
+		/// <param name="name">Asset name</param>
+		/// <param name="unloadAllDependencies">Unload all dependencies?</param>
 		public void UnloadAsset(string name, bool unloadAllDependencies)
 		{
 			assetBundlebundleLoader.UnloadAsset(name, unloadAllDependencies);
@@ -79,7 +87,9 @@ namespace Core.Assets
 
 		protected void OnGameStart(ServiceLocator application)
 		{
-			LoadGameBundle();
+			//TODO: Not needed for now. Can be used later to validate asset bundles and manifests. 
+			//or to preload all assets
+			// LoadGameBundle();
 		}
 
 		protected void LoadGameBundle()

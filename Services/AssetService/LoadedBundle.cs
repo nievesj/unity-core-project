@@ -16,11 +16,6 @@ namespace Core.Assets
 		protected AssetBundle assetBundle;
 		protected ManifestInfo manifestInfo;
 
-		public AssetBundle AssetBundle { get { return assetBundle; } }
-		public ManifestInfo ManifestInfo { get { return manifestInfo; } }
-
-		public string Name { get { return assetBundle.name; } }
-
 		public LoadedBundle(AssetBundle asset)
 		{
 			assetBundle = asset;

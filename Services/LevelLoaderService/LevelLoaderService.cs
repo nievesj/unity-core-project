@@ -20,16 +20,12 @@ namespace Core.LevelLoaderService
 	public class LevelLoaderService : ILevelLoaderService
 	{
 		protected LevelLoaderServiceConfiguration configuration;
-		protected ServiceLocator app;
-
-		protected AssetService assetService;
+		protected IAssetService assetService;
 		protected IUIService uiService;
+		protected UIWindow loadingScreen;
 
 		protected Level currentLevel;
 		public Level CurrentLevel { get { return currentLevel; } }
-
-		protected string currentLevelName;
-		protected UIWindow loadingScreen;
 
 		protected Subject<IService> serviceConfigured = new Subject<IService>();
 		public IObservable<IService> ServiceConfigured { get { return serviceConfigured; } }
@@ -48,16 +44,15 @@ namespace Core.LevelLoaderService
 			serviceConfigured.OnCompleted();
 		}
 
-		public void StartService(ServiceLocator application)
+		public void StartService()
 		{
-			app = application;
 			serviceStarted.OnNext(this);
 			serviceStarted.OnCompleted();
 
 			ServiceLocator.OnGameStart.Subscribe(OnGameStart);
 		}
 
-		public void StopService(ServiceLocator application)
+		public void StopService()
 		{
 			serviceStopped.OnNext(this);
 			serviceStopped.OnCompleted();
@@ -66,15 +61,20 @@ namespace Core.LevelLoaderService
 		protected void OnGameStart(ServiceLocator application)
 		{
 			uiService = ServiceLocator.GetService<IUIService>();
-			assetService = ServiceLocator.GetService<IAssetService>()as AssetService;
+			assetService = ServiceLocator.GetService<IAssetService>();
 		}
 
+		/// <summary>
+		/// Attemps to load a level
+		/// </summary>
+		/// <param name="name">bundle name</param>
+		/// <returns>Observable</returns>
 		public IObservable<Level> LoadLevel(string name)
 		{
 			if (currentLevel)
 				UnloadLevel(currentLevel);
 
-			BundleRequest bundleNeeded = new BundleRequest(AssetCategoryRoot.Levels, name, name);
+			BundleRequest bundleRequest = new BundleRequest(AssetCategoryRoot.Levels, name, name);
 
 			return Observable.Create<Level>(
 				(IObserver<Level> observer)=>
@@ -94,11 +94,16 @@ namespace Core.LevelLoaderService
 						observer.OnCompleted();
 					};
 
-					return assetService.GetAndLoadAsset<Level>(bundleNeeded)
+					return assetService.GetAndLoadAsset<Level>(bundleRequest)
 						.Subscribe(OnLevelLoaded);
 				});
 		}
 
+		/// <summary>
+		/// Unloads level.
+		/// </summary>
+		/// <param name="level">level name</param>
+		/// <returns>Observable</returns>
 		public IObservable<Level> UnloadLevel(Level level)
 		{
 			var subject = new Subject<Level>();
@@ -107,7 +112,7 @@ namespace Core.LevelLoaderService
 			{
 				Debug.Log(("LevelLoaderService: Unloading level  - " + currentLevel.name).Colored(Colors.lightblue));
 				GameObject.Destroy(level.gameObject);
-				assetService.UnloadAsset(level.LevelName, true);
+				assetService.UnloadAsset(level.name, true);
 			}
 
 			subject.OnNext(null);
