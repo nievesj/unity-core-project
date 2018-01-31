@@ -11,6 +11,7 @@ namespace Core.Scenes
 	public interface ISceneLoaderService : IService
 	{
 		IObservable<UnityEngine.Object> LoadScene(string scene, LoadSceneMode mode);
+		IObservable<UnityEngine.Object> UnLoadScene(string scene);
 	}
 
 	public class SceneLoaderService : ISceneLoaderService
@@ -59,6 +60,8 @@ namespace Core.Scenes
 					{
 						SceneManager.LoadSceneAsync(scene, mode).AsObservable().Subscribe(x =>
 						{
+							Resources.UnloadUnusedAssets();
+
 							observer.OnNext(loadedScene);
 							observer.OnCompleted();
 
@@ -68,6 +71,23 @@ namespace Core.Scenes
 						Debug.Log(("SceneLoaderService: Loaded scene - " + scene).Colored(Colors.lightblue));
 					};
 					return assetService.GetAndLoadAsset<UnityEngine.Object>(bundleNeeded).Subscribe(OnSceneLoaded);
+				});
+		}
+
+		public IObservable<UnityEngine.Object> UnLoadScene(string scene)
+		{
+			return Observable.Create<UnityEngine.Object>(
+				(IObserver<UnityEngine.Object> observer)=>
+				{
+					SceneManager.UnloadSceneAsync(scene).AsObservable().Subscribe(x =>
+					{
+						Debug.Log(("SceneLoaderService: Unloaded scene - " + scene).Colored(Colors.lightblue));
+
+						observer.OnNext(null);
+						observer.OnCompleted();
+					});
+
+					return new Subject<UnityEngine.Object>();
 				});
 		}
 	}
