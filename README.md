@@ -4,7 +4,7 @@ Current Version 1.1
 
 What is _Core?
 ---
-_Core is a collection utilities and libraries to help speed up development in Unity3D by providing the following functionality:
+_Core is a collection of utilities and libraries to help speed up development in Unity3D by providing the following functionality:
 * Asset Bundle loading system
 	* Can load assets from the streaming assets folder
 	* Can load assets from a web server
