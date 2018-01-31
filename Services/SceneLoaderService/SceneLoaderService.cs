@@ -52,6 +52,14 @@ namespace Core.Scenes
 
 		public IObservable<UnityEngine.Object> LoadScene(string scene, LoadSceneMode mode = LoadSceneMode.Single)
 		{
+			if (assetService.GetLoadedBundle<UnityEngine.Object>(scene))
+				return GetPreviouslyLoadedScene(scene, mode);
+			else
+				return GetScene(scene, mode);
+		}
+
+		private IObservable<UnityEngine.Object> GetScene(string scene, LoadSceneMode mode = LoadSceneMode.Single)
+		{
 			BundleRequest bundleNeeded = new BundleRequest(AssetCategoryRoot.Scenes, scene, scene);
 			return Observable.Create<UnityEngine.Object>(
 				(IObserver<UnityEngine.Object> observer)=>
@@ -74,6 +82,16 @@ namespace Core.Scenes
 				});
 		}
 
+		private IObservable<UnityEngine.Object> GetPreviouslyLoadedScene(string scene, LoadSceneMode mode = LoadSceneMode.Single)
+		{
+			var subject = new Subject<UnityEngine.Object>();
+
+			subject.OnError(new System.Exception("Scene " + scene + " is already loaded and open. Opening the same scene twice is not supported."));
+			subject.OnCompleted();
+
+			return subject;
+		}
+
 		public IObservable<UnityEngine.Object> UnLoadScene(string scene)
 		{
 			return Observable.Create<UnityEngine.Object>(
@@ -82,6 +100,8 @@ namespace Core.Scenes
 					SceneManager.UnloadSceneAsync(scene).AsObservable().Subscribe(x =>
 					{
 						Debug.Log(("SceneLoaderService: Unloaded scene - " + scene).Colored(Colors.lightblue));
+
+						assetService.UnloadAsset(scene, true);
 
 						observer.OnNext(null);
 						observer.OnCompleted();

@@ -28,7 +28,7 @@ namespace Core.Assets
 		/// Initialize object
 		/// </summary>
 		/// <param name="service"></param>
-		public AssetBundleLoader(IAssetService service)
+		internal AssetBundleLoader(IAssetService service)
 		{
 			assetService = service as AssetService;
 
@@ -42,7 +42,7 @@ namespace Core.Assets
 		/// </summary>
 		/// <param name="bundleRequest">Bundle to request</param>
 		/// <returns>Observable</returns>
-		public IObservable<T> LoadAsset<T>(BundleRequest bundleRequest)where T : UnityEngine.Object
+		internal IObservable<T> LoadAsset<T>(BundleRequest bundleRequest)where T : UnityEngine.Object
 		{
 #if UNITY_EDITOR
 			if (EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES)
@@ -65,7 +65,7 @@ namespace Core.Assets
 		/// </summary>
 		/// <param name="name">Asset name</param>
 		/// <param name="unloadAllDependencies">Unload all dependencies?</param>
-		public void UnloadAsset(string name, bool unloadAllDependencies)
+		internal void UnloadAsset(string name, bool unloadAllDependencies)
 		{
 			name = name.ToLower();
 
@@ -73,7 +73,16 @@ namespace Core.Assets
 			{
 				loadedBundles[name].Unload(unloadAllDependencies);
 				loadedBundles.Remove(name);
+
+				Resources.UnloadUnusedAssets();
 			}
+		}
+
+		internal T GetLoadedBundle<T>(string name)where T : UnityEngine.Object
+		{
+			if (loadedBundles.ContainsKey(name.ToLower()))
+				return loadedBundles[name.ToLower()].Bundle as T;
+			else return null;
 		}
 
 #if UNITY_EDITOR

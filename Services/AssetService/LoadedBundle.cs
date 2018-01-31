@@ -13,14 +13,14 @@ namespace Core.Assets
 	/// </summary>
 	public class LoadedBundle
 	{
-		protected AssetBundle assetBundle;
-		protected ManifestInfo manifestInfo;
+		private AssetBundle assetBundle;
+		private ManifestInfo manifestInfo;
+
+		internal AssetBundle Bundle { get { return assetBundle; } }
 
 		public LoadedBundle(AssetBundle asset)
 		{
 			assetBundle = asset;
-			// if (asset)
-			// 	manifest = asset.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
 		}
 
 		public LoadedBundle(AssetBundle asset, ManifestInfo info)
@@ -39,10 +39,29 @@ namespace Core.Assets
 		{
 			Debug.Log(("LoadedBundle: Asynchronously loading asset: " + name).Colored(Colors.yellow));
 
-			return Observable.FromCoroutine<T>((observer, cancellationToken)=> RunAssetBundleRequestOperation<T>(assetBundle.LoadAssetAsync(name), observer, cancellationToken));
+			//If the asset bundle contains a scene, pass the scene up the stream so it can be loaded
+			if (assetBundle.GetAllScenePaths().Length > 0)
+				return Observable.FromCoroutine<T>((observer, cancellationToken)=> RunSceneRequestOperation<T>(assetBundle as T, observer, cancellationToken));
+			else
+				return Observable.FromCoroutine<T>((observer, cancellationToken)=> RunAssetBundleRequestOperation<T>(assetBundle.LoadAssetAsync(name), observer, cancellationToken));
 		}
 
-		public IEnumerator RunAssetBundleRequestOperation<T>(UnityEngine.AssetBundleRequest asyncOperation, IObserver<T> observer, CancellationToken cancellationToken)where T : UnityEngine.Object
+		/// <summary>
+		/// We cannot use assetBundle.LoadAssetAsync to load a scene, so a dummy method is needed to pass the scene up the stream
+		/// </summary>
+		/// <param name="obj">Scene</param>
+		/// <param name="observer">Observer</param>
+		/// <param name="cancellationToken">Cancellation Token</param>
+		/// <returns></returns>
+		private IEnumerator RunSceneRequestOperation<T>(T obj, IObserver<T> observer, CancellationToken cancellationToken)where T : UnityEngine.Object
+		{
+			yield return null;
+
+			observer.OnNext(obj);
+			observer.OnCompleted();
+		}
+
+		private IEnumerator RunAssetBundleRequestOperation<T>(UnityEngine.AssetBundleRequest asyncOperation, IObserver<T> observer, CancellationToken cancellationToken)where T : UnityEngine.Object
 		{
 			while (!asyncOperation.isDone && !cancellationToken.IsCancellationRequested)
 				yield return null;

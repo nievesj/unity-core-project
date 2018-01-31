@@ -16,6 +16,8 @@ namespace Core.Assets
 
 		IObservable<T> GetAndLoadAsset<T>(BundleRequest bundleNeeded)where T : UnityEngine.Object;
 
+		T GetLoadedBundle<T>(string name)where T : UnityEngine.Object;
+
 		void UnloadAsset(string name, bool unloadAllDependencies);
 	}
 
@@ -83,6 +85,11 @@ namespace Core.Assets
 		public void UnloadAsset(string name, bool unloadAllDependencies)
 		{
 			assetBundlebundleLoader.UnloadAsset(name, unloadAllDependencies);
+		}
+
+		public T GetLoadedBundle<T>(string name)where T : UnityEngine.Object
+		{
+			return assetBundlebundleLoader.GetLoadedBundle<T>(name);
 		}
 
 		protected void OnGameStart(ServiceLocator application)
