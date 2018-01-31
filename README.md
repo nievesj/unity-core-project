@@ -92,6 +92,7 @@ With asset bundle simulation the game can be played on editor without needing to
 ![Core Framework Preferences](http://www.josemnieves.com/unity/images/preferences.png)
 
 Alternatively, there's also a _Core menu to enable/disable simulation mode
+
 ![Core Menu](http://www.josemnieves.com/unity/images/coremenu.png)
 
 Asset Service Options
