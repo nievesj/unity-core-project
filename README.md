@@ -1,5 +1,6 @@
+
 # _Core
-Version 1
+Current Version 1.1
 
 What is _Core?
 ---
@@ -8,6 +9,7 @@ _Core is a collection utilities and libraries to help speed up development in Un
 	* Can load assets from the streaming assets folder
 	* Can load assets from a web server
 	* Can cache downloaded bundles
+	* Can load scenes as asset bundles
 	* Can simulate asset bundles on editor
 * Basic window system
 	* Open / Close window
@@ -45,5 +47,63 @@ Has been tested on iOS, Android, Mac, Windows and [WebGL](http://www.josemnieves
 
 Here is a live WebGL test of the example project: http://www.josemnieves.com/unity/core_example_webgl_test/
 
+Setup info
+---
 
+Asset Bundles
+---
+You may need to build the asset bundles depending on which platform you're using. Please refer to the  [AssetBundles-Browser](https://github.com/Unity-Technologies/AssetBundles-Browser)  documentation on how to do that. 
+
+For simplicity, the current asset bundle strategy for this tool is that each prefab is its own asset bundle, and asset bundles are organized by categories or directories.
+
+![Asset Bundle Organization](http://www.josemnieves.com/unity/images/aborg.png)
+
+ These directories are mapped to the enum [AssetCategoryRoot](https://github.com/nievesj/unity-core-project/blob/master/Services/AssetService/BundleRequest.cs#L97-L107) as shown below.
+
+    public enum AssetCategoryRoot
+	{
+		None,
+		Configuration,
+		Services,
+		Levels,
+		SceneContent,
+		GameContent,
+		Windows,
+		Audio,
+		Prefabs
+	}
+
+
+The service also detects the platform it's running on, and uses that to get the asset bundles from the web in the following order: 
+
+![Cloud Asset Bundle Structure](http://www.josemnieves.com/unity/images/webab.png)
+
+This functionality is entirely seamless to the developer, thus requesting an asset is now as easy as:
+
+       assetService.GetAndLoadAsset<Ball>(bundleRequest)
+			.Subscribe(loadedBall =>
+			{
+				var myBall = GameObject.Instantiate<Ball>(loadedBall);
+			});
+
+Simulating Asset Bundles
+---
+With asset bundle simulation the game can be played on editor without needing to build asset bundles. To activate just go to Unity Preferences, Core Framework and toggle "Simulation Mode".
+
+![Core Framework Preferences](http://www.josemnieves.com/unity/images/preferences.png)
+
+Alternatively, there's also a _Core menu to enable/disable simulation mode
+![Core Menu](http://www.josemnieves.com/unity/images/coremenu.png)
+
+Asset Service Options
+---
+Asset Service is the service in charge of loading asset bundles. The configuration file for this service is located in MyGame -> _CoreConfig -> AssetService
+* Use Streaming Assets
+	* Toggling this will load the asset bundles from the streaming assets folder
+* Asset Bundles URL
+	* Location where the asset bundles are stored on the cloud
+* Cache Asset Bundles?
+	* Toggle this if you want to cache the asset bundles on device. This will also cache the .manifest files on the Application.persistentDataPath path, and refresh them every 5 days, by default.
+
+![Asset Service Options](http://www.josemnieves.com/unity/images/assetservice.png)
 
