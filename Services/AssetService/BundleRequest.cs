@@ -100,8 +100,7 @@ namespace Core.Assets
 		Configuration,
 		Services,
 		Levels,
-		SceneContent,
-		GameContent,
+		Scenes,
 		Windows,
 		Audio,
 		Prefabs

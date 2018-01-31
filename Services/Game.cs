@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using Core.LevelLoaderService;
+using Core.Scenes;
 using Core.UI;
 using UniRx;
 using UnityEngine;
@@ -14,6 +15,7 @@ namespace Core.Service
 		public GameConfiguration GameConfiguration { get { return configuration; } }
 
 		protected ILevelLoaderService LevelLoader { get { return ServiceLocator.GetService<ILevelLoaderService>(); } }
+		protected ISceneLoaderService SceneLoader { get { return ServiceLocator.GetService<ISceneLoaderService>(); } }
 		protected IUIService UILoader { get { return ServiceLocator.GetService<IUIService>(); } }
 
 		protected virtual void Awake()
