@@ -52,9 +52,8 @@ Setup info
 
 Asset Bundles
 ---
-You may need to build the asset bundles depending on which platform you're using. Please refer to the  [AssetBundles-Browser](https://github.com/Unity-Technologies/AssetBundles-Browser)  documentation on how to do that. 
 
-For simplicity, the current asset bundle strategy for this tool is that each prefab is its own asset bundle, and asset bundles are organized by categories or directories.
+For simplicity, the current asset bundle strategy for this tool is that each prefab is its own asset bundle, and asset bundles are organized by categories or directories. Image below is Unity's [AssetBundles-Browser](https://github.com/Unity-Technologies/AssetBundles-Browser).
 
 ![Asset Bundle Organization](http://www.josemnieves.com/unity/images/aborg.png)
 
