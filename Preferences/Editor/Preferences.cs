@@ -24,7 +24,7 @@ namespace Core.Service
 
 			if (GUI.changed)
 			{
-				EditorPrefs.SetBool("EditorRefSimulateAssetBundles", boolPreference);
+				EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES = boolPreference;
 			}
 
 			EditorUITools.HorizontalLine();

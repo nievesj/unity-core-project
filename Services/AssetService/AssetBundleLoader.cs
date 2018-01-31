@@ -31,7 +31,6 @@ namespace Core.Assets
 		internal AssetBundleLoader(IAssetService service)
 		{
 			assetService = service as AssetService;
-
 			loadedBundles = new Dictionary<string, LoadedBundle>();
 		}
 

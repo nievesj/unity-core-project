@@ -18,6 +18,10 @@ public static class EditorPreferences
 #endif
 
 		}
+		set
+		{
+			EditorPrefs.SetBool("EditorRefSimulateAssetBundles", value);
+		}
 	}
 
 }
