@@ -32,7 +32,7 @@ The main aspect of this library is loading and unloading asset bundles in a rela
 
 How to integrate into a project?
 ---
-This project is meant to be added to an existing Unity Project, either by downloading it and placing it in the "Plugins" folder, or by setting it as a submodule to your git repo. Alternatively you can use the [Example Project](https://github.com/nievesj/unity_core_example) as a starting point. 
+This project is meant to be added to an existing Unity Project, either by downloading it and placing it in the "Plugins" folder, or by setting it as a subtree to your git repo. Alternatively you can use the [Example Project](https://github.com/nievesj/unity_core_example) as a starting point. 
 
 Dependencies
 ---
