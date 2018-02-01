@@ -10,7 +10,6 @@ namespace Core.UI
 
 		public Canvas mainCanvas;
 		public bool cacheWindows = false;
-		public UIWindows HUD = UIWindows.UIHUD;
 
 		override protected IService ServiceClass { get { return new UIService(); } }
 	}

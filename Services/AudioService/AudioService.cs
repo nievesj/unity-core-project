@@ -105,7 +105,7 @@ namespace Core.Audio
 		{
 			if (ap.PlayFrom)
 			{
-				ap.Player.transform.SetParent(poller.PollerTransform);
+				ap.Player.transform.SetParent(poller.PoolerTransform);
 				ap.Player.transform.localPosition = Vector3.zero;
 			}
 
