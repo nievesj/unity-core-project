@@ -9,7 +9,7 @@ _Core is a collection of utilities and libraries to help speed up development in
 	* Can load assets from the streaming assets folder
 	* Can load assets from a web server
 	* Can cache downloaded bundles
-	* Can load scenes as asset bundles
+	* Can load asset bundle scenes
 	* Can simulate asset bundles on editor
 * Basic window system
 	* Open / Close window
