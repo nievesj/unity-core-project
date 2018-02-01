@@ -26,7 +26,7 @@ namespace Core.UI
 			// 		Close();
 			// 	});
 
-			levelLoader.LoadLevel(Levels.MainLevel.ToString());
+			levelLoader.LoadLevel(MatchBattle.Constants.Levels.MAIN);
 			Close();
 		}
 	}
