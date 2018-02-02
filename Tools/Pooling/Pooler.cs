@@ -64,12 +64,8 @@ namespace Core.Polling
 		/// <param name="val">New pool size</param>
 		public void ResizePool(int val)
 		{
-			//TODO this logic is bad
 			sizeLimit = val;
 			var totalElems = pool.Count + activeElements;
-
-			Debug.Log(totalElems + " " + val);
-			Debug.Log(totalElems - val);
 			if (totalElems < val)
 			{
 				for (int i = totalElems; i <= val - 1; i++)
