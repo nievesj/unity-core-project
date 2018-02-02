@@ -7,6 +7,8 @@ namespace Core.Polling
 	public class Pooler<T> where T : Component
 	{
 		protected Stack<T> pool;
+		protected int activeElements = 0;
+
 		protected GameObject prefab;
 
 		protected Transform poolerTransform;
@@ -62,35 +64,43 @@ namespace Core.Polling
 		/// <param name="val">New pool size</param>
 		public void ResizePool(int val)
 		{
+			//TODO this logic is bad
 			sizeLimit = val;
-			if (pool.Count < val)
+			var totalElems = pool.Count + activeElements;
+
+			Debug.Log(totalElems + " " + val);
+			Debug.Log(totalElems - val);
+			if (totalElems < val)
 			{
-				for (int i = pool.Count; i <= val - 1; i++)
+				for (int i = totalElems; i <= val - 1; i++)
 					pool.Push(CreateObject(prefab));
 			}
-			else if (pool.Count > val)
+			else if (totalElems > val)
 			{
-				for (;
-					(pool.Count - 1)>= val;)
+				for (int i = 0; i <= (totalElems - val - 1); i++)
 				{
-					var o = pool.Pop();
-					GameObject.Destroy(o.gameObject);
+					if (pool.Count > 0)
+					{
+						var o = pool.Pop();
+						GameObject.Destroy(o.gameObject);
+					}
 				}
 			}
 		}
 
 		/// <summary>
-		/// Return element to the fool
+		/// Return element to the pool
 		/// </summary>
 		/// <param name="obj"></param>
 		public void Push(T obj)
 		{
 			obj.gameObject.SetActive(false);
-
-			if (!pool.Count.Equals(sizeLimit))
+			if ((pool.Count + activeElements)<= sizeLimit)
 				pool.Push(obj);
 			else
 				GameObject.Destroy(obj.gameObject);
+
+			activeElements--;
 		}
 
 		/// <summary>
@@ -108,6 +118,7 @@ namespace Core.Polling
 		{
 			T obj = pool.Pop();
 			obj.gameObject.SetActive(true);
+			activeElements++;;
 
 			return obj;
 		}
@@ -118,6 +129,7 @@ namespace Core.Polling
 				DestroyPool();
 
 			pool = new Stack<T>();
+			activeElements = 0;
 
 			for (int i = 0; i <= amount - 1; i++)
 				pool.Push(CreateObject(prefab));
