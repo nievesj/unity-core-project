@@ -47,21 +47,24 @@ namespace Core.UI
 		/// <returns>Observable</returns>
 		public virtual IObservable<UIWindow> Close()
 		{
-			var subject = new Subject<UIWindow>();
-			Action<UIWindow> OnCLosed = window =>
-			{
-				subject.OnNext(this);
-				subject.OnCompleted();
+			return Observable.Create<UIWindow>(
+				(IObserver<UIWindow> observer)=>
+				{
+					var subject = new Subject<UIWindow>();
 
-				OnWindowClosed(this);
-			};
+					Action<UIWindow> OnCLosed = window =>
+					{
+						observer.OnNext(this);
+						observer.OnCompleted();
 
-			if (outTransition != null && !inTransition.transitionType.Equals(TransitionType.NotUsed))
-				outTransition.PlayTransition(this, true).Subscribe(OnCLosed);
-			else
-				OnCLosed(this);
+						OnWindowClosed(this);
+					};
 
-			return subject;
+					if (outTransition != null && !inTransition.transitionType.Equals(TransitionType.NotUsed))
+						return outTransition.PlayTransition(this, true).Subscribe(OnCLosed);
+					else
+						return subject.Subscribe(OnCLosed);
+				});
 		}
 
 		/// <summary>
@@ -69,7 +72,7 @@ namespace Core.UI
 		/// </summary>
 		public virtual void UIClose()
 		{
-			Close();
+			Close().Subscribe();;
 		}
 
 		protected virtual void OnWindowOpened(UIWindow window)

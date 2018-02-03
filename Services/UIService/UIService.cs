@@ -100,6 +100,9 @@ namespace Core.UI
 						obj.Opened.Subscribe(WindowOpened);
 						obj.Initialize(this);
 
+						if (!activeWindows.ContainsKey(obj.name))
+							activeWindows.Add(obj.name, obj);
+
 						observer.OnNext(obj);
 						observer.OnCompleted();
 
@@ -153,9 +156,6 @@ namespace Core.UI
 
 		protected void WindowOpened(UIWindow window)
 		{
-			if (!activeWindows.ContainsKey(window.name))
-				activeWindows.Add(window.name, window);
-
 			onWindowOnpened.OnNext(window);
 		}
 	}
