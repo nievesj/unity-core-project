@@ -7,6 +7,7 @@ using UnityEngine;
 
 public static class EditorPreferences
 {
+	//FIXME: This class should be inside an Editor folder. 
 	public static bool EDITORPREF_SIMULATE_ASSET_BUNDLES
 	{
 		get
@@ -18,10 +19,13 @@ public static class EditorPreferences
 #endif
 
 		}
+#if UNITY_EDITOR
+
 		set
 		{
 			EditorPrefs.SetBool("EditorRefSimulateAssetBundles", value);
 		}
+#endif
 	}
 
 }
