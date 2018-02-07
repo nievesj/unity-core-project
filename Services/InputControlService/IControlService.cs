@@ -1,11 +1,11 @@
 ﻿using System;
+using Core.Services;
 using System.Collections;
 using System.Collections.Generic;
-using Core.Service;
 using UniRx;
 using UnityEngine;
 
-namespace Core.ControlSystem
+namespace Core.Services.Input
 {
 	public interface IControlService : IService
 	{
@@ -18,47 +18,60 @@ namespace Core.ControlSystem
 		protected MouseTouchControls controls;
 		public MouseTouchControls Controls { get { return controls; } }
 
-		protected Subject<IService> serviceConfigured = new Subject<IService>();
-		public IObservable<IService> ServiceConfigured { get { return serviceConfigured; } }
-
-		protected Subject<IService> serviceStarted = new Subject<IService>();
-		public IObservable<IService> ServiceStarted { get { return serviceStarted; } }
-
-		protected Subject<IService> serviceStopped = new Subject<IService>();
-		public IObservable<IService> ServiceStopped { get { return serviceStopped; } }
-
-		public void Configure(ServiceConfiguration config)
+		public IObservable<IService> Configure(ServiceConfiguration config)
 		{
-			configuration = config as ControlServiceConfiguration;
+			return Observable.Create<IService>(
+				(IObserver<IService> observer)=>
+				{
+					var subject = new Subject<IService>();
 
-			serviceStarted.Subscribe(CreateControlObject);
-			serviceStopped.Subscribe(DestroyControlObject);
+					configuration = config as ControlServiceConfiguration;
+					ServiceLocator.OnGameStart.Subscribe(OnGameStart);
 
-			serviceConfigured.OnNext(this);
+					observer.OnNext(this);
+					return subject.Subscribe();
+				});
 		}
 
-		public void StartService()
+		public IObservable<IService> StartService()
 		{
-			serviceStarted.OnNext(this);
+			return Observable.Create<IService>(
+				(IObserver<IService> observer)=>
+				{
+					var subject = new Subject<IService>();
+
+					observer.OnNext(this);
+					return subject.Subscribe();
+				});
 		}
 
-		public void StopService()
+		public IObservable<IService> StopService()
 		{
-			serviceStopped.OnNext(this);
+			return Observable.Create<IService>(
+				(IObserver<IService> observer)=>
+				{
+					var subject = new Subject<IService>();
 
-			serviceConfigured.Dispose();
-			serviceStarted.Dispose();
-			serviceStopped.Dispose();
+					DestroyControlObject();
+
+					observer.OnNext(this);
+					return subject.Subscribe();
+				});
 		}
 
-		protected void CreateControlObject(IService service)
+		protected void OnGameStart(ServiceLocator application)
+		{
+			CreateControlObject();
+		}
+
+		protected void CreateControlObject()
 		{
 			GameObject go = GameObject.Instantiate(configuration.MouseTouchControls);
 			controls = go.GetComponent<MouseTouchControls>();
 			controls.transform.SetParent(ServiceLocator.Instance.transform);
 		}
 
-		protected void DestroyControlObject(IService service)
+		protected void DestroyControlObject()
 		{
 			GameObject.Destroy(controls.gameObject);
 		}

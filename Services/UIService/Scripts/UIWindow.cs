@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 
-namespace Core.UI
+namespace Core.Services.UI
 {
 	/// <summary>
 	/// A 'Window' is basically a Panel, or any UI element with a canvas renderer.

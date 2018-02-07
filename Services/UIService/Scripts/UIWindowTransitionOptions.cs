@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 
-namespace Core.UI
+namespace Core.Services.UI
 {
 	public enum TransitionType
 	{
@@ -126,7 +126,7 @@ namespace Core.UI
 			var subject = new Subject<UIWindow>();
 
 			LeanTween.scale(window, start, 0);
-			LeanTween.scale(window, end, time).setEase(tweenType).setOnComplete(() =>
+			LeanTween.scale(window, end, time).setEase(tweenType).setOnComplete(()=>
 			{
 				subject.OnNext(_window);
 				subject.OnCompleted();
@@ -140,7 +140,7 @@ namespace Core.UI
 			var subject = new Subject<UIWindow>();
 
 			LeanTween.move(window, start, 0);
-			LeanTween.move(window, end, time).setEase(tweenType).setOnComplete(() =>
+			LeanTween.move(window, end, time).setEase(tweenType).setOnComplete(()=>
 			{
 				subject.OnNext(_window);
 				subject.OnCompleted();
@@ -154,7 +154,7 @@ namespace Core.UI
 			var subject = new Subject<UIWindow>();
 
 			LeanTween.alpha(window, start, 0);
-			LeanTween.alpha(window, end, time).setEase(tweenType).setOnComplete(() =>
+			LeanTween.alpha(window, end, time).setEase(tweenType).setOnComplete(()=>
 			{
 				subject.OnNext(_window);
 				subject.OnCompleted();

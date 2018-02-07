@@ -1,9 +1,9 @@
-﻿using System.Collections;
+﻿using Core.Polling;
+using System.Collections;
 using System.Collections.Generic;
-using Core.Polling;
 using UnityEngine;
 
-namespace Core.Audio
+namespace Core.Services.Audio
 {
 	public class AudioSources
 	{

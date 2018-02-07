@@ -1,8 +1,8 @@
-﻿using System.Collections;
+﻿using Core.Services;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Core.Service;
 using UniRx;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -11,7 +11,7 @@ using UnityEngine.Networking;
 using UnityEditor;
 #endif
 
-namespace Core.Assets
+namespace Core.Services.Assets
 {
 	/// <summary>
 	/// Utility class to load asset bundles. Can load bundles from web,from the streaming assets folder, or from the assets folder

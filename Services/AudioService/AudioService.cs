@@ -1,11 +1,11 @@
-﻿using System.Collections;
+﻿using Core.Polling;
+using Core.Services;
+using System.Collections;
 using System.Collections.Generic;
-using Core.Polling;
-using Core.Service;
 using UniRx;
 using UnityEngine;
 
-namespace Core.Audio
+namespace Core.Services.Audio
 {
 
 	public interface IAudioService : IService
@@ -20,37 +20,46 @@ namespace Core.Audio
 		protected AudioServiceConfiguration configuration;
 		protected Pooler<AudioSource> poller;
 
-		protected Subject<IService> serviceConfigured = new Subject<IService>();
-		public IObservable<IService> ServiceConfigured { get { return serviceConfigured; } }
-
-		protected Subject<IService> serviceStarted = new Subject<IService>();
-		public IObservable<IService> ServiceStarted { get { return serviceStarted; } }
-
-		protected Subject<IService> serviceStopped = new Subject<IService>();
-		public IObservable<IService> ServiceStopped { get { return serviceStopped; } }
-
-		public void Configure(ServiceConfiguration config)
+		public IObservable<IService> Configure(ServiceConfiguration config)
 		{
-			configuration = config as AudioServiceConfiguration;
-			serviceConfigured.OnNext(this);
+			return Observable.Create<IService>(
+				(IObserver<IService> observer)=>
+				{
+					var subject = new Subject<IService>();
+
+					configuration = config as AudioServiceConfiguration;
+					ServiceLocator.OnGameStart.Subscribe(OnGameStart);
+
+					observer.OnNext(this);
+					return subject.Subscribe();
+				});
 		}
 
-		public void StartService()
+		public IObservable<IService> StartService()
 		{
-			ServiceLocator.OnGameStart.Subscribe(OnGameStart);
-			serviceStarted.OnNext(this);
+			return Observable.Create<IService>(
+				(IObserver<IService> observer)=>
+				{
+					var subject = new Subject<IService>();
+
+					observer.OnNext(this);
+					return subject.Subscribe();
+				});
 		}
 
-		public void StopService()
+		public IObservable<IService> StopService()
 		{
-			if (poller != null)
-				poller.Destroy();
+			return Observable.Create<IService>(
+				(IObserver<IService> observer)=>
+				{
+					var subject = new Subject<IService>();
 
-			serviceStopped.OnNext(this);
+					if (poller != null)
+						poller.Destroy();
 
-			serviceConfigured.Dispose();
-			serviceStarted.Dispose();
-			serviceStopped.Dispose();
+					observer.OnNext(this);
+					return subject.Subscribe();
+				});
 		}
 
 		protected void OnGameStart(ServiceLocator application)

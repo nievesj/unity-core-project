@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace Core.Service
+namespace Core.Services
 {
 	public class Preferences : MonoBehaviour
 	{

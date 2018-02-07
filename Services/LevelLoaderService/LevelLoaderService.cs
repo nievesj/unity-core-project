@@ -1,13 +1,13 @@
 ﻿using System;
+using Core.Services;
+using Core.Services.Assets;
+using Core.Services.UI;
 using System.Collections;
 using System.Collections.Generic;
-using Core.Assets;
-using Core.Service;
-using Core.UI;
 using UniRx;
 using UnityEngine;
 
-namespace Core.LevelLoaderService
+namespace Core.Services.Levels
 {
 	public interface ILevelLoaderService : IService
 	{
@@ -27,35 +27,43 @@ namespace Core.LevelLoaderService
 		protected Level currentLevel;
 		public Level CurrentLevel { get { return currentLevel; } }
 
-		protected Subject<IService> serviceConfigured = new Subject<IService>();
-		public IObservable<IService> ServiceConfigured { get { return serviceConfigured; } }
-
-		protected Subject<IService> serviceStarted = new Subject<IService>();
-		public IObservable<IService> ServiceStarted { get { return serviceStarted; } }
-
-		protected Subject<IService> serviceStopped = new Subject<IService>();
-		public IObservable<IService> ServiceStopped { get { return serviceStopped; } }
-
-		public void Configure(ServiceConfiguration config)
+		public IObservable<IService> Configure(ServiceConfiguration config)
 		{
-			configuration = config as LevelLoaderServiceConfiguration;
+			return Observable.Create<IService>(
+				(IObserver<IService> observer)=>
+				{
+					var subject = new Subject<IService>();
 
-			serviceConfigured.OnNext(this);
-			serviceConfigured.OnCompleted();
+					configuration = config as LevelLoaderServiceConfiguration;
+					ServiceLocator.OnGameStart.Subscribe(OnGameStart);
+
+					observer.OnNext(this);
+					return subject.Subscribe();
+				});
 		}
 
-		public void StartService()
+		public IObservable<IService> StartService()
 		{
-			serviceStarted.OnNext(this);
-			serviceStarted.OnCompleted();
+			return Observable.Create<IService>(
+				(IObserver<IService> observer)=>
+				{
+					var subject = new Subject<IService>();
 
-			ServiceLocator.OnGameStart.Subscribe(OnGameStart);
+					observer.OnNext(this);
+					return subject.Subscribe();
+				});
 		}
 
-		public void StopService()
+		public IObservable<IService> StopService()
 		{
-			serviceStopped.OnNext(this);
-			serviceStopped.OnCompleted();
+			return Observable.Create<IService>(
+				(IObserver<IService> observer)=>
+				{
+					var subject = new Subject<IService>();
+
+					observer.OnNext(this);
+					return subject.Subscribe();
+				});
 		}
 
 		protected void OnGameStart(ServiceLocator application)

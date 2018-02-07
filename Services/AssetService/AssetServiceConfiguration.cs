@@ -1,9 +1,9 @@
-﻿using System.Collections;
+﻿using Core.Services;
+using System.Collections;
 using System.Collections.Generic;
-using Core.Service;
 using UnityEngine;
 
-namespace Core.Assets
+namespace Core.Services.Assets
 {
 	public class AssetServiceConfiguration : ServiceConfiguration
 	{

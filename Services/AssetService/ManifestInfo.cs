@@ -1,14 +1,14 @@
 ﻿using System;
+using Core.Services;
+using Core.Services.Assets;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using Core.Assets;
-using Core.Service;
 using UniRx;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace Core.Assets
+namespace Core.Services.Assets
 {
 	/// <summary>
 	/// Class contains the relevant information contained on a manifest file and it's used for caching bundles

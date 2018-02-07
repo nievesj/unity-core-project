@@ -1,16 +1,17 @@
 ﻿using System;
+using Core.Services;
 using System.Collections;
 using System.Collections.Generic;
-using Core.Service;
 using UniRx;
 using UnityEngine;
 
-namespace Core.Assets
+namespace Core.Services.Assets
 {
 	public interface IAssetService : IService
 	{
 		string AssetBundlesURL { get; }
 		int ManifestCacheExpiringPeriodInDays { get; }
+		bool UseStreamingAssets { get; }
 
 		AssetCacheState AssetCacheState { get; }
 
@@ -36,35 +37,47 @@ namespace Core.Assets
 
 		protected AssetBundleLoader assetBundlebundleLoader;
 
-		protected Subject<IService> serviceConfigured = new Subject<IService>();
-		public IObservable<IService> ServiceConfigured { get { return serviceConfigured; } }
-
-		protected Subject<IService> serviceStarted = new Subject<IService>();
-		public IObservable<IService> ServiceStarted { get { return serviceStarted; } }
-
-		protected Subject<IService> serviceStopped = new Subject<IService>();
-		public IObservable<IService> ServiceStopped { get { return serviceStopped; } }
-
-		public void Configure(ServiceConfiguration config)
+		public IObservable<IService> Configure(ServiceConfiguration config)
 		{
-			configuration = config as AssetServiceConfiguration;
-			serviceConfigured.OnNext(this);
-			serviceConfigured.OnCompleted();
+			return Observable.Create<IService>(
+				(IObserver<IService> observer)=>
+				{
+					var subject = new Subject<IService>();
+
+					configuration = config as AssetServiceConfiguration;
+					ServiceLocator.OnGameStart.Subscribe(OnGameStart);
+
+					observer.OnNext(this);
+					return subject.Subscribe();
+				});
 		}
 
-		public void StartService()
+		public IObservable<IService> StartService()
 		{
-			assetBundlebundleLoader = new AssetBundleLoader(this);
+			return Observable.Create<IService>(
+				(IObserver<IService> observer)=>
+				{
+					var subject = new Subject<IService>();
 
-			ServiceLocator.OnGameStart.Subscribe(OnGameStart);
-			serviceStarted.OnNext(this);
-			serviceStarted.OnCompleted();
+					UnityCloufBuildManifestLoader.LoadBuildManifest().Subscribe(cloudManifest =>
+					{
+						observer.OnNext(this);
+					});
+
+					return subject.Subscribe();
+				});
 		}
 
-		public void StopService()
+		public IObservable<IService> StopService()
 		{
-			serviceStopped.OnNext(this);
-			serviceStopped.OnCompleted();
+			return Observable.Create<IService>(
+				(IObserver<IService> observer)=>
+				{
+					var subject = new Subject<IService>();
+
+					observer.OnNext(this);
+					return subject.Subscribe();
+				});
 		}
 
 		/// <summary>
@@ -89,11 +102,14 @@ namespace Core.Assets
 
 		public T GetLoadedBundle<T>(string name)where T : UnityEngine.Object
 		{
+			Debug.Log(assetBundlebundleLoader == null?true : false);
 			return assetBundlebundleLoader.GetLoadedBundle<T>(name);
 		}
 
 		protected void OnGameStart(ServiceLocator application)
 		{
+			assetBundlebundleLoader = new AssetBundleLoader(this);
+
 			//TODO: Not needed for now. Can be used later to validate asset bundles and manifests. 
 			//or to preload all assets
 			// LoadGameBundle();

@@ -1,12 +1,12 @@
-﻿using System.Collections;
+﻿using Core.Services.Levels;
+using Core.Services.Scenes;
+using Core.Services.UI;
+using System.Collections;
 using System.Collections.Generic;
-using Core.LevelLoaderService;
-using Core.Scenes;
-using Core.UI;
 using UniRx;
 using UnityEngine;
 
-namespace Core.Service
+namespace Core.Services
 {
 	public class Game : MonoBehaviour
 	{
@@ -26,6 +26,9 @@ namespace Core.Service
 				.Subscribe(OnGameStart);
 		}
 
-		protected virtual void OnGameStart(ServiceLocator locator) {}
+		protected virtual void OnGameStart(ServiceLocator locator)
+		{
+			Debug.Log(("Game Started").Colored(Colors.lime));
+		}
 	}
 }

@@ -1,12 +1,12 @@
 using System;
+using Core.Services;
 using System.Collections;
 using System.IO;
-using Core.Service;
 using UniRx;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace Core.Assets
+namespace Core.Services.Assets
 {
 	public struct AssetOptions
 	{

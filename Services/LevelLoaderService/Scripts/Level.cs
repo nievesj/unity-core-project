@@ -1,12 +1,12 @@
-﻿using System.Collections;
+﻿using Core.Services;
+using Core.Services.Audio;
+using Core.Services.UI;
+using System.Collections;
 using System.Collections.Generic;
-using Core.Audio;
-using Core.Service;
-using Core.UI;
 using UniRx;
 using UnityEngine;
 
-namespace Core.LevelLoaderService
+namespace Core.Services.Levels
 {
 	public enum LevelState
 	{

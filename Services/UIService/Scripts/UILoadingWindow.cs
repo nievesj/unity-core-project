@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Core.UI
+namespace Core.Services.UI
 {
 	public class UILoadingWindow : UIWindow
 	{

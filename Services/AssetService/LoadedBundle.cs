@@ -4,7 +4,7 @@ using System.Linq;
 using UniRx;
 using UnityEngine;
 
-namespace Core.Assets
+namespace Core.Services.Assets
 {
 	/// <summary>
 	/// Class provides a single point for loading and unloading asset bundles.

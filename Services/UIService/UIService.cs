@@ -1,11 +1,11 @@
-﻿using System.Collections;
+﻿using Core.Services;
+using Core.Services.Assets;
+using System.Collections;
 using System.Collections.Generic;
-using Core.Assets;
-using Core.Service;
 using UniRx;
 using UnityEngine;
 
-namespace Core.UI
+namespace Core.Services.UI
 {
 	public interface IUIService : IService
 	{
@@ -27,54 +27,68 @@ namespace Core.UI
 
 		protected Dictionary<string, UIWindow> activeWindows;
 
-		protected Subject<IService> serviceConfigured = new Subject<IService>();
-		public IObservable<IService> ServiceConfigured { get { return serviceConfigured; } }
-
-		protected Subject<IService> serviceStarted = new Subject<IService>();
-		public IObservable<IService> ServiceStarted { get { return serviceStarted; } }
-
-		protected Subject<IService> serviceStopped = new Subject<IService>();
-		public IObservable<IService> ServiceStopped { get { return serviceStopped; } }
-
 		protected Subject<UIWindow> onWindowOnpened = new Subject<UIWindow>();
 		public IObservable<UIWindow> OnWindowOpened { get { return onWindowOnpened; } }
 
 		protected Subject<UIWindow> onWindowClosed = new Subject<UIWindow>();
 		public IObservable<UIWindow> OnWindowClosed { get { return onWindowClosed; } }
 
-		public void Configure(ServiceConfiguration config)
+		public IObservable<IService> Configure(ServiceConfiguration config)
 		{
-			configuration = config as UIServiceConfiguration;
+			return Observable.Create<IService>(
+				(IObserver<IService> observer)=>
+				{
+					var subject = new Subject<IService>();
 
-			serviceConfigured.OnNext(this);
-			serviceConfigured.OnCompleted();
+					configuration = config as UIServiceConfiguration;
+					ServiceLocator.OnGameStart.Subscribe(OnGameStart);
+
+					observer.OnNext(this);
+					return subject.Subscribe();
+				});
 		}
 
-		public void StartService()
+		public IObservable<IService> StartService()
+		{
+			return Observable.Create<IService>(
+				(IObserver<IService> observer)=>
+				{
+					var subject = new Subject<IService>();
+
+					//instantiate main canvas
+					if (configuration.mainCanvas)
+					{
+						var canvas = Object.Instantiate<Canvas>(configuration.mainCanvas);
+						mainCanvas = canvas.GetComponent<RectTransform>();
+						GameObject.DontDestroyOnLoad(mainCanvas);
+						observer.OnNext(this);
+
+					}
+					else
+						observer.OnError(new System.Exception("UIService: StartService - Main Canvas has not been configured. Failed to start UI Service."));
+
+					return subject.Subscribe();
+				});
+		}
+
+		public IObservable<IService> StopService()
+		{
+			return Observable.Create<IService>(
+				(IObserver<IService> observer)=>
+				{
+					var subject = new Subject<IService>();
+
+					Object.Destroy(mainCanvas.gameObject);
+
+					observer.OnNext(this);
+					return subject.Subscribe();
+				});
+		}
+
+		protected void OnGameStart(ServiceLocator application)
 		{
 			assetService = ServiceLocator.GetService<IAssetService>();
 			activeWindows = new Dictionary<string, UIWindow>();
-
-			//instantiate main canvas
-			if (configuration.mainCanvas)
-			{
-				var canvas = Object.Instantiate<Canvas>(configuration.mainCanvas);
-				mainCanvas = canvas.GetComponent<RectTransform>();
-				GameObject.DontDestroyOnLoad(mainCanvas);
-			}
-			else
-				serviceStarted.OnError(new System.Exception("UIService: StartService - Main Canvas has not been configured."));
-
-			serviceStarted.OnNext(this);
-			serviceStarted.OnCompleted();
-		}
-
-		public void StopService()
-		{
-			serviceStopped.OnNext(this);
-			serviceStopped.OnCompleted();
-
-			Object.Destroy(mainCanvas.gameObject);
 		}
 
 		/// <summary>

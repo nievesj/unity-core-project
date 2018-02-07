@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Core.Audio
+namespace Core.Services.Audio
 {
 	[System.Serializable]
 	public class AudioPlayer

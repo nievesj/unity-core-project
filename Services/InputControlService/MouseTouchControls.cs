@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 
-namespace Core.ControlSystem
+namespace Core.Services.Input
 {
 	internal class Constants
 	{
@@ -85,13 +85,13 @@ namespace Core.ControlSystem
 		/// </summary>
 		private void MouseControl()
 		{
-			if (Input.GetMouseButton(0))
+			if (UnityEngine.Input.GetMouseButton(0))
 			{
-				MouseDown(Input.mousePosition);
+				MouseDown(UnityEngine.Input.mousePosition);
 			}
-			if (Input.GetMouseButtonUp(0))
+			if (UnityEngine.Input.GetMouseButtonUp(0))
 			{
-				MouseUp(Input.mousePosition);
+				MouseUp(UnityEngine.Input.mousePosition);
 			}
 		}
 
@@ -101,24 +101,24 @@ namespace Core.ControlSystem
 		private void TouchControl()
 		{
 			//limited to one finger, no need to track additional fingers for now...
-			if (Input.touchCount > 0)
+			if (UnityEngine.Input.touchCount > 0)
 			{
-				switch (Input.GetTouch(0).phase)
+				switch (UnityEngine.Input.GetTouch(0).phase)
 				{
 					case TouchPhase.Began:
-						MouseDown(Input.GetTouch(0).position);
+						MouseDown(UnityEngine.Input.GetTouch(0).position);
 						break;
 					case TouchPhase.Moved:
-						MouseDrag(Input.GetTouch(0).position);
+						MouseDrag(UnityEngine.Input.GetTouch(0).position);
 						break;
 					case TouchPhase.Stationary:
 						//Debug.Log("Stationary");
 						break;
 					case TouchPhase.Canceled:
-						MouseUp(Input.GetTouch(0).position);
+						MouseUp(UnityEngine.Input.GetTouch(0).position);
 						break;
 					case TouchPhase.Ended:
-						MouseUp(Input.GetTouch(0).position);
+						MouseUp(UnityEngine.Input.GetTouch(0).position);
 						break;
 				}
 			}
@@ -167,7 +167,7 @@ namespace Core.ControlSystem
 			}
 #elif UNITY_WEBGL || UNITY_EDITOR
 
-			position = Camera.main.ScreenToWorldPoint(new Vector2(Input.mousePosition.x, Input.mousePosition.y));
+			position = Camera.main.ScreenToWorldPoint(new Vector2(UnityEngine.Input.mousePosition.x, UnityEngine.Input.mousePosition.y));
 #endif
 			return position;
 		}
@@ -188,8 +188,8 @@ namespace Core.ControlSystem
 			}
 #elif UNITY_WEBGL || UNITY_EDITOR
 
-			position.x = Input.GetAxis(Constants.MouseAxisY);
-			position.y = Input.GetAxis(Constants.MouseAxisX);
+			position.x = UnityEngine.Input.GetAxis(Constants.MouseAxisY);
+			position.y = UnityEngine.Input.GetAxis(Constants.MouseAxisX);
 #endif
 			return position;
 		}

@@ -1,12 +1,12 @@
-﻿using System.Collections;
+﻿using Core.Services;
+using Core.Services.Audio;
+using System.Collections;
 using System.Collections.Generic;
-using Core.Audio;
-using Core.Service;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Core.UI
+namespace Core.Services.UI
 {
 	[RequireComponent(typeof(Button))]
 	public class UIButton : MonoBehaviour

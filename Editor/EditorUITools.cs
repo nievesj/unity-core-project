@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
-namespace Core.Service
+namespace Core.Services
 {
 	public static class EditorUITools
 	{
@@ -92,7 +92,7 @@ namespace Core.Service
 		{
 			System.Type internalEditorUtilityType = typeof(InternalEditorUtility);
 			PropertyInfo sortingLayersProperty = internalEditorUtilityType.GetProperty("sortingLayerNames", BindingFlags.Static | BindingFlags.NonPublic);
-			var sortingLayers = (string[]) sortingLayersProperty.GetValue(null, new object[0]);
+			var sortingLayers = (string[])sortingLayersProperty.GetValue(null, new object[0]);
 			return sortingLayers;
 		}
 

@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
-namespace Core.Service
+namespace Core.Services
 {
 	[CustomEditor(typeof(GameConfiguration))]
 	public class GameConfigurationEditor : Editor
@@ -35,12 +35,12 @@ namespace Core.Service
 			services.showDefaultBackground = true;
 			services.elementHeight = line + 6;
 
-			services.drawHeaderCallback = (rect) =>
+			services.drawHeaderCallback = (rect)=>
 			{
 				EditorGUI.LabelField(rect, "Core Framework Services");
 			};
 
-			services.drawElementCallback = (Rect rect, int index, bool active, bool focused) =>
+			services.drawElementCallback = (Rect rect, int index, bool active, bool focused)=>
 			{
 				float width = rect.width - 22;
 				SerializedProperty element = services.serializedProperty.GetArrayElementAtIndex(index);
@@ -60,7 +60,7 @@ namespace Core.Service
 							gameConfiguration.services.RemoveAt(index);
 							EditorUtility.SetDirty(gameConfiguration);
 						}
-						else if (EditorUtility.DisplayDialog("Remove " + ObjectNames.NicifyVariableName(gameConfiguration.services[index].name) + "?", "Are you sure you want to remove this service? This will delete the ScriptableObject and can't be undone.", "Yes", "No"))
+						else if (EditorUtility.DisplayDialog("Remove " + ObjectNames.NicifyVariableName(gameConfiguration.services[index].name)+ "?", "Are you sure you want to remove this service? This will delete the ScriptableObject and can't be undone.", "Yes", "No"))
 						{
 							AssetDatabase.DeleteAsset(AssetDatabase.GetAssetOrScenePath(element.objectReferenceValue));
 							gameConfiguration.services.RemoveAt(index);
@@ -74,7 +74,7 @@ namespace Core.Service
 				EditorGUI.PropertyField(new Rect(rect.x, rect.y + 2, width, line), element, GUIContent.none);
 			};
 
-			services.onAddCallback = (list) =>
+			services.onAddCallback = (list)=>
 			{
 				Type[] allServiceTypes = GetAllServiceTypes();
 				GenericMenu servicesMenu = new GenericMenu();
@@ -91,10 +91,10 @@ namespace Core.Service
 								{
 									serializedObject.ApplyModifiedProperties();
 									object thing = ScriptableObject.CreateInstance(typ);
-									if (thing == null || (thing as ServiceConfiguration) == null) return;
+									if (thing == null || (thing as ServiceConfiguration)== null)return;
 									serializedObject.ApplyModifiedProperties();
 									string path = AssetDatabase.GetAssetOrScenePath(serializedObject.targetObject);
-									path = Path.GetDirectoryName(path) + Path.DirectorySeparatorChar + styp.Name + ".asset";
+									path = Path.GetDirectoryName(path)+ Path.DirectorySeparatorChar + styp.Name + ".asset";
 									AssetDatabase.CreateAsset(thing as ServiceConfiguration, path);
 									if (thing != null)
 									{
@@ -114,7 +114,7 @@ namespace Core.Service
 
 		public static Type[] GetAllServiceTypes()
 		{
-			return (from domainAssembly in AppDomain.CurrentDomain.GetAssemblies() from assemblyType in domainAssembly.GetTypes() where(typeof(IService).IsAssignableFrom(assemblyType) && !assemblyType.IsAbstract) select assemblyType).ToArray();
+			return (from domainAssembly in AppDomain.CurrentDomain.GetAssemblies()from assemblyType in domainAssembly.GetTypes()where(typeof(IService).IsAssignableFrom(assemblyType)&& !assemblyType.IsAbstract)select assemblyType).ToArray();
 		}
 	}
 }

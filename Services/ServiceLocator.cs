@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 
-namespace Core.Service
+namespace Core.Services
 {
 	/// <summary>
 	/// Service Locator.
@@ -43,42 +43,33 @@ namespace Core.Service
 					if (configuration.disableLogging)
 						Debug.unityLogger.logEnabled = false;
 
+					Action<ConfigurationServiceName> OnServiceCreated = configServiceName =>
+					{
+						servicesCreated++;
+						AddService(configServiceName.name, configServiceName.service);
+
+						if (servicesCreated.Equals(configuration.services.Count))
+						{
+							Debug.Log(("ServiceLocator: " + services.Count + " Services created and active").Colored(Colors.lime));
+
+							onGameStart.OnNext(_instance);
+							onGameStart.OnCompleted();
+
+							observer.OnNext(_instance);
+							observer.OnCompleted();
+						}
+
+					};
+
 					Debug.Log(("GameConfiguration: Starting Services").Colored(Colors.lime));
 					foreach (var service in configuration.services)
 					{
 						Debug.Log(("--- Starting Service: " + service.name).Colored(Colors.cyan));
-						service.CreateService();
-
-						servicesCreated++;
+						service.CreateService().Subscribe(OnServiceCreated);
 					}
-
-					if (servicesCreated.Equals(configuration.services.Count))
-					{
-						Debug.Log(("ServiceLocator: " + services.Count + " Services created and active").Colored(Colors.lime));
-						Debug.Log(("ServiceLocator: Game Started").Colored(Colors.lime));
-
-						onGameStart.OnNext(_instance);
-						onGameStart.OnCompleted();
-
-						observer.OnNext(_instance);
-						observer.OnCompleted();
-					}
-					else
-						observer.OnError(new System.Exception("Services.CreateServices | Failed to create services. Fatal error."));
 
 					return subject.Subscribe();
 				});
-		}
-
-		public static void AddService(string name, IService service)
-		{
-			if (services == null)services = new Dictionary<string, IService>();
-			if (service == null)
-			{
-				throw new System.Exception("cannot add a null service to the ServiceFramework");
-			}
-			services.Add(name, service);
-			service.StartService();
 		}
 
 		public static T GetService<T>()where T : class, IService
@@ -92,7 +83,18 @@ namespace Core.Service
 			return null;
 		}
 
-		public static T RemoveService<T>(string serviceName)where T : class, IService
+		internal static void AddService(string name, IService service)
+		{
+			if (services == null)services = new Dictionary<string, IService>();
+			if (service == null)
+			{
+				throw new System.Exception("Cannot add a null service to the ServiceLocator");
+			}
+			services.Add(name, service);
+			service.StartService().Subscribe();
+		}
+
+		internal static T RemoveService<T>(string serviceName)where T : class, IService
 		{
 			T returningService = GetService<T>();
 			if (returningService != null)
@@ -103,7 +105,7 @@ namespace Core.Service
 			return returningService;
 		}
 
-		public static T RemoveService<T>()where T : class, IService
+		internal static T RemoveService<T>()where T : class, IService
 		{
 			if (services == null)services = new Dictionary<string, IService>();
 			foreach (var serviceKVP in services)
@@ -127,14 +129,10 @@ namespace Core.Service
 
 	public interface IService
 	{
-		IObservable<IService> ServiceConfigured { get; }
-		IObservable<IService> ServiceStarted { get; }
-		IObservable<IService> ServiceStopped { get; }
+		IObservable<IService> StartService();
 
-		void StartService();
+		IObservable<IService> StopService();
 
-		void StopService();
-
-		void Configure(ServiceConfiguration config);
+		IObservable<IService> Configure(ServiceConfiguration config);
 	}
 }

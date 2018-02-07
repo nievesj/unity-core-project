@@ -1,12 +1,12 @@
-﻿using System.Collections;
+﻿using Core.Services;
+using Core.Services.Assets;
+using System.Collections;
 using System.Collections.Generic;
-using Core.Assets;
-using Core.Service;
 using UniRx;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Core.Scenes
+namespace Core.Services.Scenes
 {
 	public interface ISceneLoaderService : IService
 	{
@@ -19,35 +19,44 @@ namespace Core.Scenes
 		protected SceneLoaderServiceConfiguration configuration;
 		protected IAssetService assetService;
 
-		protected Subject<IService> serviceConfigured = new Subject<IService>();
-		public IObservable<IService> ServiceConfigured { get { return serviceConfigured; } }
-
-		protected Subject<IService> serviceStarted = new Subject<IService>();
-		public IObservable<IService> ServiceStarted { get { return serviceStarted; } }
-
-		protected Subject<IService> serviceStopped = new Subject<IService>();
-		public IObservable<IService> ServiceStopped { get { return serviceStopped; } }
-
-		public void Configure(ServiceConfiguration config)
+		public IObservable<IService> Configure(ServiceConfiguration config)
 		{
-			configuration = config as SceneLoaderServiceConfiguration;
+			return Observable.Create<IService>(
+				(IObserver<IService> observer)=>
+				{
+					var subject = new Subject<IService>();
 
-			serviceConfigured.OnNext(this);
-			serviceConfigured.OnCompleted();
+					configuration = config as SceneLoaderServiceConfiguration;
+
+					observer.OnNext(this);
+					return subject.Subscribe();
+				});
 		}
 
-		public void StartService()
+		public IObservable<IService> StartService()
 		{
-			assetService = ServiceLocator.GetService<IAssetService>();
+			return Observable.Create<IService>(
+				(IObserver<IService> observer)=>
+				{
+					var subject = new Subject<IService>();
 
-			serviceStarted.OnNext(this);
-			serviceStarted.OnCompleted();
+					assetService = ServiceLocator.GetService<IAssetService>();
+
+					observer.OnNext(this);
+					return subject.Subscribe();
+				});
 		}
 
-		public void StopService()
+		public IObservable<IService> StopService()
 		{
-			serviceStopped.OnNext(this);
-			serviceStopped.OnCompleted();
+			return Observable.Create<IService>(
+				(IObserver<IService> observer)=>
+				{
+					var subject = new Subject<IService>();
+
+					observer.OnNext(this);
+					return subject.Subscribe();
+				});
 		}
 
 		public IObservable<UnityEngine.Object> LoadScene(string scene, LoadSceneMode mode = LoadSceneMode.Single)

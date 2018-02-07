@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
-namespace Core.Assets
+namespace Core.Services.Assets
 {
 	public static class AssetBundleUtilities
 	{
