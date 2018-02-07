@@ -25,6 +25,7 @@ namespace Core.Services.Assets
 	public class AssetService : IAssetService
 	{
 		protected AssetServiceConfiguration configuration;
+		protected AssetBundleLoader assetBundlebundleLoader;
 
 		public uint AssetBundleVersionNumber { get { return 1; } }
 
@@ -34,8 +35,6 @@ namespace Core.Services.Assets
 		public bool UseStreamingAssets { get { return configuration.UseStreamingAssets; } }
 
 		public AssetCacheState AssetCacheState { get { return configuration.UseCache ? AssetCacheState.Cache : AssetCacheState.NoCache; } }
-
-		protected AssetBundleLoader assetBundlebundleLoader;
 
 		public IObservable<IService> Configure(ServiceConfiguration config)
 		{
@@ -61,6 +60,15 @@ namespace Core.Services.Assets
 
 					UnityCloufBuildManifestLoader.LoadBuildManifest().Subscribe(cloudManifest =>
 					{
+						if (cloudManifest != null)
+						{
+							Debug.Log("Cloud Manifest present");
+						}
+						else
+						{
+							Debug.Log("Cloud Manifest missing - this is not an error");
+						}
+
 						observer.OnNext(this);
 					});
 
