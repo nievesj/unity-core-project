@@ -63,6 +63,8 @@ namespace Core.Services.Assets
 						if (cloudManifest != null)
 						{
 							Debug.Log("Cloud Manifest present");
+							Debug.Log(cloudManifest.buildNumber);
+
 						}
 						else
 						{
