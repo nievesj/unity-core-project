@@ -59,23 +59,23 @@ namespace Core.Services.Assets
 					var subject = new Subject<IService>();
 
 					//FIXME: disable for now
-					// UnityCloufBuildManifestLoader.LoadBuildManifest().Subscribe(cloudManifest =>
-					// {
-					// 	if (cloudManifest != null)
-					// 	{
-					// 		Debug.Log("Cloud Manifest present");
-					// 		Debug.Log(cloudManifest.buildNumber);
+					UnityCloufBuildManifestLoader.LoadBuildManifest().Subscribe(cloudManifest =>
+					{
+						if (cloudManifest != null)
+						{
+							Debug.Log("Cloud Manifest present");
+							Debug.Log(cloudManifest.buildNumber);
 
-					// 	}
-					// 	else
-					// 	{
-					// 		Debug.Log("Cloud Manifest missing - this is not an error");
-					// 	}
+						}
+						else
+						{
+							Debug.Log("Cloud Manifest missing - this is not an error");
+						}
 
-					// 	observer.OnNext(this);
-					// });
+						observer.OnNext(this);
+					});
 
-					observer.OnNext(this);
+					// observer.OnNext(this);
 					return subject.Subscribe();
 				});
 		}
