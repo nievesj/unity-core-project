@@ -161,9 +161,9 @@ namespace Core.Services.Input
 			Vector2 position = Vector2.zero;
 
 #if (UNITY_IOS || UNITY_ANDROID)&& !UNITY_EDITOR
-			if (Input.touchCount > 0)// && Input.GetTouch(0).phase == TouchPhase.Moved)
+			if (UnityEngine.Input.touchCount > 0)// && Input.GetTouch(0).phase == TouchPhase.Moved)
 			{
-				position = Camera.main.ScreenToWorldPoint(new Vector2(Input.GetTouch(0).position.x, Input.GetTouch(0).position.y));
+				position = Camera.main.ScreenToWorldPoint(new Vector2(UnityEngine.Input.GetTouch(0).position.x, UnityEngine.Input.GetTouch(0).position.y));
 			}
 #elif UNITY_WEBGL || UNITY_EDITOR
 
@@ -181,10 +181,10 @@ namespace Core.Services.Input
 			Vector2 position = Vector2.zero;
 
 #if (UNITY_IOS || UNITY_ANDROID)&& !UNITY_EDITOR
-			if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved)
+			if (UnityEngine.Input.touchCount > 0 && UnityEngine.Input.GetTouch(0).phase == TouchPhase.Moved)
 			{
-				position.x = .03f * Input.GetTouch(0).deltaPosition.x;
-				position.y = .03f * Input.GetTouch(0).deltaPosition.y;
+				position.x = .03f * UnityEngine.Input.GetTouch(0).deltaPosition.x;
+				position.y = .03f * UnityEngine.Input.GetTouch(0).deltaPosition.y;
 			}
 #elif UNITY_WEBGL || UNITY_EDITOR
 

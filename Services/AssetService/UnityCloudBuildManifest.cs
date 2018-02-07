@@ -6,6 +6,12 @@ using UnityEngine;
 
 namespace Core.Services.Assets
 {
+	/// <summary>
+	/// Attempts to load the file UnityCloudBuildManifest.json. This file is added to the build
+	/// when using Unity Cloud Build services.
+	/// 
+	/// https://docs.unity3d.com/Manual/UnityCloudBuildManifest.html
+	/// </summary>
 	[System.Serializable]
 	public class UnityCloudBuildManifest
 	{
@@ -22,6 +28,10 @@ namespace Core.Services.Assets
 
 	public class UnityCloufBuildManifestLoader
 	{
+		/// <summary>
+		/// Loads UnityCloudBuildManifest into a structure the rest of the system can use, 
+		/// </summary>
+		/// <returns></returns>
 		public static IObservable<UnityCloudBuildManifest> LoadBuildManifest()
 		{
 			return Observable.Create<UnityCloudBuildManifest>(
