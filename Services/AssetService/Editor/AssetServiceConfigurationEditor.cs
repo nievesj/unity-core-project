@@ -10,7 +10,6 @@ namespace Core.Services.Assets
 	public class AssetServiceConfigurationEditor : Editor
 	{
 		AssetServiceConfiguration configuration;
-		bool cachedUseStreamingAssets = false;
 
 		private void OnEnable()
 		{
@@ -24,7 +23,6 @@ namespace Core.Services.Assets
 			configuration = target as AssetServiceConfiguration;
 
 			GUILayout.Label("Asset Service Configuration Options ", EditorUITools.HeaderStyle);
-			cachedUseStreamingAssets = configuration.UseStreamingAssets;
 			configuration.UseStreamingAssets = EditorGUILayout.ToggleLeft("Use Streaming Assets?", configuration.UseStreamingAssets);
 
 			if (!configuration.UseStreamingAssets)
@@ -36,27 +34,60 @@ namespace Core.Services.Assets
 
 				if (!configuration.AssetBundlesURL.Equals(string.Empty))
 				{
+
 					configuration.UseCache = EditorGUILayout.ToggleLeft("Cache Asset Bundles?", configuration.UseCache);
+					if (configuration.CacheBundleManifestsLocally == false && configuration.UseUnityCloudBuildManifestVersion == false)
+						configuration.CacheBundleManifestsLocally = true;
 
-					EditorUITools.HorizontalLine();
+					if (configuration.UseCache)
+					{
 
-					EditorGUILayout.LabelField("Manifest Cache Expiring Period in Days?");
-					configuration.ManifestCachePeriod = EditorGUILayout.IntSlider(configuration.ManifestCachePeriod, 1, 90);
+						EditorUITools.HorizontalLine();
+
+						configuration.CacheBundleManifestsLocally = EditorGUILayout.ToggleLeft("Cache bundles by caching .manifest files locally?", configuration.CacheBundleManifestsLocally);
+						if (configuration.CacheBundleManifestsLocally)
+						{
+
+							configuration.UseUnityCloudBuildManifestVersion = false;
+
+							EditorGUILayout.LabelField("Manifest Cache Expiring Period in Days?");
+							configuration.ManifestCachePeriod = EditorGUILayout.IntSlider(configuration.ManifestCachePeriod, 1, 90);
+
+							EditorUITools.HorizontalLine();
+						}
+						else
+						{
+
+							configuration.UseUnityCloudBuildManifestVersion = true;
+						}
+
+						configuration.UseUnityCloudBuildManifestVersion = EditorGUILayout.ToggleLeft("Cache bundles by using Unity Cloud Build Manifest?", configuration.UseUnityCloudBuildManifestVersion);
+						if (configuration.UseUnityCloudBuildManifestVersion)
+						{
+							configuration.CacheBundleManifestsLocally = false;
+						}
+						else
+						{
+							configuration.CacheBundleManifestsLocally = true;
+						}
+					}
+					else
+					{
+						configuration.UseStreamingAssets = true;
+					}
 				}
 				else
 				{
 					EditorGUILayout.LabelField("Invalid URL");
 				}
-
 			}
-
-			if (cachedUseStreamingAssets != configuration.UseStreamingAssets)
+			else
 			{
-				cachedUseStreamingAssets = configuration.UseStreamingAssets;
-
-				EditorUtility.SetDirty(target);
-				AssetDatabase.SaveAssets();
+				configuration.UseCache = true;
 			}
+
+			EditorUtility.SetDirty(target);
+			// AssetDatabase.SaveAssets();
 		}
 	}
 }

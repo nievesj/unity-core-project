@@ -81,7 +81,7 @@ namespace Core.Services.Assets
 			}
 		}
 
-		public AssetCacheState AssetCacheState { get { return ServiceLocator.GetService<IAssetService>().AssetCacheState; } }
+		// public AssetCacheState AssetCacheState { get { return ServiceLocator.GetService<IAssetService>().AssetCacheState; } }
 
 		public BundleRequest(AssetCategoryRoot cat, string bundle, string asset)
 		{
@@ -148,5 +148,11 @@ namespace Core.Services.Assets
 	{
 		Cache,
 		NoCache
+	}
+
+	public enum AssetCacheStrategy
+	{
+		CopyBundleManifestFileLocally,
+		UseUnityCloudManifestBuildVersion
 	}
 }

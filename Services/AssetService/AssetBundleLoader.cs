@@ -141,10 +141,10 @@ namespace Core.Services.Assets
 			ManifestInfo manifestInfo = new ManifestInfo(bundleRequest);
 			AssetBundle bundle;
 
-			Debug.Log(("AssetBundleLoader: " + bundleRequest.AssetCacheState + " | Requesting: " + bundleRequest.AssetName + " | " + bundleRequest.BundleName).Colored(Colors.aqua));
+			Debug.Log(("AssetBundleLoader: " + assetService.AssetCacheState + " | Requesting: " + bundleRequest.AssetName + " | " + bundleRequest.BundleName).Colored(Colors.aqua));
 
-			//Cache bundles?
-			if (bundleRequest.AssetCacheState.Equals(bundleRequest.AssetCacheState))
+			//Cache bundles and copy individual bundle .manifest files locally
+			if (assetService.AssetCacheState.Equals(AssetCacheState.Cache)&& assetService.AssetCacheStrategy.Equals(AssetCacheStrategy.CopyBundleManifestFileLocally))
 			{
 				//Ok, since we're caching bundles, we need to get the manifest file
 				yield return manifestInfo.GetInfo().ToYieldInstruction();
@@ -152,7 +152,16 @@ namespace Core.Services.Assets
 				//Use hash number from the manifest file to determine if UnityWebRequest gets the bundle from web or cache
 				www = UnityWebRequest.GetAssetBundle(bundleRequest.AssetPath, manifestInfo.Hash, 0);
 			}
-			else
+			else if (assetService.AssetCacheState.Equals(AssetCacheState.Cache)&& assetService.AssetCacheStrategy.Equals(AssetCacheStrategy.UseUnityCloudManifestBuildVersion))
+			{
+				//cache bundles by using Unity Cloud Build manifest
+				uint buildNumber = 0;
+				if (assetService.CloudBuildManifest != null)
+					buildNumber = System.Convert.ToUInt32(assetService.CloudBuildManifest.buildNumber);
+
+				www = UnityWebRequest.GetAssetBundle(bundleRequest.AssetPath, buildNumber, 0);
+			}
+			else if (assetService.AssetCacheState.Equals(AssetCacheState.NoCache))
 			{
 				//No caching, just get the bundle
 				www = UnityWebRequest.GetAssetBundle(bundleRequest.AssetPath);

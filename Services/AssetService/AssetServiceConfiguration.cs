@@ -22,7 +22,15 @@ namespace Core.Services.Assets
 		public bool UseCache { get { return useCache; } set { useCache = value; } }
 
 		[SerializeField]
+		protected bool cacheBundleManifestsLocally = true;
+		public bool CacheBundleManifestsLocally { get { return cacheBundleManifestsLocally; } set { cacheBundleManifestsLocally = value; } }
+
+		[SerializeField]
 		protected int manifestCachePeriod = 5;
 		public int ManifestCachePeriod { get { return manifestCachePeriod; } set { manifestCachePeriod = value; } }
+
+		[SerializeField]
+		protected bool useUnityCloudBuildManifestVersion = true;
+		public bool UseUnityCloudBuildManifestVersion { get { return useUnityCloudBuildManifestVersion; } set { useUnityCloudBuildManifestVersion = value; } }
 	}
 }

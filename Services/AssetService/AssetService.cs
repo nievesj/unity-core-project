@@ -35,6 +35,10 @@ namespace Core.Services.Assets
 		public bool UseStreamingAssets { get { return configuration.UseStreamingAssets; } }
 
 		public AssetCacheState AssetCacheState { get { return configuration.UseCache ? AssetCacheState.Cache : AssetCacheState.NoCache; } }
+		public AssetCacheStrategy AssetCacheStrategy { get { return configuration.CacheBundleManifestsLocally ? AssetCacheStrategy.CopyBundleManifestFileLocally : AssetCacheStrategy.UseUnityCloudManifestBuildVersion; } }
+
+		private UnityCloudBuildManifest cloudBuildManifest;
+		public UnityCloudBuildManifest CloudBuildManifest { get { return cloudBuildManifest; } }
 
 		public IObservable<IService> Configure(ServiceConfiguration config)
 		{
@@ -46,7 +50,21 @@ namespace Core.Services.Assets
 					configuration = config as AssetServiceConfiguration;
 					ServiceLocator.OnGameStart.Subscribe(OnGameStart);
 
-					observer.OnNext(this);
+					UnityCloufBuildManifestLoader.LoadBuildManifest().Subscribe(cloudManifest =>
+					{
+						if (cloudManifest != null)
+						{
+							Debug.Log(("---- AssetService: Unity Cloud Build Manifest present. Build Version: " + cloudManifest.buildNumber).Colored(Colors.aqua));
+							cloudBuildManifest = cloudManifest;
+						}
+						else
+						{
+							Debug.Log(("---- AssetService: Unity Cloud Build Manifest missing. This is ok. Ignoring.").Colored(Colors.aqua));
+						}
+
+						observer.OnNext(this);
+					});
+
 					return subject.Subscribe();
 				});
 		}
@@ -58,24 +76,7 @@ namespace Core.Services.Assets
 				{
 					var subject = new Subject<IService>();
 
-					//FIXME: disable for now
-					UnityCloufBuildManifestLoader.LoadBuildManifest().Subscribe(cloudManifest =>
-					{
-						if (cloudManifest != null)
-						{
-							Debug.Log("Cloud Manifest present");
-							Debug.Log(cloudManifest.buildNumber);
-
-						}
-						else
-						{
-							Debug.Log("Cloud Manifest missing - this is not an error");
-						}
-
-						observer.OnNext(this);
-					});
-
-					// observer.OnNext(this);
+					observer.OnNext(this);
 					return subject.Subscribe();
 				});
 		}
