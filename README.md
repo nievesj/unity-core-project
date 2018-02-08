@@ -10,7 +10,7 @@ _Core is a collection of utilities and libraries to help speed up development in
 	* Can load assets from a web server
 	* Can load asset bundle scenes
 	* Can simulate asset bundles on editor
-	* Can cache downloaded bundles by using Unity Cloud Build manifest, or by caching the manifest files locally and using the HASH number
+	* Can cache downloaded bundles by using Unity Cloud Build manifest's build number as the bundle version, or by caching the manifest files locally and using the HASH number instead
 * Basic window system
 	* Open / Close window
 	* Observable events for when a window is opened or closed
