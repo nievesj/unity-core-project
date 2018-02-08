@@ -19,14 +19,20 @@ namespace Core.Services.Assets
 		}
 	}
 
+	/// <summary>
+	/// Helper class used to create a bundle request.
+	/// Contains all the paths needed to request and access the bundle.
+	/// </summary>
 	public class BundleRequest
 	{
+		//Directory where the bundle is located.
 		private AssetCategoryRoot assetCategory;
 		public AssetCategoryRoot AssetCategory { get { return assetCategory; } }
 
 		private string bundleName;
 		public string BundleName { get { return bundleName; } }
 
+		//Manifest file assiciated to the bundle. This is needed in case the HASH number is requiered for caching the bundle
 		public string ManifestName { get { return bundleName + ".manifest"; } }
 
 		private string assetName;
@@ -50,7 +56,7 @@ namespace Core.Services.Assets
 		{
 			get
 			{
-				Debug.Log(("AssetBundleLoader: Loading Manifest " + ManifestName).Colored(Colors.aqua));
+				Debug.Log(("AssetBundleLoader: Loading Manifest " + ManifestName).Colored(Colors.Aqua));
 
 				if (AssetCategory.Equals(AssetCategoryRoot.None))
 					return ServiceLocator.GetService<IAssetService>().AssetBundlesURL + ManifestName + "?r=" + (UnityEngine.Random.value * 9999999); //this random value prevents caching on the web server;
@@ -80,8 +86,6 @@ namespace Core.Services.Assets
 					return AssetCategory.ToString().ToLower()+ "/" + ManifestName;
 			}
 		}
-
-		// public AssetCacheState AssetCacheState { get { return ServiceLocator.GetService<IAssetService>().AssetCacheState; } }
 
 		public BundleRequest(AssetCategoryRoot cat, string bundle, string asset)
 		{
@@ -150,6 +154,10 @@ namespace Core.Services.Assets
 		NoCache
 	}
 
+	/// <summary>
+	/// Used to determine if the caching is going to be performed with the Unity Cloud Manifest file by using the build version as the control
+	/// or by using .manifest files and the HASH number
+	/// </summary>
 	public enum AssetCacheStrategy
 	{
 		CopyBundleManifestFileLocally,

@@ -36,7 +36,7 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// 
+		/// Gets .manifest file information
 		/// </summary>
 		/// <returns></returns>
 		public IObservable<ManifestInfo> GetInfo()
@@ -73,6 +73,7 @@ namespace Core.Services.Assets
 						observer.OnNext(this);
 						observer.OnCompleted();
 					};
+
 					IsManifestExpired(ManifestCacheExpirePeriod).Subscribe(OnManifestExpiredCheck);
 
 					observer.OnNext(null);
@@ -118,7 +119,7 @@ namespace Core.Services.Assets
 			return Observable.Create<string>(
 				(IObserver<string> observer)=>
 				{
-					Debug.Log(("ManifestInfo: Caching Manifest | " + bundle.ManifestName).Colored(Colors.brown));
+					Debug.Log(("ManifestInfo: Caching Manifest | " + bundle.ManifestName).Colored(Colors.Brown));
 
 					var subject = new Subject<string>();
 
@@ -137,7 +138,7 @@ namespace Core.Services.Assets
 			return Observable.Create<string>(
 				(IObserver<string> observer)=>
 				{
-					Debug.Log(("ManifestInfo: Getting Cached Manifest | " + bundle.ManifestName).Colored(Colors.brown));
+					Debug.Log(("ManifestInfo: Getting Cached Manifest | " + bundle.ManifestName).Colored(Colors.Brown));
 
 					var subject = new Subject<string>();
 					var fileContents = string.Empty;
@@ -169,7 +170,7 @@ namespace Core.Services.Assets
 		/// <returns>IEnumerator</returns>
 		private IEnumerator GetManifestOperation(IObserver<string> observer, CancellationToken cancellationToken)
 		{
-			Debug.Log(("ManifestInfo: Downloading Manifest | " + bundle.ManifestName).Colored(Colors.brown));
+			Debug.Log(("ManifestInfo: Downloading Manifest | " + bundle.ManifestName).Colored(Colors.Brown));
 
 			UnityWebRequest www = UnityWebRequest.Get(bundle.ManifestPath);
 			yield return www.SendWebRequest();
@@ -198,7 +199,7 @@ namespace Core.Services.Assets
 
 					if (!File.Exists(bundle.ManifestAgeFile))
 					{
-						Debug.Log(("ManifestInfo: No manifest age file. Flagging as expired | " + bundle.ManifestName).Colored(Colors.brown));
+						Debug.Log(("ManifestInfo: No manifest age file. Flagging as expired | " + bundle.ManifestName).Colored(Colors.Brown));
 
 						try { SaveAgeManifest(); }
 						catch (Exception ex) { observer.OnError(ex); }
@@ -210,7 +211,7 @@ namespace Core.Services.Assets
 						var manifestDays = GetAgeManifest().Days;
 						if (manifestDays > expirationDays)
 						{
-							Debug.Log(("ManifestInfo: Manifest file is longer than " + expirationDays + " days. Flagging as expired | " + bundle.ManifestName).Colored(Colors.brown));
+							Debug.Log(("ManifestInfo: Manifest file is longer than " + expirationDays + " days. Flagging as expired | " + bundle.ManifestName).Colored(Colors.Brown));
 
 							try { SaveAgeManifest(); }
 							catch (Exception ex) { observer.OnError(ex); }
@@ -219,7 +220,7 @@ namespace Core.Services.Assets
 						}
 						else
 						{
-							Debug.Log(("ManifestInfo: Manifest file still valid. Expires in " + (expirationDays - manifestDays)+ " days | " + bundle.ManifestName).Colored(Colors.brown));
+							Debug.Log(("ManifestInfo: Manifest file still valid. Expires in " + (expirationDays - manifestDays)+ " days | " + bundle.ManifestName).Colored(Colors.Brown));
 						}
 					}
 

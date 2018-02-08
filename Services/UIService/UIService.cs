@@ -120,7 +120,7 @@ namespace Core.Services.UI
 						observer.OnNext(obj);
 						observer.OnCompleted();
 
-						Debug.Log(("UIService: Loaded window - " + loadedWindow.name).Colored(Colors.lightblue));
+						Debug.Log(("UIService: Loaded window - " + loadedWindow.name).Colored(Colors.LightBlue));
 					};
 
 					return assetService.GetAndLoadAsset<UIWindow>(bundleNeeded).Subscribe(OnWindowLoaded);
@@ -160,7 +160,7 @@ namespace Core.Services.UI
 
 		protected void WindowClosed(UIWindow window)
 		{
-			Debug.Log(("UIService: Closed window - " + window.name).Colored(Colors.lightblue));
+			Debug.Log(("UIService: Closed window - " + window.name).Colored(Colors.LightBlue));
 
 			activeWindows.Remove(window.name);
 			onWindowClosed.OnNext(window);

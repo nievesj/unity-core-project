@@ -7,7 +7,6 @@ using UnityEngine;
 
 namespace Core.Services.Audio
 {
-
 	public interface IAudioService : IService
 	{
 		void PlayClip(AudioPlayer ap);
@@ -93,7 +92,7 @@ namespace Core.Services.Audio
 					ap.Player.transform.localPosition = Vector3.zero;
 				}
 
-				Debug.Log(("AudioService: Playing Clip - " + ap.Clip.name).Colored(Colors.magenta));
+				Debug.Log(("AudioService: Playing Clip - " + ap.Clip.name).Colored(Colors.Magenta));
 				ap.Player = poller.Pop();
 				ap.Player.Play();
 			}
@@ -103,7 +102,7 @@ namespace Core.Services.Audio
 		{
 			if (poller != null && ap.Player)
 			{
-				Debug.Log(("AudioService: Stopping Clip - " + ap.Clip.name).Colored(Colors.magenta));
+				Debug.Log(("AudioService: Stopping Clip - " + ap.Clip.name).Colored(Colors.Magenta));
 
 				ap.Player.Stop();
 				PushAudioSource(ap);
@@ -131,7 +130,7 @@ namespace Core.Services.Audio
 			wait = new WaitWhile(()=> ap.Player.isPlaying);
 			yield return wait;
 
-			Debug.Log(("AudioService: Done Playing Clip - " + ap.Clip.name).Colored(Colors.magenta));
+			Debug.Log(("AudioService: Done Playing Clip - " + ap.Clip.name).Colored(Colors.Magenta));
 			PushAudioSource(ap);
 		}
 	}

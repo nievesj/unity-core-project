@@ -3,28 +3,26 @@ using UnityEngine;
 
 namespace Core.Services
 {
-	public class Preferences : MonoBehaviour
+	public class Preferences
 	{
-		// Have we loaded the prefs yet
 		private static bool prefsLoaded = false;
-		// The Preferences
-		private static bool boolPreference = false;
+		private static bool simulateAssetBundles = false;
 
 		[PreferenceItem("Core Framework")]
 		private static void CustomPreferencesGUI()
 		{
 			if (!prefsLoaded)
 			{
-				boolPreference = EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES;
+				simulateAssetBundles = EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES;
 				prefsLoaded = true;
 			}
 
 			EditorUITools.Header("Asset Bundles");
-			boolPreference = EditorGUILayout.ToggleLeft("Simulation Mode", boolPreference);
+			simulateAssetBundles = EditorGUILayout.ToggleLeft("Simulation Mode", simulateAssetBundles);
 
 			if (GUI.changed)
 			{
-				EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES = boolPreference;
+				EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES = simulateAssetBundles;
 			}
 
 			EditorUITools.HorizontalLine();

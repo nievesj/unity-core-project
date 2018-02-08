@@ -12,25 +12,22 @@ namespace Core.Services
 	{
 		[SerializeField]
 		private static GameConfiguration configuration;
+
+		//Contains collection of running services
 		private static Dictionary<string, IService> services;
 		private static ServiceLocator _instance;
 
+		//Signal is triggered when all services are loaded and running. 
 		private static Subject<ServiceLocator> onGameStart = new Subject<ServiceLocator>();
 		internal static IObservable<ServiceLocator> OnGameStart { get { return onGameStart; } }
 
 		public static ServiceLocator Instance { get { return _instance; } }
 
-		private static void Instantiate(Game game)
-		{
-			GameObject go = new GameObject(Constants.ServiceLocator);
-			if (!_instance)
-				_instance = go.AddComponent<ServiceLocator>();
-
-			configuration = game.GameConfiguration;
-			services = new Dictionary<string, IService>();
-			DontDestroyOnLoad(_instance.gameObject);
-		}
-
+		/// <summary>
+		/// Creates and initializes all services.
+		/// </summary>
+		/// <param name="game"></param>
+		/// <returns></returns>
 		public static IObservable<ServiceLocator> SetUp(Game game)
 		{
 			return Observable.Create<ServiceLocator>(
@@ -50,7 +47,7 @@ namespace Core.Services
 
 						if (servicesCreated.Equals(configuration.services.Count))
 						{
-							Debug.Log(("ServiceLocator: " + services.Count + " Services created and active").Colored(Colors.lime));
+							Debug.Log(("ServiceLocator: " + services.Count + " Services created and active").Colored(Colors.Lime));
 
 							onGameStart.OnNext(_instance);
 							onGameStart.OnCompleted();
@@ -61,10 +58,10 @@ namespace Core.Services
 
 					};
 
-					Debug.Log(("GameConfiguration: Starting Services").Colored(Colors.lime));
+					Debug.Log(("GameConfiguration: Starting Services").Colored(Colors.Lime));
 					foreach (var service in configuration.services)
 					{
-						Debug.Log(("--- Starting Service: " + service.name).Colored(Colors.cyan));
+						Debug.Log(("--- Starting Service: " + service.name).Colored(Colors.Cyan));
 						service.CreateService().Subscribe(OnServiceCreated);
 					}
 
@@ -72,6 +69,10 @@ namespace Core.Services
 				});
 		}
 
+		/// <summary>
+		/// Gets active service.
+		/// </summary>
+		/// <returns>Service</returns>
 		public static T GetService<T>()where T : class, IService
 		{
 			if (!_instance)return null;
@@ -81,6 +82,17 @@ namespace Core.Services
 				if (serviceKVP.Value is T)return (T)serviceKVP.Value;
 
 			return null;
+		}
+
+		private static void Instantiate(Game game)
+		{
+			GameObject go = new GameObject(Constants.ServiceLocator);
+			if (!_instance)
+				_instance = go.AddComponent<ServiceLocator>();
+
+			configuration = game.GameConfiguration;
+			services = new Dictionary<string, IService>();
+			DontDestroyOnLoad(_instance.gameObject);
 		}
 
 		internal static void AddService(string name, IService service)

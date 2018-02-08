@@ -59,6 +59,12 @@ namespace Core.Services.Scenes
 				});
 		}
 
+		/// <summary>
+		/// Attempts to load a scene from an asset bundle
+		/// </summary>
+		/// <param name="scene"></param>
+		/// <param name="mode"></param>
+		/// <returns></returns>
 		public IObservable<UnityEngine.Object> LoadScene(string scene, LoadSceneMode mode = LoadSceneMode.Single)
 		{
 			if (assetService.GetLoadedBundle<UnityEngine.Object>(scene))
@@ -67,6 +73,12 @@ namespace Core.Services.Scenes
 				return GetScene(scene, mode);
 		}
 
+		/// <summary>
+		/// Gets a scene from an asset bundle
+		/// </summary>
+		/// <param name="scene"></param>
+		/// <param name="mode"></param>
+		/// <returns></returns>
 		private IObservable<UnityEngine.Object> GetScene(string scene, LoadSceneMode mode = LoadSceneMode.Single)
 		{
 			BundleRequest bundleNeeded = new BundleRequest(AssetCategoryRoot.Scenes, scene, scene);
@@ -82,15 +94,22 @@ namespace Core.Services.Scenes
 							observer.OnNext(loadedScene);
 							observer.OnCompleted();
 
-							Debug.Log(("SceneLoaderService: Opened scene - " + scene).Colored(Colors.lightblue));
+							Debug.Log(("SceneLoaderService: Opened scene - " + scene).Colored(Colors.LightBlue));
 						});
 
-						Debug.Log(("SceneLoaderService: Loaded scene - " + scene).Colored(Colors.lightblue));
+						Debug.Log(("SceneLoaderService: Loaded scene - " + scene).Colored(Colors.LightBlue));
 					};
 					return assetService.GetAndLoadAsset<UnityEngine.Object>(bundleNeeded).Subscribe(OnSceneLoaded);
 				});
 		}
 
+		/// <summary>
+		/// This is triggered because there was an attempt to load a scene that is currently loaded.
+		/// Use case not supported. Calling this method will always trigger an OnError and send it up the stream.
+		/// </summary>
+		/// <param name="scene"></param>
+		/// <param name="mode"></param>
+		/// <returns></returns>
 		private IObservable<UnityEngine.Object> GetPreviouslyLoadedScene(string scene, LoadSceneMode mode = LoadSceneMode.Single)
 		{
 			var subject = new Subject<UnityEngine.Object>();
@@ -101,6 +120,11 @@ namespace Core.Services.Scenes
 			return subject;
 		}
 
+		/// <summary>
+		/// Unload scene.
+		/// </summary>
+		/// <param name="scene"></param>
+		/// <returns></returns>
 		public IObservable<UnityEngine.Object> UnLoadScene(string scene)
 		{
 			return Observable.Create<UnityEngine.Object>(
@@ -108,7 +132,7 @@ namespace Core.Services.Scenes
 				{
 					SceneManager.UnloadSceneAsync(scene).AsObservable().Subscribe(x =>
 					{
-						Debug.Log(("SceneLoaderService: Unloaded scene - " + scene).Colored(Colors.lightblue));
+						Debug.Log(("SceneLoaderService: Unloaded scene - " + scene).Colored(Colors.LightBlue));
 
 						assetService.UnloadAsset(scene, true);
 

@@ -33,7 +33,7 @@ namespace Core.Services.Levels
 
 		protected virtual void Awake()
 		{
-			Debug.Log(("Level: " + name + " loaded").Colored(Colors.lightblue));
+			Debug.Log(("Level: " + name + " loaded").Colored(Colors.LightBlue));
 
 			levelService = ServiceLocator.GetService<ILevelLoaderService>();
 			audioService = ServiceLocator.GetService<IAudioService>();
@@ -44,7 +44,7 @@ namespace Core.Services.Levels
 
 		protected virtual void Start()
 		{
-			Debug.Log(("Level: " + name + " started").Colored(Colors.lightblue));
+			Debug.Log(("Level: " + name + " started").Colored(Colors.LightBlue));
 
 			levelState = LevelState.Started;
 			levelState = LevelState.InProgress;

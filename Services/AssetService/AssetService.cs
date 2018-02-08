@@ -7,13 +7,21 @@ using UnityEngine;
 
 namespace Core.Services.Assets
 {
+	/// <summary>
+	/// Central point to get asset bundles required to run the game.
+	/// </summary>
 	public interface IAssetService : IService
 	{
+		//Asset bundle location
 		string AssetBundlesURL { get; }
+		//Time when the manifest files expire
 		int ManifestCacheExpiringPeriodInDays { get; }
+		//Using streaming assets?
 		bool UseStreamingAssets { get; }
 
 		AssetCacheState AssetCacheState { get; }
+		AssetCacheStrategy AssetCacheStrategy { get; }
+		UnityCloudBuildManifest CloudBuildManifest { get; }
 
 		IObservable<T> GetAndLoadAsset<T>(BundleRequest bundleNeeded)where T : UnityEngine.Object;
 
@@ -24,9 +32,6 @@ namespace Core.Services.Assets
 
 	public class AssetService : IAssetService
 	{
-		protected AssetServiceConfiguration configuration;
-		protected AssetBundleLoader assetBundlebundleLoader;
-
 		public uint AssetBundleVersionNumber { get { return 1; } }
 
 		public string AssetBundlesURL { get { return configuration.AssetBundlesURL + AssetBundleUtilities.ClientPlatform + "/"; } }
@@ -39,6 +44,9 @@ namespace Core.Services.Assets
 
 		private UnityCloudBuildManifest cloudBuildManifest;
 		public UnityCloudBuildManifest CloudBuildManifest { get { return cloudBuildManifest; } }
+
+		private AssetServiceConfiguration configuration;
+		private AssetBundleLoader assetBundlebundleLoader;
 
 		public IObservable<IService> Configure(ServiceConfiguration config)
 		{
@@ -54,12 +62,12 @@ namespace Core.Services.Assets
 					{
 						if (cloudManifest != null)
 						{
-							Debug.Log(("---- AssetService: Unity Cloud Build Manifest present. Build Version: " + cloudManifest.buildNumber).Colored(Colors.aqua));
+							Debug.Log(("---- AssetService: Unity Cloud Build Manifest present. Build Version: " + cloudManifest.buildNumber).Colored(Colors.Aqua));
 							cloudBuildManifest = cloudManifest;
 						}
 						else
 						{
-							Debug.Log(("---- AssetService: Unity Cloud Build Manifest missing. This is ok. Ignoring.").Colored(Colors.aqua));
+							Debug.Log(("---- AssetService: Unity Cloud Build Manifest missing. This is ok. Ignoring.").Colored(Colors.Aqua));
 						}
 
 						observer.OnNext(this);
@@ -113,13 +121,18 @@ namespace Core.Services.Assets
 			assetBundlebundleLoader.UnloadAsset(name, unloadAllDependencies);
 		}
 
+		/// <summary>
+		/// Gets a bundle that has been previously loaded and it's stored in memory.
+		/// </summary>
+		/// <param name="name">Asset name</param>
+		/// <returns>T</returns>
 		public T GetLoadedBundle<T>(string name)where T : UnityEngine.Object
 		{
 			Debug.Log(assetBundlebundleLoader == null?true : false);
 			return assetBundlebundleLoader.GetLoadedBundle<T>(name);
 		}
 
-		protected void OnGameStart(ServiceLocator application)
+		private void OnGameStart(ServiceLocator application)
 		{
 			assetBundlebundleLoader = new AssetBundleLoader(this);
 
@@ -128,7 +141,10 @@ namespace Core.Services.Assets
 			// LoadGameBundle();
 		}
 
-		protected void LoadGameBundle()
+		/// <summary>
+		/// Not used for now.
+		/// </summary>
+		private void LoadGameBundle()
 		{
 			BundleRequest game = new BundleRequest(AssetCategoryRoot.None, AssetBundleUtilities.ClientPlatform.ToString(), AssetBundleUtilities.ClientPlatform.ToString());
 			Resources.UnloadUnusedAssets();

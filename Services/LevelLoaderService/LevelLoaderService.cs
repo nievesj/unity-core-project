@@ -90,7 +90,7 @@ namespace Core.Services.Levels
 					Action<Level> OnLevelLoaded = loadedLevel =>
 					{
 						Resources.UnloadUnusedAssets();
-						Debug.Log(("LevelLoaderService: Loaded level - " + loadedLevel.name).Colored(Colors.lightblue));
+						Debug.Log(("LevelLoaderService: Loaded level - " + loadedLevel.name).Colored(Colors.LightBlue));
 
 						currentLevel = GameObject.Instantiate<Level>(loadedLevel);
 						currentLevel.name = loadedLevel.name;
@@ -118,7 +118,7 @@ namespace Core.Services.Levels
 
 			if (level)
 			{
-				Debug.Log(("LevelLoaderService: Unloading level  - " + currentLevel.name).Colored(Colors.lightblue));
+				Debug.Log(("LevelLoaderService: Unloading level  - " + currentLevel.name).Colored(Colors.LightBlue));
 				GameObject.Destroy(level.gameObject);
 				assetService.UnloadAsset(level.name, true);
 			}

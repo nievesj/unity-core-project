@@ -85,7 +85,6 @@ namespace Core.Services.Assets
 		}
 
 #if UNITY_EDITOR
-
 		/// <summary>
 		/// Method attemps to get an asset from the asset database.
 		/// </summary>
@@ -95,7 +94,7 @@ namespace Core.Services.Assets
 		/// <returns>IEnumerator</returns>
 		private IEnumerator SimulateAssetBundle<T>(BundleRequest bundleRequest, IObserver<T> observer, CancellationToken cancellationToken)where T : UnityEngine.Object
 		{
-			Debug.Log(("AssetBundleLoader: Simulated | Requesting: " + bundleRequest.AssetName + " | " + bundleRequest.BundleName).Colored(Colors.aqua));
+			Debug.Log(("AssetBundleLoader: Simulated | Requesting: " + bundleRequest.AssetName + " | " + bundleRequest.BundleName).Colored(Colors.Aqua));
 
 			List<T> assets = new List<T>();
 			//Get guid from the asset
@@ -141,7 +140,7 @@ namespace Core.Services.Assets
 			ManifestInfo manifestInfo = new ManifestInfo(bundleRequest);
 			AssetBundle bundle;
 
-			Debug.Log(("AssetBundleLoader: " + assetService.AssetCacheState + " | Requesting: " + bundleRequest.AssetName + " | " + bundleRequest.BundleName).Colored(Colors.aqua));
+			Debug.Log(("AssetBundleLoader: " + assetService.AssetCacheState + " | Requesting: " + bundleRequest.AssetName + " | " + bundleRequest.BundleName).Colored(Colors.Aqua));
 
 			//Cache bundles and copy individual bundle .manifest files locally
 			if (assetService.AssetCacheState.Equals(AssetCacheState.Cache)&& assetService.AssetCacheStrategy.Equals(AssetCacheStrategy.CopyBundleManifestFileLocally))
@@ -169,6 +168,7 @@ namespace Core.Services.Assets
 
 			//Wait until www is done.
 			yield return www.SendWebRequest();
+
 			//get bundle
 			bundle = DownloadHandlerAssetBundle.GetContent(www);
 
@@ -197,7 +197,7 @@ namespace Core.Services.Assets
 		/// <returns>Observable</returns>
 		private IObservable<T> GetBundleFromStreamingAssets<T>(BundleRequest bundleRequest)where T : UnityEngine.Object
 		{
-			Debug.Log(("AssetBundleLoader: Using StreamingAssets - " + " Requesting:" + bundleRequest.AssetCategory + " | " + bundleRequest.BundleName).Colored(Colors.aqua));
+			Debug.Log(("AssetBundleLoader: Using StreamingAssets - " + " Requesting:" + bundleRequest.AssetCategory + " | " + bundleRequest.BundleName).Colored(Colors.Aqua));
 			string path = Path.Combine(Application.streamingAssetsPath, bundleRequest.AssetPathFromLocalStreamingAssets);
 
 			return Observable.FromCoroutine<T>((observer, cancellationToken)=> RunAssetBundleCreateRequestOperation<T>(AssetBundle.LoadFromFileAsync(path), bundleRequest, observer, cancellationToken));

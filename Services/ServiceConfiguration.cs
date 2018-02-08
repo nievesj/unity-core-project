@@ -21,6 +21,10 @@ namespace Core.Services
 	{
 		abstract protected IService ServiceClass { get; }
 
+		/// <summary>
+		/// Create service. This initializes and starts the service.
+		/// </summary>
+		/// <returns>Observable</returns>
 		public IObservable<ConfigurationServiceName> CreateService()
 		{
 			return Observable.Create<ConfigurationServiceName>(
@@ -33,13 +37,6 @@ namespace Core.Services
 					{
 						service.Configure(this).Subscribe(s =>
 						{
-							// IService service = ServiceClass;
-							// if (service == null)return null;
-							// service.Configure(this);
-							// ServiceLocator.AddService(name, service);
-
-							// return service;
-
 							observer.OnNext(new ConfigurationServiceName(name, service));
 							observer.OnCompleted();
 						});

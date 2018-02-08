@@ -10,6 +10,7 @@ namespace Core.Services
 {
 	public static class EditorUITools
 	{
+		//Tidy header style.
 		public static GUIStyle HeaderStyle
 		{
 			get
