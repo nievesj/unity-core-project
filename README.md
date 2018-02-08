@@ -8,9 +8,9 @@ _Core is a collection of utilities and libraries to help speed up development in
 * Asset Bundle loading system
 	* Can load assets from the streaming assets folder
 	* Can load assets from a web server
-	* Can cache downloaded bundles
 	* Can load asset bundle scenes
 	* Can simulate asset bundles on editor
+	* Can cache downloaded bundles by using Unity Cloud Build manifest, or by caching the manifest files locally and using the HASH number
 * Basic window system
 	* Open / Close window
 	* Observable events for when a window is opened or closed
@@ -18,6 +18,7 @@ _Core is a collection of utilities and libraries to help speed up development in
 * Basic audio system
 * Mouse / Touch input control
 * Pooler tool
+* Console window colors! Categorize debug messages with colors so they are easier to read.
 * Base game starting point ([Example Project](https://github.com/nievesj/unity_core_example))
 
 Purpose
