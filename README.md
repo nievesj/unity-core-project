@@ -1,6 +1,7 @@
 
 # _Core
 Current Version 1.1
+
 Supported Unity versions: 2017.3 or latest. 
 
 What is _Core?
