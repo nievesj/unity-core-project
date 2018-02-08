@@ -8,9 +8,9 @@ _Core is a collection of utilities and libraries to help speed up development in
 * Asset Bundle loading system
 	* Can load assets from the streaming assets folder
 	* Can load assets from a web server
-	* Can cache downloaded bundles
 	* Can load asset bundle scenes
 	* Can simulate asset bundles on editor
+	* Can cache downloaded bundles by using Unity Cloud Build manifest's build number as the bundle version, or by caching the manifest files locally and using the HASH number instead
 * Basic window system
 	* Open / Close window
 	* Observable events for when a window is opened or closed
@@ -18,6 +18,7 @@ _Core is a collection of utilities and libraries to help speed up development in
 * Basic audio system
 * Mouse / Touch input control
 * Pooler tool
+* Console window colors! Colorize your debug messages with colors so they are easier to read.
 * Base game starting point ([Example Project](https://github.com/nievesj/unity_core_example))
 
 Purpose
@@ -106,4 +107,14 @@ Asset Service is the service in charge of loading asset bundles. The configurati
 	* Toggle this if you want to cache the asset bundles on device. This will also cache the .manifest files on the Application.persistentDataPath path, and refresh them every 5 days, by default.
 
 ![Asset Service Options](http://www.josemnieves.com/unity/images/assetservice.png)
+
+Console window colors!
+---
+
+This feature allows you to easily colorize debug messages so you can keep track of related events by colors.
+
+![Asset Service Options](http://www.josemnieves.com/unity/images/consolecolors.png)
+
+
+       Debug.Log(("My very awesome lime colored text!").Colored(Colors.Lime));
 
