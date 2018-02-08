@@ -108,3 +108,13 @@ Asset Service is the service in charge of loading asset bundles. The configurati
 
 ![Asset Service Options](http://www.josemnieves.com/unity/images/assetservice.png)
 
+Console window colors!
+---
+
+This feature allows you to easily colorize debug messages so you can keep track of related events by colors.
+
+![Asset Service Options](http://www.josemnieves.com/unity/images/consolecolors.png)
+
+
+       Debug.Log(("My very awesome lime colored text!").Colored(Colors.Lime));
+
