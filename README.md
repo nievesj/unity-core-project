@@ -18,7 +18,7 @@ _Core is a collection of utilities and libraries to help speed up development in
 * Basic audio system
 * Mouse / Touch input control
 * Pooler tool
-* Console window colors! Categorize debug messages with colors so they are easier to read.
+* Console window colors! Colorize your debug messages with colors so they are easier to read.
 * Base game starting point ([Example Project](https://github.com/nievesj/unity_core_example))
 
 Purpose
