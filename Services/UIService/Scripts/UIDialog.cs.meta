@@ -1,13 +1,11 @@
 fileFormatVersion: 2
-guid: 5dd1b87ad5d4e45afaf8d1e31328fa48
-timeCreated: 1518552556
+guid: 11c04a7e181debb4f8a5d8659fc6a89c
+timeCreated: 1518299307
 licenseType: Pro
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences:
-  - mainCanvas: {fileID: 114804601797109894, guid: 5a6199aa129124325a80df3ab914de1f,
-      type: 2}
+  defaultReferences: []
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

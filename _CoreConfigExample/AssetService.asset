@@ -14,3 +14,6 @@ MonoBehaviour:
   assetBundlesURL: http://www.josemnieves.com/assetbundles/
   useStreamingAssets: 1
   useCache: 1
+  cacheBundleManifestsLocally: 1
+  manifestCachePeriod: 5
+  useUnityCloudBuildManifestVersion: 1

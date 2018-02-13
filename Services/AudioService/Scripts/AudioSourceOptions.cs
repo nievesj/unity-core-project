@@ -35,6 +35,11 @@ namespace Core.Services.Audio
 		public float reverbZoneMix = 1;
 
 		public SoundSettings SoundSettings3D;
+
+		public AudioSourceOptions()
+		{
+			SoundSettings3D = new SoundSettings();
+		}
 	}
 
 	[System.Serializable]

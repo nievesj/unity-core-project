@@ -22,7 +22,7 @@ namespace Core.Services.Levels
 		protected LevelLoaderServiceConfiguration configuration;
 		protected IAssetService assetService;
 		protected IUIService uiService;
-		protected UIWindow loadingScreen;
+		protected UIElement loadingScreen;
 
 		protected Level currentLevel;
 		public Level CurrentLevel { get { return currentLevel; } }

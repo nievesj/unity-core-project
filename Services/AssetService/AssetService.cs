@@ -144,13 +144,13 @@ namespace Core.Services.Assets
 		/// <summary>
 		/// Not used for now.
 		/// </summary>
-		private void LoadGameBundle()
-		{
-			BundleRequest game = new BundleRequest(AssetCategoryRoot.None, AssetBundleUtilities.ClientPlatform.ToString(), AssetBundleUtilities.ClientPlatform.ToString());
-			Resources.UnloadUnusedAssets();
+		// private void LoadGameBundle()
+		// {
+		// 	BundleRequest game = new BundleRequest(AssetCategoryRoot.None, AssetBundleUtilities.ClientPlatform.ToString(), AssetBundleUtilities.ClientPlatform.ToString());
+		// 	Resources.UnloadUnusedAssets();
 
-			if (!configuration.UseCache)
-				Caching.ClearCache();
-		}
+		// 	if (!configuration.UseCache)
+		// 		Caching.ClearCache();
+		// }
 	}
 }

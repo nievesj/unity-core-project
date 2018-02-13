@@ -11,5 +11,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5dd1b87ad5d4e45afaf8d1e31328fa48, type: 3}
   m_Name: UIService
   m_EditorClassIdentifier: 
-  mainCanvas: {fileID: 223610556742224086, guid: 5a6199aa129124325a80df3ab914de1f,
+  mainCanvas: {fileID: 114804601797109894, guid: 5a6199aa129124325a80df3ab914de1f,
     type: 2}

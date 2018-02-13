@@ -7,15 +7,25 @@ using UnityEngine;
 
 namespace Core.Services.UI
 {
+	/// <summary>
+	/// Used to determine the parent of the UI Element
+	/// </summary>
+	public enum UIElementType
+	{
+		Dialog,
+		Widget,
+		Panel
+	}
+
 	public interface IUIService : IService
 	{
-		IObservable<UIWindow> OnWindowOpened { get; }
-		IObservable<UIWindow> OnWindowClosed { get; }
+		IObservable<UIElement> OnUIElementOpened { get; }
+		IObservable<UIElement> OnUIElementClosed { get; }
 
-		IObservable<UIWindow> OpenWindow(string window);
-		IObservable<UIWindow> CloseWindow(UIWindow window);
-		bool IsWindowOpen(string window);
-		UIWindow GetOpenWindow(string window);
+		IObservable<UIElement> OpenUIElement(string window);
+		IObservable<UIElement> CloseUIElement(UIElement window);
+		bool IsUIElementOpen(string window);
+		UIElement GetOpenUIElement(string window);
 	}
 
 	public class UIService : IUIService
@@ -24,14 +34,21 @@ namespace Core.Services.UI
 
 		protected IAssetService assetService;
 		protected RectTransform mainCanvas;
+		protected Dictionary<UIElementType, RectTransform> renderPriorityCanvas;
 
-		protected Dictionary<string, UIWindow> activeWindows;
+		protected Dictionary<string, UIElement> activeUIElements;
 
-		protected Subject<UIWindow> onWindowOnpened = new Subject<UIWindow>();
-		public IObservable<UIWindow> OnWindowOpened { get { return onWindowOnpened; } }
+		//Global signal emited when a window is opened. Hot observable.
+		protected Subject<UIElement> onUIElementOpened = new Subject<UIElement>();
+		public IObservable<UIElement> OnUIElementOpened { get { return onUIElementOpened; } }
 
-		protected Subject<UIWindow> onWindowClosed = new Subject<UIWindow>();
-		public IObservable<UIWindow> OnWindowClosed { get { return onWindowClosed; } }
+		//Global signal emited when a window is closed. Hot observable.
+		protected Subject<UIElement> onUIElementClosed = new Subject<UIElement>();
+		public IObservable<UIElement> OnUIElementClosed { get { return onUIElementClosed; } }
+
+		//Global signal emited when a window is opened. Hot observable.
+		protected Subject<bool> onGamePaused = new Subject<bool>();
+		public IObservable<bool> OnGamePaused { get { return onGamePaused; } }
 
 		public IObservable<IService> Configure(ServiceConfiguration config)
 		{
@@ -41,6 +58,10 @@ namespace Core.Services.UI
 					var subject = new Subject<IService>();
 
 					configuration = config as UIServiceConfiguration;
+
+					activeUIElements = new Dictionary<string, UIElement>();
+					renderPriorityCanvas = new Dictionary<UIElementType, RectTransform>();
+
 					ServiceLocator.OnGameStart.Subscribe(OnGameStart);
 
 					observer.OnNext(this);
@@ -58,11 +79,15 @@ namespace Core.Services.UI
 					//instantiate main canvas
 					if (configuration.mainCanvas)
 					{
-						var canvas = Object.Instantiate<Canvas>(configuration.mainCanvas);
+						var canvas = Object.Instantiate<UIContainer>(configuration.mainCanvas);
 						mainCanvas = canvas.GetComponent<RectTransform>();
 						GameObject.DontDestroyOnLoad(mainCanvas);
-						observer.OnNext(this);
 
+						renderPriorityCanvas.Add(UIElementType.Dialog, canvas.dialogContainer);
+						renderPriorityCanvas.Add(UIElementType.Panel, canvas.panelContainer);
+						renderPriorityCanvas.Add(UIElementType.Widget, canvas.widgetContainer);
+
+						observer.OnNext(this);
 					}
 					else
 						observer.OnError(new System.Exception("UIService: StartService - Main Canvas has not been configured. Failed to start UI Service."));
@@ -80,6 +105,10 @@ namespace Core.Services.UI
 
 					Object.Destroy(mainCanvas.gameObject);
 
+					onUIElementOpened.Dispose();
+					onUIElementClosed.Dispose();
+					onGamePaused.Dispose();
+
 					observer.OnNext(this);
 					return subject.Subscribe();
 				});
@@ -88,7 +117,6 @@ namespace Core.Services.UI
 		protected void OnGameStart(ServiceLocator application)
 		{
 			assetService = ServiceLocator.GetService<IAssetService>();
-			activeWindows = new Dictionary<string, UIWindow>();
 		}
 
 		/// <summary>
@@ -96,26 +124,26 @@ namespace Core.Services.UI
 		/// </summary>
 		/// <param name="window">Window name</param>
 		/// <returns>Observable</returns>
-		public IObservable<UIWindow> OpenWindow(string window)
+		public IObservable<UIElement> OpenUIElement(string window)
 		{
 			BundleRequest bundleNeeded = new BundleRequest(AssetCategoryRoot.Windows, window, window);
-			return Observable.Create<UIWindow>(
-				(IObserver<UIWindow> observer)=>
+			return Observable.Create<UIElement>(
+				(IObserver<UIElement> observer)=>
 				{
-					System.Action<UIWindow> OnWindowLoaded = loadedWindow =>
+					System.Action<UIElement> OnWindowLoaded = loadedWindow =>
 					{
 						if (!mainCanvas)
-							observer.OnError(new System.Exception("UIService: StartService - Main Canvas is missing."));
+							observer.OnError(new System.Exception("UIService: StartService - UICanvas is missing from the scene. Was is destroyed?."));
 
-						var obj = Object.Instantiate<UIWindow>(loadedWindow, mainCanvas);
+						var obj = Object.Instantiate<UIElement>(loadedWindow, DetermineRenderPriorityCanvas(loadedWindow));
 
 						obj.name = loadedWindow.name;
-						obj.Closed.Subscribe(WindowClosed);
-						obj.Opened.Subscribe(WindowOpened);
+						obj.OnClosed.Subscribe(UIElementClosed);
+						obj.OnOpened.Subscribe(UIElementOpened);
 						obj.Initialize(this);
 
-						if (!activeWindows.ContainsKey(obj.name))
-							activeWindows.Add(obj.name, obj);
+						if (!activeUIElements.ContainsKey(obj.name))
+							activeUIElements.Add(obj.name, obj);
 
 						observer.OnNext(obj);
 						observer.OnCompleted();
@@ -123,8 +151,31 @@ namespace Core.Services.UI
 						Debug.Log(("UIService: Loaded window - " + loadedWindow.name).Colored(Colors.LightBlue));
 					};
 
-					return assetService.GetAndLoadAsset<UIWindow>(bundleNeeded).Subscribe(OnWindowLoaded);
+					return assetService.GetAndLoadAsset<UIElement>(bundleNeeded).Subscribe(OnWindowLoaded);
 				});
+		}
+
+		/// <summary>
+		/// Method determines the render priority of each UI element instance.
+		/// Dialogs: draw on top of everything
+		/// Widget: Draw on tops of Panels but below Dialogs
+		/// Panel: Lowest render priority
+		/// </summary>
+		/// <param name="element"></param>
+		/// <returns></returns>
+		private RectTransform DetermineRenderPriorityCanvas(UIElement element)
+		{
+			if (element is UIDialog)
+				return renderPriorityCanvas[UIElementType.Dialog];
+
+			else if (element is UIPanel)
+				return renderPriorityCanvas[UIElementType.Panel];
+
+			else if (element is UIWidget)
+				return renderPriorityCanvas[UIElementType.Widget];
+
+			else
+				return mainCanvas;
 		}
 
 		/// <summary>
@@ -132,9 +183,9 @@ namespace Core.Services.UI
 		/// </summary>
 		/// <param name="window">Window name</param>
 		/// <returns>bool</returns>
-		public bool IsWindowOpen(string window)
+		public bool IsUIElementOpen(string window)
 		{
-			return activeWindows.ContainsKey(window)? true : false;
+			return activeUIElements.ContainsKey(window)? true : false;
 		}
 
 		/// <summary>
@@ -142,9 +193,9 @@ namespace Core.Services.UI
 		/// </summary>
 		/// <param name="window">Window name</param>
 		/// <returns>UIWindow</returns>
-		public UIWindow GetOpenWindow(string window)
+		public UIElement GetOpenUIElement(string window)
 		{
-			return activeWindows.ContainsKey(window)? activeWindows[window] : null;
+			return activeUIElements.ContainsKey(window)? activeUIElements[window] : null;
 		}
 
 		/// <summary>
@@ -152,25 +203,35 @@ namespace Core.Services.UI
 		/// </summary>
 		/// <param name="window">Window name</param>
 		/// <returns>Observable</returns>
-		public IObservable<UIWindow> CloseWindow(UIWindow window)
+		public IObservable<UIElement> CloseUIElement(UIElement window)
 		{
+			//Emit OnGamePaused signal. Is up to the game to determine what happens. That's beyond the scope of the UIService.
+			//This probably needs to be called on Dialog instantiation for better effect. Leaving it here for now.
+			if (window is UIDialog)
+				onGamePaused.OnNext(true);
+
 			return window.Close()
-				.Subscribe(WindowClosed)as IObservable<UIWindow>;
+				.Subscribe(UIElementClosed)as IObservable<UIElement>;
 		}
 
-		protected void WindowClosed(UIWindow window)
+		protected void UIElementClosed(UIElement window)
 		{
 			Debug.Log(("UIService: Closed window - " + window.name).Colored(Colors.LightBlue));
 
-			activeWindows.Remove(window.name);
-			onWindowClosed.OnNext(window);
+			//Emit OnGamePaused signal. Is up to the game to determine what happens. That's beyond the scope of the UIService.
+			if (window is UIDialog)
+				onGamePaused.OnNext(false);
+
+			activeUIElements.Remove(window.name);
+			onUIElementClosed.OnNext(window);
+
 			assetService.UnloadAsset(window.name, true);
 			Object.Destroy(window.gameObject);
 		}
 
-		protected void WindowOpened(UIWindow window)
+		protected void UIElementOpened(UIElement window)
 		{
-			onWindowOnpened.OnNext(window);
+			onUIElementOpened.OnNext(window);
 		}
 	}
 }

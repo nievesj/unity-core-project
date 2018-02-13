@@ -17,22 +17,23 @@ namespace Core.Services.UI
 	}
 
 	[System.Serializable]
-	public class UIWindowTransitionOptions
+	public class UIElementTransitionOptions
 	{
 		public TransitionType transitionType;
 		public LeanTweenType tweenType;
-		public float time;
+		public float transitionTime = 0.5f;
+		public AudioClip transitionSound;
 
-		private UIWindow _window;
+		private UIElement _uiElement;
 
-		public IObservable<UIWindow> PlayTransition(UIWindow window, bool isOutTransition = false)
+		public IObservable<UIElement> PlayTransition(UIElement uiElement, bool isOutTransition = false)
 		{
-			IObservable<UIWindow> ret = null;
+			IObservable<UIElement> ret = null;
 
 			var start = Vector2.zero;
 			var end = Vector2.zero;
-			var rtrans = window.RTransform;
-			_window = window;
+			var rtrans = uiElement.RTransform;
+			_uiElement = uiElement;
 
 			switch (transitionType)
 			{
@@ -121,46 +122,58 @@ namespace Core.Services.UI
 			return ret;
 		}
 
-		IObservable<UIWindow> Scale(RectTransform window, Vector2 start, Vector2 end)
+		IObservable<UIElement> Scale(RectTransform transform, Vector2 start, Vector2 end)
 		{
-			var subject = new Subject<UIWindow>();
+			return Observable.Create<UIElement>(
+				(IObserver<UIElement> observer)=>
+				{
+					var subject = new Subject<UIElement>();
 
-			LeanTween.scale(window, start, 0);
-			LeanTween.scale(window, end, time).setEase(tweenType).setOnComplete(()=>
-			{
-				subject.OnNext(_window);
-				subject.OnCompleted();
-			});
+					LeanTween.scale(transform, start, 0);
+					LeanTween.scale(transform, end, transitionTime).setEase(tweenType).setOnComplete(()=>
+					{
+						observer.OnNext(_uiElement);
+						observer.OnCompleted();
+					});
 
-			return subject;
+					return subject;
+				});
 		}
 
-		IObservable<UIWindow> Move(RectTransform window, Vector2 start, Vector2 end)
+		IObservable<UIElement> Move(RectTransform transform, Vector2 start, Vector2 end)
 		{
-			var subject = new Subject<UIWindow>();
+			return Observable.Create<UIElement>(
+				(IObserver<UIElement> observer)=>
+				{
+					var subject = new Subject<UIElement>();
 
-			LeanTween.move(window, start, 0);
-			LeanTween.move(window, end, time).setEase(tweenType).setOnComplete(()=>
-			{
-				subject.OnNext(_window);
-				subject.OnCompleted();
-			});
+					LeanTween.move(transform, start, 0);
+					LeanTween.move(transform, end, transitionTime).setEase(tweenType).setOnComplete(()=>
+					{
+						observer.OnNext(_uiElement);
+						observer.OnCompleted();
+					});
 
-			return subject;
+					return subject;
+				});
 		}
 
-		IObservable<UIWindow> Fade(RectTransform window, float start, float end)
+		IObservable<UIElement> Fade(RectTransform transform, float start, float end)
 		{
-			var subject = new Subject<UIWindow>();
+			return Observable.Create<UIElement>(
+				(IObserver<UIElement> observer)=>
+				{
+					var subject = new Subject<UIElement>();
 
-			LeanTween.alpha(window, start, 0);
-			LeanTween.alpha(window, end, time).setEase(tweenType).setOnComplete(()=>
-			{
-				subject.OnNext(_window);
-				subject.OnCompleted();
-			});
+					LeanTween.alpha(transform, start, 0);
+					LeanTween.alpha(transform, end, transitionTime).setEase(tweenType).setOnComplete(()=>
+					{
+						observer.OnNext(_uiElement);
+						observer.OnCompleted();
+					});
 
-			return subject;
+					return subject;
+				});
 		}
 	}
 }

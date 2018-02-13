@@ -11,6 +11,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b59971c8fc05491c9a5fd1bffc12224, type: 3}
   m_Name: LevelLoaderService
   m_EditorClassIdentifier: 
-  levels:
-  - MainLevel
-  - Level_1
+  levels: []

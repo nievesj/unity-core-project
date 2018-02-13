@@ -18,18 +18,18 @@ namespace Core.Services.Audio
 		public float pitch { get; set; }
 
 		[SerializeField]
-		AudioSource player;
+		AudioSource audioSource;
 		public AudioSource Player
 		{
-			get { return player; }
+			get { return audioSource; }
 			set
 			{
-				player = value;
+				audioSource = value;
 
-				if (player)
+				if (audioSource)
 				{
-					player.clip = clip;
-					SetUpOptions(player);
+					audioSource.clip = clip;
+					SetUpOptions(audioSource);
 				}
 			}
 		}
@@ -41,6 +41,7 @@ namespace Core.Services.Audio
 		public AudioPlayer(AudioClip ac)
 		{
 			clip = ac;
+			audioSourceOptions = new AudioSourceOptions();
 		}
 
 		public AudioPlayer(AudioClip ac, Transform from)

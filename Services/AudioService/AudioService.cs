@@ -9,15 +9,44 @@ namespace Core.Services.Audio
 {
 	public interface IAudioService : IService
 	{
+		void PlayClip(AudioClip clip);
 		void PlayClip(AudioPlayer ap);
 		void PlayMusic(AudioPlayer ap);
 		void StopClip(AudioPlayer ap);
+
+		bool Mute { get; set; }
+		float Volume { get; set; }
 	}
 
 	public class AudioService : IAudioService
 	{
 		protected AudioServiceConfiguration configuration;
 		protected Pooler<AudioSource> poller;
+		protected List<AudioPlayer> activeAudioPlayers;
+
+		//Global mute
+		bool mute;
+		public bool Mute
+		{
+			get { return mute; }
+			set
+			{
+				mute = value;
+				foreach (var ap in activeAudioPlayers)ap.Player.mute = mute;
+			}
+		}
+
+		//Global volume
+		float volume;
+		public float Volume
+		{
+			get { return volume; }
+			set
+			{
+				volume = value;
+				foreach (var ap in activeAudioPlayers)ap.Player.volume = volume;
+			}
+		}
 
 		public IObservable<IService> Configure(ServiceConfiguration config)
 		{
@@ -28,6 +57,7 @@ namespace Core.Services.Audio
 
 					configuration = config as AudioServiceConfiguration;
 					ServiceLocator.OnGameStart.Subscribe(OnGameStart);
+					activeAudioPlayers = new List<AudioPlayer>();
 
 					observer.OnNext(this);
 					return subject.Subscribe();
@@ -77,8 +107,15 @@ namespace Core.Services.Audio
 			ServiceLocator.Instance.StartCoroutine(WaitUntilDonePlaying(ap));
 		}
 
+		public void PlayClip(AudioClip clip)
+		{
+			var ap = new AudioPlayer(clip);
+			PlayClip(ap);
+		}
+
 		public void PlayMusic(AudioPlayer ap)
 		{
+			activeAudioPlayers.Add(ap);
 			Play(ap);
 		}
 
@@ -86,6 +123,8 @@ namespace Core.Services.Audio
 		{
 			if (poller != null && (!ap.Player || !ap.Player.gameObject.activeSelf))
 			{
+				activeAudioPlayers.Add(ap);
+
 				if (ap.PlayFrom)
 				{
 					ap.Player.transform.SetParent(ap.PlayFrom);
@@ -94,6 +133,10 @@ namespace Core.Services.Audio
 
 				Debug.Log(("AudioService: Playing Clip - " + ap.Clip.name).Colored(Colors.Magenta));
 				ap.Player = poller.Pop();
+
+				ap.Player.volume = volume;
+				ap.Player.mute = mute;
+
 				ap.Player.Play();
 			}
 		}
@@ -117,6 +160,7 @@ namespace Core.Services.Audio
 				ap.Player.transform.localPosition = Vector3.zero;
 			}
 
+			activeAudioPlayers.Remove(ap);
 			poller.Push(ap.Player);
 			ap.Player.clip = null;
 			ap.Player = null;
@@ -130,7 +174,9 @@ namespace Core.Services.Audio
 			wait = new WaitWhile(()=> ap.Player.isPlaying);
 			yield return wait;
 
-			Debug.Log(("AudioService: Done Playing Clip - " + ap.Clip.name).Colored(Colors.Magenta));
+			if (ap.Clip)
+				Debug.Log(("AudioService: Done Playing Clip - " + ap.Clip.name).Colored(Colors.Magenta));
+
 			PushAudioSource(ap);
 		}
 	}
