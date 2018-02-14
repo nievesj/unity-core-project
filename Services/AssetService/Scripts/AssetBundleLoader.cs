@@ -35,7 +35,7 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// Atemps to load requested asset.
+		/// Attemps to load requested asset.
 		/// Depending on the project options it will look the asset on the web, on the streaming assets folder or it will attempt to 
 		/// simulate it by loading it from the asset database. Asset simulation is only available on editor.
 		/// </summary>

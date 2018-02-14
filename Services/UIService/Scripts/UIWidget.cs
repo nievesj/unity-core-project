@@ -40,10 +40,5 @@ namespace Core.Services.UI
 			isShowing = false;
 			isTransitioning = false;
 		}
-
-		protected void OnDestroy()
-		{
-			Close().Subscribe();
-		}
 	}
 }

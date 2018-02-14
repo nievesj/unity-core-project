@@ -44,7 +44,16 @@ namespace Core.Services
 		/// <param name="locator"></param>
 		protected virtual void OnGameStart(ServiceLocator locator)
 		{
+			UILoader.OnGamePaused.Subscribe(OnGamePaused);
 			Debug.Log(("Game Started").Colored(Colors.Lime));
+		}
+
+		protected virtual void OnGamePaused(bool isPaused)
+		{
+			// if (isPaused)
+			// 	Debug.Log(("Game Paused").Colored(Colors.Lime));
+			// else
+			// 	Debug.Log(("Game Resumed").Colored(Colors.Lime));
 		}
 	}
 }

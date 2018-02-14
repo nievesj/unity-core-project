@@ -21,6 +21,7 @@ namespace Core.Services.UI
 	{
 		IObservable<UIElement> OnUIElementOpened { get; }
 		IObservable<UIElement> OnUIElementClosed { get; }
+		IObservable<bool> OnGamePaused { get; }
 
 		IObservable<UIElement> OpenUIElement(string window);
 		IObservable<UIElement> CloseUIElement(UIElement window);
@@ -46,7 +47,7 @@ namespace Core.Services.UI
 		protected Subject<UIElement> onUIElementClosed = new Subject<UIElement>();
 		public IObservable<UIElement> OnUIElementClosed { get { return onUIElementClosed; } }
 
-		//Global signal emited when a window is opened. Hot observable.
+		//Global signal emited when a game is paused. Hot observable.
 		protected Subject<bool> onGamePaused = new Subject<bool>();
 		public IObservable<bool> OnGamePaused { get { return onGamePaused; } }
 
@@ -145,6 +146,10 @@ namespace Core.Services.UI
 						if (!activeUIElements.ContainsKey(obj.name))
 							activeUIElements.Add(obj.name, obj);
 
+						//Trigger OnGamePaused signal. Is up to the game to determine what happens. That's beyond the scope of the UIService.
+						if (obj is UIDialog)
+							onGamePaused.OnNext(true);
+
 						observer.OnNext(obj);
 						observer.OnCompleted();
 
@@ -205,11 +210,6 @@ namespace Core.Services.UI
 		/// <returns>Observable</returns>
 		public IObservable<UIElement> CloseUIElement(UIElement window)
 		{
-			//Emit OnGamePaused signal. Is up to the game to determine what happens. That's beyond the scope of the UIService.
-			//This probably needs to be called on Dialog instantiation for better effect. Leaving it here for now.
-			if (window is UIDialog)
-				onGamePaused.OnNext(true);
-
 			return window.Close()
 				.Subscribe(UIElementClosed)as IObservable<UIElement>;
 		}
@@ -218,7 +218,7 @@ namespace Core.Services.UI
 		{
 			Debug.Log(("UIService: Closed window - " + window.name).Colored(Colors.LightBlue));
 
-			//Emit OnGamePaused signal. Is up to the game to determine what happens. That's beyond the scope of the UIService.
+			//Trigger OnGamePaused signal. Is up to the game to determine what happens. That's beyond the scope of the UIService.
 			if (window is UIDialog)
 				onGamePaused.OnNext(false);
 

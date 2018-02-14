@@ -16,6 +16,9 @@ namespace Core.Polling
 
 		private int sizeLimit = 1;
 
+		public int SizeLimit { get { return sizeLimit; } }
+		public int ActiveElements { get { return activeElements; } }
+
 		/// <summary>
 		/// Initialize pooler
 		/// </summary>

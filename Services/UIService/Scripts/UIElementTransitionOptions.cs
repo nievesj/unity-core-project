@@ -80,28 +80,28 @@ namespace Core.Services.UI
 					break;
 				case TransitionType.Top:
 					start = rtrans.anchoredPosition;
-					start.y += Screen.height;
+					start.y += Screen.height / 2;
 					end = rtrans.anchoredPosition;
 
 					if (isOutTransition)
 					{
 						start = end;
 						end = rtrans.anchoredPosition;
-						end.y += Screen.height;
+						end.y += Screen.height / 2;
 					}
 
 					ret = Move(rtrans, start, end);
 					break;
 				case TransitionType.Bottom:
 					start = rtrans.anchoredPosition;
-					start.y -= Screen.height;
+					start.y -= Screen.height / 2;
 					end = rtrans.anchoredPosition;
 
 					if (isOutTransition)
 					{
 						start = end;
 						end = rtrans.anchoredPosition;
-						end.y -= Screen.height;
+						end.y -= Screen.height / 2;
 					}
 
 					ret = Move(rtrans, start, end);
