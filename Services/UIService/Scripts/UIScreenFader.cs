@@ -28,6 +28,8 @@ namespace Core.Services.UI
 					else
 						return Hide().Subscribe(OnFadeDone);
 				});
+
+			Debug.Log("fgfgf");
 		}
 
 		protected override void Awake() {}
