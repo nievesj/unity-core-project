@@ -1,7 +1,7 @@
-﻿using Core.Services;
-using Core.Services.Assets;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
+using Core.Services;
+using Core.Services.Assets;
 using UniRx;
 using UnityEngine;
 
@@ -27,6 +27,7 @@ namespace Core.Services.UI
 		IObservable<UIElement> CloseUIElement(UIElement window);
 		bool IsUIElementOpen(string window);
 		UIElement GetOpenUIElement(string window);
+		IObservable<UIElement> DarkenScreen(bool block);
 	}
 
 	public class UIService : IUIService
@@ -35,6 +36,8 @@ namespace Core.Services.UI
 
 		protected IAssetService assetService;
 		protected RectTransform mainCanvas;
+		protected UIScreenFader uiScreenFader;
+
 		protected Dictionary<UIElementType, RectTransform> renderPriorityCanvas;
 
 		protected Dictionary<string, UIElement> activeUIElements;
@@ -82,6 +85,7 @@ namespace Core.Services.UI
 					{
 						var canvas = Object.Instantiate<UIContainer>(configuration.mainCanvas);
 						mainCanvas = canvas.GetComponent<RectTransform>();
+						uiScreenFader = canvas.GetComponentInChildren<UIScreenFader>();
 						GameObject.DontDestroyOnLoad(mainCanvas);
 
 						renderPriorityCanvas.Add(UIElementType.Dialog, canvas.dialogContainer);
@@ -168,7 +172,7 @@ namespace Core.Services.UI
 		/// </summary>
 		/// <param name="element"></param>
 		/// <returns></returns>
-		private RectTransform DetermineRenderPriorityCanvas(UIElement element)
+		protected RectTransform DetermineRenderPriorityCanvas(UIElement element)
 		{
 			if (element is UIDialog)
 				return renderPriorityCanvas[UIElementType.Dialog];
@@ -212,6 +216,11 @@ namespace Core.Services.UI
 		{
 			return window.Close()
 				.Subscribe(UIElementClosed)as IObservable<UIElement>;
+		}
+
+		public IObservable<UIElement> DarkenScreen(bool block)
+		{
+			return uiScreenFader.DarkenScreen(block);
 		}
 
 		protected void UIElementClosed(UIElement window)
