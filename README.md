@@ -1,27 +1,34 @@
 
-# _Core
-Current Version 1.1
+
+# Core Framework for Unity
+Current Version 1.2
 
 Supported Unity versions: 2017.3 or latest. 
 
-What is _Core?
+What is Core Framework?
 ---
-_Core is a collection of utilities and libraries to help speed up development in Unity3D by providing the following functionality:
-* Asset Bundle loading system
-	* Can load assets from the streaming assets folder
-	* Can load assets from a web server
-	* Can load asset bundle scenes
-	* Can simulate asset bundles on editor
-	* Can cache downloaded bundles by using Unity Cloud Build manifest's build number as the bundle version, or by caching the manifest files locally and using the HASH number instead
-* Basic window system
-	* Open / Close window
-	* Observable events for when a window is opened or closed
-	* Transition animations 
+The purpose of Core Framework is to help speed up development in Unity3D by providing the following basic systems every game needs to have:
+* Asset Bundle loading system that can load assets from:
+	* Streaming assets folder
+	* Web server or cloud service
+	* Simulate asset bundles on editor
+	* Also provides caching alternatives
+		* By using the Unity Cloud Build Manifest build number as the bundle version
+		* Or by using the HASH number from the .manifest file of each bundle as the version
+* UI System
+	* Basic implementation of Widgets, Dialogs and Panels 
+	* Transition animations by using LeanTween, configurable on inspector
+	* Observable events for when a UIElement is opened, closed, shown or hidden
+	* Can trigger sounds when a transition plays
 * Basic audio system
 * Mouse / Touch input control
 * Pooler tool
 * Console window colors! Colorize your debug messages with colors so they are easier to read.
 * Base game starting point ([Example Project](https://github.com/nievesj/unity_core_example))
+
+Demo
+---
+WebGL Demo: [Core Framework Demo](http://www.josemnieves.com/core-framework-demo/) 
 
 Purpose
 ---
@@ -39,9 +46,9 @@ This project is meant to be added to an existing Unity Project, either by downlo
 
 Dependencies
 ---
-_Core depends on the the following components
+Core Framework depends on the the following components
 * [LeanTween](https://github.com/dentedpixel/LeanTween)
-* [UniRx](https://github.com/neuecc/UniRx) (Reactive Extensions for Unity) Most of the _Core functionality is wrapped around Observables. 
+* [UniRx](https://github.com/neuecc/UniRx) (Reactive Extensions for Unity) Most of the Core Framework functionality is wrapped around Observables. 
 * [AssetBundles-Browser](https://github.com/Unity-Technologies/AssetBundles-Browser) Unity's tool for building and organizing asset bundles. 
 
 Which platforms are compatible?
@@ -113,7 +120,7 @@ Asset Service is the service in charge of loading asset bundles. The configurati
 Console window colors!
 ---
 
-This feature allows you to easily colorize debug messages so you can keep track of related events by colors.
+This feature allows you to easily colorize debug messages so you can keep track of related events by colors on editor. This functionality is disabled on builds so the console log doesn't become cluttered with color tags. 
 
 ![Asset Service Options](http://www.josemnieves.com/unity/images/consolecolors.png)
 
