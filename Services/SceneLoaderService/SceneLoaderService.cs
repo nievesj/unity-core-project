@@ -1,7 +1,9 @@
-﻿using Core.Services;
-using Core.Services.Assets;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Core.Services;
+using Core.Services.Assets;
+using Core.Services.UI;
 using UniRx;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -18,6 +20,7 @@ namespace Core.Services.Scenes
 	{
 		protected SceneLoaderServiceConfiguration configuration;
 		protected IAssetService assetService;
+		protected UI.IUIService uiService;
 
 		public IObservable<IService> Configure(ServiceConfiguration config)
 		{
@@ -67,6 +70,31 @@ namespace Core.Services.Scenes
 		/// <returns></returns>
 		public IObservable<UnityEngine.Object> LoadScene(string scene, LoadSceneMode mode = LoadSceneMode.Single)
 		{
+			//Fade screen before loading level
+			return Observable.Create<UnityEngine.Object>(
+				(IObserver<UnityEngine.Object> observer)=>
+				{
+					var subject = new Subject<UnityEngine.Object>();
+					Action<UIElement> OnScreenFadeOn = element =>
+					{
+						Action<UnityEngine.Object> OnSceneLoaded = loadedLevel =>
+						{
+							observer.OnNext(loadedLevel);
+							observer.OnCompleted();
+						};
+
+						DoLoadScene(scene, mode).Subscribe(OnSceneLoaded);
+					};
+
+					//Start fade screen
+					uiService.BlockScreen(true).Subscribe(OnScreenFadeOn);
+
+					return subject.Subscribe();
+				});
+		}
+
+		private IObservable<UnityEngine.Object> DoLoadScene(string scene, LoadSceneMode mode = LoadSceneMode.Single)
+		{
 			if (assetService.GetLoadedBundle<UnityEngine.Object>(scene))
 				return GetPreviouslyLoadedScene(scene, mode);
 			else
@@ -91,6 +119,9 @@ namespace Core.Services.Scenes
 						{
 							Resources.UnloadUnusedAssets();
 
+							//Scene loaded, return screen to normal.
+							uiService.BlockScreen(false).Subscribe();
+
 							observer.OnNext(loadedScene);
 							observer.OnCompleted();
 
@@ -113,6 +144,8 @@ namespace Core.Services.Scenes
 		private IObservable<UnityEngine.Object> GetPreviouslyLoadedScene(string scene, LoadSceneMode mode = LoadSceneMode.Single)
 		{
 			var subject = new Subject<UnityEngine.Object>();
+
+			uiService.BlockScreen(false).Subscribe();
 
 			subject.OnError(new System.Exception("Scene " + scene + " is already loaded and open. Opening the same scene twice is not supported."));
 			subject.OnCompleted();

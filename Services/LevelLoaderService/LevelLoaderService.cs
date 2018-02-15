@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using Core.Services;
 using Core.Services.Assets;
 using Core.Services.UI;
-using System.Collections;
-using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 
@@ -22,7 +22,6 @@ namespace Core.Services.Levels
 		protected LevelLoaderServiceConfiguration configuration;
 		protected IAssetService assetService;
 		protected IUIService uiService;
-		protected UIElement loadingScreen;
 
 		protected Level currentLevel;
 		public Level CurrentLevel { get { return currentLevel; } }
@@ -73,11 +72,41 @@ namespace Core.Services.Levels
 		}
 
 		/// <summary>
-		/// Attemps to load a level
+		/// Attemps to load a level. First the screen is faded
 		/// </summary>
 		/// <param name="name">bundle name</param>
 		/// <returns>Observable</returns>
 		public IObservable<Level> LoadLevel(string name)
+		{
+			//Fade screen before loading level
+			return Observable.Create<Level>(
+				(IObserver<Level> observer)=>
+				{
+					var subject = new Subject<Level>();
+					Action<UIElement> OnScreenFadeOn = element =>
+					{
+						Action<Level> OnLevelLoaded = loadedLevel =>
+						{
+							observer.OnNext(loadedLevel);
+							observer.OnCompleted();
+						};
+
+						DoLoadLevel(name).Subscribe(OnLevelLoaded);
+					};
+
+					//Start fade screen
+					uiService.BlockScreen(true).Subscribe(OnScreenFadeOn);
+
+					return subject.Subscribe();
+				});
+		}
+
+		/// <summary>
+		/// Once the screen has been blocked, load the level
+		/// </summary>
+		/// <param name="name"></param>
+		/// <returns></returns>
+		private IObservable<Level> DoLoadLevel(string name)
 		{
 			if (currentLevel)
 				UnloadLevel(currentLevel);
@@ -95,8 +124,8 @@ namespace Core.Services.Levels
 						currentLevel = GameObject.Instantiate<Level>(loadedLevel);
 						currentLevel.name = loadedLevel.name;
 
-						if (loadingScreen)
-							loadingScreen.Close();
+						//Level loaded, return screen to normal.
+						uiService.BlockScreen(false).Subscribe();
 
 						observer.OnNext(currentLevel);
 						observer.OnCompleted();
