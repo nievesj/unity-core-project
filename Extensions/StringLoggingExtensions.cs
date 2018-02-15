@@ -9,7 +9,11 @@ public static class StringLoggingExtensions
 	/// <param name="color">Color.</param>
 	public static string Colored(this string message, Colors color)
 	{
+#if UNITY_EDITOR
 		return string.Format("<color={0}>{1}</color>", color, message);
+#else
+		return message;
+#endif
 	}
 
 	/// <summary>
@@ -19,7 +23,11 @@ public static class StringLoggingExtensions
 	/// <param name="color">Color</param>
 	public static string Colored(this string message, string colorCode)
 	{
+#if UNITY_EDITOR
 		return string.Format("<color={0}>{1}</color>", colorCode, message);
+#else
+		return message;
+#endif
 	}
 
 	/// <summary>
@@ -29,7 +37,11 @@ public static class StringLoggingExtensions
 	/// <param name="size">Size.</param>
 	public static string Sized(this string message, int size)
 	{
+#if UNITY_EDITOR
 		return string.Format("<size={0}>{1}</size>", size, message);
+#else
+		return message;
+#endif
 	}
 
 	/// <summary>
@@ -38,7 +50,11 @@ public static class StringLoggingExtensions
 	/// <param name="message">Message.</param>
 	public static string Bold(this string message)
 	{
+#if UNITY_EDITOR
 		return string.Format("<b>{0}</b>", message);
+#else
+		return message;
+#endif
 	}
 
 	/// <summary>
@@ -47,7 +63,11 @@ public static class StringLoggingExtensions
 	/// <param name="message">Message.</param>
 	public static string Italics(this string message)
 	{
+#if UNITY_EDITOR
 		return string.Format("<i>{0}</i>", message);
+#else
+		return message;
+#endif
 	}
 }
 
