@@ -1,7 +1,7 @@
 using System;
-using Core.Services;
 using System.Collections;
 using System.IO;
+using Core.Services;
 using UniRx;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -105,7 +105,7 @@ namespace Core.Services.Assets
 		Services,
 		Levels,
 		Scenes,
-		Windows,
+		Screens,
 		Audio,
 		Prefabs
 	}

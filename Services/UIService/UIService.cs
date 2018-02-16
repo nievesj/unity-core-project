@@ -131,7 +131,7 @@ namespace Core.Services.UI
 		/// <returns>Observable</returns>
 		public IObservable<UIElement> OpenUIElement(string window)
 		{
-			BundleRequest bundleNeeded = new BundleRequest(AssetCategoryRoot.Windows, window, window);
+			BundleRequest bundleNeeded = new BundleRequest(AssetCategoryRoot.Screens, window, window);
 			return Observable.Create<UIElement>(
 				(IObserver<UIElement> observer)=>
 				{
