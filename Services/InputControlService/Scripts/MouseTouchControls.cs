@@ -212,6 +212,15 @@ namespace Core.Services.Input
 			return position;
 		}
 
+		public Vector3 ScreenToViewportPoint()
+		{
+#if (UNITY_IOS || UNITY_ANDROID)&& !UNITY_EDITOR
+			return Camera.main.ScreenToViewportPoint(UnityEngine.Input.GetTouch(0).position);
+#elif UNITY_WEBGL || UNITY_EDITOR || UNITY_STANDALONE || UNITY_FACEBOOK
+			return Camera.main.ScreenToViewportPoint(UnityEngine.Input.mousePosition);
+#endif
+		}
+
 		/// <summary>
 		/// Platform independent ScreenPointToRay
 		/// Uses current mouse or touch position to calculate the ray

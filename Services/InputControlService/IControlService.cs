@@ -1,7 +1,7 @@
 ﻿using System;
-using Core.Services;
 using System.Collections;
 using System.Collections.Generic;
+using Core.Services;
 using UniRx;
 using UnityEngine;
 
@@ -9,14 +9,14 @@ namespace Core.Services.Input
 {
 	public interface IControlService : IService
 	{
-		MouseTouchControls Controls { get; }
+		MouseTouchControls MouseTouchControls { get; }
 	}
 
 	public class ControlService : IControlService
 	{
 		protected ControlServiceConfiguration configuration;
 		protected MouseTouchControls controls;
-		public MouseTouchControls Controls { get { return controls; } }
+		public MouseTouchControls MouseTouchControls { get { return controls; } }
 
 		public IObservable<IService> Configure(ServiceConfiguration config)
 		{
