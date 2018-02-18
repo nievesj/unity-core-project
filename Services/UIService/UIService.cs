@@ -119,7 +119,7 @@ namespace Core.Services.UI
 				});
 		}
 
-		protected void OnGameStart(ServiceLocator application)
+		protected void OnGameStart(ServiceLocator locator)
 		{
 			assetService = ServiceLocator.GetService<IAssetService>();
 		}

@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Core.Services
 {
 	/// <summary>
-	/// Service Locator.
+	/// Main accessor for global systems like UI, Asset Bundles, Audio or Game Instance.
 	/// </summary>
 	public class ServiceLocator : MonoBehaviour
 	{
@@ -23,6 +23,9 @@ namespace Core.Services
 
 		public static ServiceLocator Instance { get { return _instance; } }
 
+		private static Game gameInstance;
+		public static Game GameInstance { get { return gameInstance; } }
+
 		/// <summary>
 		/// Creates and initializes all services.
 		/// </summary>
@@ -33,6 +36,7 @@ namespace Core.Services
 			return Observable.Create<ServiceLocator>(
 				(IObserver<ServiceLocator> observer)=>
 				{
+					gameInstance = game;
 					Instantiate(game);
 					var subject = new Subject<ServiceLocator>();
 

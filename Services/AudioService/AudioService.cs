@@ -1,7 +1,7 @@
-﻿using Core.Polling;
-using Core.Services;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
+using Core.Polling;
+using Core.Services;
 using UniRx;
 using UnityEngine;
 
@@ -91,7 +91,7 @@ namespace Core.Services.Audio
 				});
 		}
 
-		protected void OnGameStart(ServiceLocator application)
+		protected void OnGameStart(ServiceLocator locator)
 		{
 			if (configuration.audioSourcePrefab)
 			{

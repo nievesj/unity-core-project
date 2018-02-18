@@ -65,7 +65,7 @@ namespace Core.Services.Levels
 				});
 		}
 
-		protected void OnGameStart(ServiceLocator application)
+		protected void OnGameStart(ServiceLocator locator)
 		{
 			uiService = ServiceLocator.GetService<IUIService>();
 			assetService = ServiceLocator.GetService<IAssetService>();

@@ -59,7 +59,7 @@ namespace Core.Services.Input
 				});
 		}
 
-		protected void OnGameStart(ServiceLocator application)
+		protected void OnGameStart(ServiceLocator locator)
 		{
 			CreateControlObject();
 		}

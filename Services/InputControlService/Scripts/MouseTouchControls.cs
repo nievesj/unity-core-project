@@ -33,48 +33,26 @@ namespace Core.Services.Input
 	/// OnMouseUp
 	/// OnMouseDrag
 	/// </summary>
-	public class MouseTouchControls : MonoBehaviour
+	public abstract class MouseTouchControls : MonoBehaviour
 	{
-		public float cameraMovementSpeedMobile = 0.2f;
-		public float minDragDistance = 1;
+		[SerializeField]
+		protected float minDragDistance = 1;
 
-		public ControlState EnableDisableControlState
-		{
-			get { return controlState; }
-			set { controlState = value; }
-		}
+		protected Vector3 currentTouchMousePosition = Vector3.zero;
 
-		private Vector3 currentTouchMousePosition = Vector3.zero;
+		protected MouseTouchState mouseTouchState = MouseTouchState.Nothing;
+		protected ControlState controlState = ControlState.Enabled;
 
-		private MouseTouchState mouseTouchState = MouseTouchState.Nothing;
-		private ControlState controlState = ControlState.Enabled;
+		protected Vector3 startDragOnMouseDownPosition = Vector3.zero;
 
-		private Subject<Vector3> onMouseDown = new Subject<Vector3>();
-		public IObservable<Vector3> OnMouseDown { get { return onMouseDown; } }
-
-		private Subject<Vector3> onMouseUp = new Subject<Vector3>();
-		public IObservable<Vector3> OnMouseUp { get { return onMouseUp; } }
-
-		private Subject<Vector3> onMouseDrag = new Subject<Vector3>();
-		public IObservable<Vector3> OnMouseDrag { get { return onMouseDrag; } }
-
-		private Vector3 cachedPos = Vector3.zero;
-
-		public void Init()
-		{
-			onMouseDown.Dispose();
-			onMouseUp.Dispose();
-			onMouseDrag.Dispose();
-
-			onMouseDown = new Subject<Vector3>();
-			onMouseUp = new Subject<Vector3>();
-			onMouseDrag = new Subject<Vector3>();
-		}
+		protected abstract void OnMouseDown(Vector3 pos);
+		protected abstract void OnMouseUp(Vector3 pos);
+		protected abstract void OnMouseDrag(Vector3 pos);
 
 		/// <summary>
 		/// Since we're dealing with inputs using Update is more appropiate than using a co-routine.
 		/// </summary>
-		private void Update()
+		protected virtual void Update()
 		{
 			if (controlState.Equals(ControlState.Enabled))
 			{
@@ -89,7 +67,7 @@ namespace Core.Services.Input
 		/// <summary>
 		/// Manages mouse controls for editor and webgl
 		/// </summary>
-		private void MouseControl()
+		protected virtual void MouseControl()
 		{
 			currentTouchMousePosition = UnityEngine.Input.mousePosition;
 			currentTouchMousePosition.z = Camera.main.nearClipPlane;
@@ -109,7 +87,7 @@ namespace Core.Services.Input
 		/// <summary>
 		/// Manages touch control for mobile devices
 		/// </summary>
-		private void TouchControl()
+		protected virtual void TouchControl()
 		{
 			//limited to one finger, no need to track additional fingers for now...
 			if (UnityEngine.Input.touchCount > 0)
@@ -138,12 +116,12 @@ namespace Core.Services.Input
 			}
 		}
 
-		private void MouseDown(Vector3 mousePosition)
+		protected virtual void MouseDown(Vector3 mousePosition)
 		{
 			if (mouseTouchState.Equals(MouseTouchState.Nothing))
 			{
-				onMouseDown.OnNext(Camera.main.ScreenToWorldPoint(mousePosition));
-				cachedPos = mousePosition;
+				OnMouseDown(mousePosition);
+				startDragOnMouseDownPosition = mousePosition;
 				mouseTouchState = MouseTouchState.MouseDown;
 			}
 
@@ -153,20 +131,20 @@ namespace Core.Services.Input
 #endif
 		}
 
-		private void MouseUp(Vector3 mousePosition)
+		protected virtual void MouseUp(Vector3 mousePosition)
 		{
 			mouseTouchState = MouseTouchState.MouseUp;
 
-			onMouseUp.OnNext(Camera.main.ScreenToWorldPoint(mousePosition));
+			OnMouseUp(mousePosition);
 			mouseTouchState = MouseTouchState.Nothing;
 		}
 
-		private void MouseDrag(Vector3 mousePosition)
+		protected virtual void MouseDrag(Vector3 mousePosition)
 		{
-			if (Vector3.Distance(cachedPos, mousePosition)> minDragDistance)
+			if (Vector3.Distance(startDragOnMouseDownPosition, mousePosition)> minDragDistance)
 			{
 				mouseTouchState = MouseTouchState.MouseDrag;
-				onMouseDrag.OnNext(Camera.main.ScreenToWorldPoint(mousePosition));
+				OnMouseDrag(mousePosition);
 			}
 		}
 
@@ -174,7 +152,7 @@ namespace Core.Services.Input
 		/// Returns the mouse or finger world position (tracking only one finger)
 		/// </summary>
 		/// <returns></returns>
-		public Vector3 GetPointerLocationWorldPosition()
+		protected virtual Vector3 GetPointerLocationWorldPosition()
 		{
 			Vector3 position = Vector3.zero;
 
@@ -194,7 +172,7 @@ namespace Core.Services.Input
 		/// Returns de delta position change of the mouse/finger
 		/// </summary>
 		/// <returns></returns>
-		public Vector3 GetPointerDeltaChange()
+		protected virtual Vector3 GetPointerDeltaChange()
 		{
 			Vector3 position = Vector3.zero;
 
@@ -212,7 +190,7 @@ namespace Core.Services.Input
 			return position;
 		}
 
-		public Vector3 ScreenToViewportPoint()
+		protected virtual Vector3 ScreenToViewportPoint()
 		{
 #if (UNITY_IOS || UNITY_ANDROID)&& !UNITY_EDITOR
 			return Camera.main.ScreenToViewportPoint(UnityEngine.Input.GetTouch(0).position);
@@ -226,20 +204,13 @@ namespace Core.Services.Input
 		/// Uses current mouse or touch position to calculate the ray
 		/// </summary>
 		/// <returns></returns>
-		public Ray ScreenPointToRay()
+		protected virtual Ray ScreenPointToRay()
 		{
 #if (UNITY_IOS || UNITY_ANDROID)&& !UNITY_EDITOR
 			return Camera.main.ScreenPointToRay(UnityEngine.Input.GetTouch(0).position);
 #elif UNITY_WEBGL || UNITY_EDITOR || UNITY_STANDALONE || UNITY_FACEBOOK
 			return Camera.main.ScreenPointToRay(UnityEngine.Input.mousePosition);
 #endif
-		}
-
-		private void OnDestroy()
-		{
-			onMouseDown.Dispose();
-			onMouseUp.Dispose();
-			onMouseDrag.Dispose();
 		}
 	}
 }

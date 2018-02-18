@@ -1,8 +1,8 @@
-﻿using Core.Services.Levels;
+﻿using System.Collections;
+using System.Collections.Generic;
+using Core.Services.Levels;
 using Core.Services.Scenes;
 using Core.Services.UI;
-using System.Collections;
-using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 
@@ -17,6 +17,9 @@ namespace Core.Services
 		//Main game configuration. This contains all services to be started when the game starts.
 		protected GameConfiguration configuration;
 		public GameConfiguration GameConfiguration { get { return configuration; } }
+
+		private static Subject<Game> onGameStarted = new Subject<Game>();
+		internal static IObservable<Game> OnGameStarted { get { return onGameStarted; } }
 
 		//Level loader reference. 
 		protected ILevelLoaderService LevelLoader { get { return ServiceLocator.GetService<ILevelLoaderService>(); } }
@@ -46,6 +49,8 @@ namespace Core.Services
 		{
 			UILoader.OnGamePaused.Subscribe(OnGamePaused);
 			Debug.Log(("Game Started").Colored(Colors.Lime));
+
+			onGameStarted.OnNext(this);
 		}
 
 		protected virtual void OnGamePaused(bool isPaused)
@@ -54,6 +59,11 @@ namespace Core.Services
 			// 	Debug.Log(("Game Paused").Colored(Colors.Lime));
 			// else
 			// 	Debug.Log(("Game Resumed").Colored(Colors.Lime));
+		}
+
+		protected virtual void OnDestroy()
+		{
+			onGameStarted.OnCompleted();
 		}
 	}
 }

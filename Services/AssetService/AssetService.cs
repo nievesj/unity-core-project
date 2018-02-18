@@ -1,7 +1,7 @@
 ﻿using System;
-using Core.Services;
 using System.Collections;
 using System.Collections.Generic;
+using Core.Services;
 using UniRx;
 using UnityEngine;
 
@@ -132,7 +132,7 @@ namespace Core.Services.Assets
 			return assetBundlebundleLoader.GetLoadedBundle<T>(name);
 		}
 
-		private void OnGameStart(ServiceLocator application)
+		private void OnGameStart(ServiceLocator locator)
 		{
 			assetBundlebundleLoader = new AssetBundleLoader(this);
 
