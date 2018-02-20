@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Core.Services.UI;
 using UniRx;
 using UnityEngine;
 
@@ -37,6 +38,10 @@ namespace Core.Services.Input
 	{
 		[SerializeField]
 		protected float minDragDistance = 1;
+		[SerializeField]
+		protected float timeToTriggerTap = 0.25f;
+		[SerializeField]
+		protected float timeToTriggerStationary = 1f;
 
 		protected Vector3 currentTouchMousePosition = Vector3.zero;
 
@@ -45,13 +50,25 @@ namespace Core.Services.Input
 
 		protected Vector3 startDragOnMouseDownPosition = Vector3.zero;
 
+		private float tapTimer = 0.0f;
+		private float stationaryTimer = 0.0f;
+		private int tapCount = 0;
+		private bool onStationaryTriggered = false;
+
 		protected abstract void OnMouseDown(Vector3 pos);
 		protected abstract void OnMouseUp(Vector3 pos);
 		protected abstract void OnMouseDrag(Vector3 pos);
+		protected abstract void OnSingleTap(Vector3 pos);
+		protected abstract void OnDoubleTap(Vector3 pos);
+		protected abstract void OnStationary(Vector3 pos);
+		protected abstract void OnMobilePinch(Touch touch0, Touch touch1);
+		protected abstract void OnGamePaused(bool paused);
 
-		/// <summary>
-		/// Since we're dealing with inputs using Update is more appropiate than using a co-routine.
-		/// </summary>
+		protected virtual void Awake()
+		{
+			ServiceLocator.GetService<IUIService>().OnGamePaused.Subscribe(OnGamePaused);
+		}
+
 		protected virtual void Update()
 		{
 			if (controlState.Equals(ControlState.Enabled))
@@ -61,25 +78,34 @@ namespace Core.Services.Input
 #elif UNITY_WEBGL || UNITY_EDITOR || UNITY_STANDALONE || UNITY_FACEBOOK
 				MouseControl();
 #endif
+
+				//tap timers
+				if ((tapCount > 0)&& (tapTimer > timeToTriggerTap))
+				{
+					tapTimer = 0;
+					tapCount = 0;
+				}
+				else if (tapCount > 0)
+				{
+					tapTimer += Time.deltaTime;
+				}
 			}
 		}
 
 		/// <summary>
 		/// Manages mouse controls for editor and webgl
 		/// </summary>
-		protected virtual void MouseControl()
+		private void MouseControl()
 		{
 			currentTouchMousePosition = UnityEngine.Input.mousePosition;
 			currentTouchMousePosition.z = Camera.main.nearClipPlane;
 
 			if (UnityEngine.Input.GetMouseButton(0))
 			{
-				// MouseDown(UnityEngine.Input.mousePosition);
 				MouseDown(currentTouchMousePosition);
 			}
 			if (UnityEngine.Input.GetMouseButtonUp(0))
 			{
-				// MouseUp(UnityEngine.Input.mousePosition);
 				MouseUp(currentTouchMousePosition);
 			}
 		}
@@ -87,10 +113,9 @@ namespace Core.Services.Input
 		/// <summary>
 		/// Manages touch control for mobile devices
 		/// </summary>
-		protected virtual void TouchControl()
+		private void TouchControl()
 		{
-			//limited to one finger, no need to track additional fingers for now...
-			if (UnityEngine.Input.touchCount > 0)
+			if (UnityEngine.Input.touchCount.Equals(1))
 			{
 				currentTouchMousePosition = UnityEngine.Input.GetTouch(0).position;
 				currentTouchMousePosition.z = Camera.main.nearClipPlane;
@@ -104,19 +129,30 @@ namespace Core.Services.Input
 						MouseDrag(currentTouchMousePosition);
 						break;
 					case TouchPhase.Stationary:
-						//Debug.Log("Stationary");
+						stationaryTimer += Time.deltaTime;
+
+						if (!onStationaryTriggered && mouseTouchState.Equals(MouseTouchState.MouseDown)&& (stationaryTimer >= timeToTriggerStationary)&&
+							(Vector3.Distance(startDragOnMouseDownPosition, currentTouchMousePosition)< minDragDistance))
+						{
+							onStationaryTriggered = true;
+							OnStationary(currentTouchMousePosition);
+						}
 						break;
 					case TouchPhase.Canceled:
-						MouseUp(currentTouchMousePosition);
+						// MouseUp(currentTouchMousePosition);
 						break;
 					case TouchPhase.Ended:
 						MouseUp(currentTouchMousePosition);
 						break;
 				}
 			}
+			else if (UnityEngine.Input.touchCount.Equals(2))
+			{
+				OnMobilePinch(UnityEngine.Input.GetTouch(0), UnityEngine.Input.GetTouch(1));
+			}
 		}
 
-		protected virtual void MouseDown(Vector3 mousePosition)
+		private void MouseDown(Vector3 mousePosition)
 		{
 			if (mouseTouchState.Equals(MouseTouchState.Nothing))
 			{
@@ -126,20 +162,44 @@ namespace Core.Services.Input
 			}
 
 			//For Android, WebGL, PC, Mac, Linux the drag happens here
-#if UNITY_WEBGL || UNITY_EDITOR
+#if UNITY_WEBGL || UNITY_EDITOR || UNITY_STANDALONE || UNITY_FACEBOOK
+			if (!onStationaryTriggered && mouseTouchState.Equals(MouseTouchState.MouseDown)&& (stationaryTimer >= timeToTriggerStationary)&&
+				(Vector3.Distance(startDragOnMouseDownPosition, mousePosition)< minDragDistance))
+			{
+				onStationaryTriggered = true;
+				OnStationary(mousePosition);
+			}
+
+			stationaryTimer += Time.deltaTime;
+
 			MouseDrag(mousePosition);
 #endif
 		}
 
-		protected virtual void MouseUp(Vector3 mousePosition)
+		private void MouseUp(Vector3 mousePosition)
 		{
+			stationaryTimer = 0;
+			onStationaryTriggered = false;
 			mouseTouchState = MouseTouchState.MouseUp;
 
 			OnMouseUp(mousePosition);
 			mouseTouchState = MouseTouchState.Nothing;
+
+			if (tapCount == 0)
+			{
+				tapCount++;
+				tapTimer = 0;
+
+				OnSingleTap(mousePosition);
+			}
+			else if (tapCount == 1 && tapTimer <= timeToTriggerTap)
+			{
+				OnDoubleTap(mousePosition);
+				tapCount = 0;
+			}
 		}
 
-		protected virtual void MouseDrag(Vector3 mousePosition)
+		private void MouseDrag(Vector3 mousePosition)
 		{
 			if (Vector3.Distance(startDragOnMouseDownPosition, mousePosition)> minDragDistance)
 			{
@@ -152,7 +212,7 @@ namespace Core.Services.Input
 		/// Returns the mouse or finger world position (tracking only one finger)
 		/// </summary>
 		/// <returns></returns>
-		protected virtual Vector3 GetPointerLocationWorldPosition()
+		protected Vector3 GetPointerLocationWorldPosition()
 		{
 			Vector3 position = Vector3.zero;
 
@@ -172,7 +232,7 @@ namespace Core.Services.Input
 		/// Returns de delta position change of the mouse/finger
 		/// </summary>
 		/// <returns></returns>
-		protected virtual Vector3 GetPointerDeltaChange()
+		protected Vector3 GetPointerDeltaChange()
 		{
 			Vector3 position = Vector3.zero;
 
@@ -190,7 +250,7 @@ namespace Core.Services.Input
 			return position;
 		}
 
-		protected virtual Vector3 ScreenToViewportPoint()
+		protected Vector3 ScreenToViewportPoint()
 		{
 #if (UNITY_IOS || UNITY_ANDROID)&& !UNITY_EDITOR
 			return Camera.main.ScreenToViewportPoint(UnityEngine.Input.GetTouch(0).position);
@@ -204,7 +264,7 @@ namespace Core.Services.Input
 		/// Uses current mouse or touch position to calculate the ray
 		/// </summary>
 		/// <returns></returns>
-		protected virtual Ray ScreenPointToRay()
+		protected Ray ScreenPointToRay()
 		{
 #if (UNITY_IOS || UNITY_ANDROID)&& !UNITY_EDITOR
 			return Camera.main.ScreenPointToRay(UnityEngine.Input.GetTouch(0).position);
