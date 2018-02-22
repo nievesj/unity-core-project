@@ -11,7 +11,7 @@ namespace Core.Services
 	/// <summary>
 	/// Starting point for _Core framework. This should be treated as the BaseGame.
 	/// </summary>
-	public class Game : MonoBehaviour
+	public class Game : CoreBehaviour
 	{
 		[SerializeField]
 		//Main game configuration. This contains all services to be started when the game starts.
@@ -30,7 +30,7 @@ namespace Core.Services
 		//UIService reference
 		protected IUIService UILoader { get { return ServiceLocator.GetService<IUIService>(); } }
 
-		protected virtual void Awake()
+		protected override void Awake()
 		{
 			//Make this object persistent
 			DontDestroyOnLoad(this.gameObject);
@@ -51,14 +51,6 @@ namespace Core.Services
 			Debug.Log(("Game Started").Colored(Colors.Lime));
 
 			onGameStarted.OnNext(this);
-		}
-
-		protected virtual void OnGamePaused(bool isPaused)
-		{
-			// if (isPaused)
-			// 	Debug.Log(("Game Paused").Colored(Colors.Lime));
-			// else
-			// 	Debug.Log(("Game Resumed").Colored(Colors.Lime));
 		}
 
 		protected virtual void OnDestroy()

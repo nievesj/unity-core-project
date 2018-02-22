@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using Core.Services.UI;
+using Core.Services.UpdateManager;
 using UniRx;
 using UnityEngine;
 
@@ -34,7 +35,7 @@ namespace Core.Services.Input
 	/// OnMouseUp
 	/// OnMouseDrag
 	/// </summary>
-	public abstract class MouseTouchControls : MonoBehaviour
+	public abstract class MouseTouchControls : CoreBehaviour
 	{
 		[SerializeField]
 		protected float minDragDistance = 1;
@@ -62,16 +63,16 @@ namespace Core.Services.Input
 		protected abstract void OnDoubleTap(Vector3 pos);
 		protected abstract void OnStationary(Vector3 pos);
 		protected abstract void OnMobilePinch(Touch touch0, Touch touch1);
-		protected abstract void OnGamePaused(bool paused);
 
-		protected virtual void Awake()
+		protected override void Start()
 		{
-			ServiceLocator.GetService<IUIService>().OnGamePaused.Subscribe(OnGamePaused);
+			base.Start();
+			updateService.Attach(new BehaviourDelegateType(this, CoreUpdate, UpdateType.Update));
 		}
 
-		protected virtual void Update()
+		protected override void CoreUpdate()
 		{
-			if (controlState.Equals(ControlState.Enabled))
+			if (controlState == ControlState.Enabled)
 			{
 #if (UNITY_IOS || UNITY_ANDROID)&& !UNITY_EDITOR
 				TouchControl();
@@ -115,7 +116,7 @@ namespace Core.Services.Input
 		/// </summary>
 		private void TouchControl()
 		{
-			if (UnityEngine.Input.touchCount.Equals(1))
+			if (UnityEngine.Input.touchCount == 1)
 			{
 				currentTouchMousePosition = UnityEngine.Input.GetTouch(0).position;
 				currentTouchMousePosition.z = Camera.main.nearClipPlane;
@@ -131,7 +132,7 @@ namespace Core.Services.Input
 					case TouchPhase.Stationary:
 						stationaryTimer += Time.deltaTime;
 
-						if (!onStationaryTriggered && mouseTouchState.Equals(MouseTouchState.MouseDown)&& (stationaryTimer >= timeToTriggerStationary)&&
+						if (!onStationaryTriggered && mouseTouchState == MouseTouchState.MouseDown && (stationaryTimer >= timeToTriggerStationary)&&
 							(Vector3.Distance(startDragOnMouseDownPosition, currentTouchMousePosition)< minDragDistance))
 						{
 							onStationaryTriggered = true;
@@ -146,7 +147,7 @@ namespace Core.Services.Input
 						break;
 				}
 			}
-			else if (UnityEngine.Input.touchCount.Equals(2))
+			else if (UnityEngine.Input.touchCount == 2)
 			{
 				OnMobilePinch(UnityEngine.Input.GetTouch(0), UnityEngine.Input.GetTouch(1));
 			}
@@ -154,7 +155,7 @@ namespace Core.Services.Input
 
 		private void MouseDown(Vector3 mousePosition)
 		{
-			if (mouseTouchState.Equals(MouseTouchState.Nothing))
+			if (mouseTouchState == MouseTouchState.Nothing)
 			{
 				OnMouseDown(mousePosition);
 				startDragOnMouseDownPosition = mousePosition;
@@ -163,7 +164,7 @@ namespace Core.Services.Input
 
 			//For Android, WebGL, PC, Mac, Linux the drag happens here
 #if UNITY_WEBGL || UNITY_EDITOR || UNITY_STANDALONE || UNITY_FACEBOOK
-			if (!onStationaryTriggered && mouseTouchState.Equals(MouseTouchState.MouseDown)&& (stationaryTimer >= timeToTriggerStationary)&&
+			if (!onStationaryTriggered && mouseTouchState == MouseTouchState.MouseDown && (stationaryTimer >= timeToTriggerStationary)&&
 				(Vector3.Distance(startDragOnMouseDownPosition, mousePosition)< minDragDistance))
 			{
 				onStationaryTriggered = true;
@@ -272,5 +273,10 @@ namespace Core.Services.Input
 			return Camera.main.ScreenPointToRay(UnityEngine.Input.mousePosition);
 #endif
 		}
+
+		// private void OnDestroy()
+		// {
+		// 	updateService.Detach(new BehaviourDelegateType(this, CoreUpdate, UpdateType.Update));
+		// }
 	}
 }

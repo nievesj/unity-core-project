@@ -1,22 +1,27 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using Core.Services;
 using UniRx;
 using UnityEngine;
 
-namespace Core.Services.Input
+namespace Core.Services.UpdateManager
 {
-	public interface IControlService : IService
+	public enum UpdateType
 	{
-		MouseTouchControls MouseTouchControls { get; }
+		Update,
+		FidexUpdate,
+		LateUpdate
 	}
 
-	public class ControlService : IControlService
+	public interface IUpdateService : IService
 	{
-		protected ControlServiceConfiguration configuration;
-		protected MouseTouchControls controls;
-		public MouseTouchControls MouseTouchControls { get { return controls; } }
+		void Attach(BehaviourDelegateType behaviourDelegateType);
+		void Detach(BehaviourDelegateType behaviourDelegateType);
+	}
+
+	public class UpdateService : IUpdateService
+	{
+		protected UpdateServiceConfiguration configuration;
+		protected UpdateManager updateManager;
 
 		public IObservable<IService> Configure(ServiceConfiguration config)
 		{
@@ -24,9 +29,8 @@ namespace Core.Services.Input
 				(IObserver<IService> observer)=>
 				{
 					var subject = new Subject<IService>();
-
-					configuration = config as ControlServiceConfiguration;
 					ServiceLocator.OnGameStart.Subscribe(OnGameStart);
+					configuration = config as UpdateServiceConfiguration;
 
 					observer.OnNext(this);
 					return subject.Subscribe();
@@ -39,6 +43,9 @@ namespace Core.Services.Input
 				(IObserver<IService> observer)=>
 				{
 					var subject = new Subject<IService>();
+					updateManager = Object.Instantiate<UpdateManager>(configuration.updateManager);
+
+					GameObject.DontDestroyOnLoad(updateManager);
 
 					observer.OnNext(this);
 					return subject.Subscribe();
@@ -52,8 +59,6 @@ namespace Core.Services.Input
 				{
 					var subject = new Subject<IService>();
 
-					DestroyControlObject();
-
 					observer.OnNext(this);
 					return subject.Subscribe();
 				});
@@ -61,19 +66,19 @@ namespace Core.Services.Input
 
 		protected void OnGameStart(ServiceLocator locator)
 		{
-			CreateControlObject();
+			//TODO: add pause, this should notify updateManager to pause
 		}
 
-		protected void CreateControlObject()
+		public void Attach(BehaviourDelegateType behaviourDelegateType)
 		{
-			GameObject go = GameObject.Instantiate(configuration.MouseTouchControls);
-			controls = go.GetComponent<MouseTouchControls>();
-			controls.transform.SetParent(ServiceLocator.Instance.transform);
+			if (updateManager)
+				updateManager.Attach(behaviourDelegateType);
 		}
 
-		protected void DestroyControlObject()
+		public void Detach(BehaviourDelegateType behaviourDelegateType)
 		{
-			GameObject.Destroy(controls.gameObject);
+			if (updateManager)
+				updateManager.Detach(behaviourDelegateType);
 		}
 	}
 }
