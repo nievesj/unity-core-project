@@ -8,7 +8,7 @@ namespace Core.Services.UpdateManager
 	public enum UpdateType
 	{
 		Update,
-		FidexUpdate,
+		FidedUpdate,
 		LateUpdate
 	}
 

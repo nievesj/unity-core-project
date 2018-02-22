@@ -74,7 +74,7 @@ namespace Core.Services.UpdateManager
 						update = Add(update, behaviourDelegateType);
 						updateCount++;
 						break;
-					case UpdateType.FidexUpdate:
+					case UpdateType.FidedUpdate:
 						fixedUpdate = Add(fixedUpdate, behaviourDelegateType);
 						fixedUpdateCount++;
 						break;
@@ -96,7 +96,7 @@ namespace Core.Services.UpdateManager
 						update = Remove(update, behaviourDelegateType);
 						updateCount--;
 						break;
-					case UpdateType.FidexUpdate:
+					case UpdateType.FidedUpdate:
 						fixedUpdate = Remove(update, behaviourDelegateType);
 						fixedUpdateCount--;
 						break;
@@ -127,7 +127,7 @@ namespace Core.Services.UpdateManager
 			{
 				case UpdateType.Update:
 					return update;
-				case UpdateType.FidexUpdate:
+				case UpdateType.FidedUpdate:
 					return fixedUpdate;
 				case UpdateType.LateUpdate:
 					return lateUpdate;
