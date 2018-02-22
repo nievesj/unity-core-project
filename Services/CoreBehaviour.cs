@@ -7,11 +7,6 @@ using UnityEngine;
 
 namespace Core.Services
 {
-	public class CoreDelegates
-	{
-		public delegate void OnUpdateDelegate();
-	}
-
 	public class BehaviourDelegateType
 	{
 		public CoreBehaviour behaviour;
