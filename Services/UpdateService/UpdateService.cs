@@ -12,6 +12,20 @@ namespace Core.Services.UpdateManager
 		LateUpdate
 	}
 
+	public class BehaviourDelegateType
+	{
+		public CoreBehaviour behaviour;
+		public System.Action method;
+		public UpdateType type;
+
+		public BehaviourDelegateType(CoreBehaviour coreBehaviour, System.Action updateDelegate, UpdateType updateType)
+		{
+			behaviour = coreBehaviour;
+			method = updateDelegate;
+			type = updateType;
+		}
+	}
+
 	public interface IUpdateService : IService
 	{
 		void Attach(BehaviourDelegateType behaviourDelegateType);

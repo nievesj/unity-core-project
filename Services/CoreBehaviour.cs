@@ -7,20 +7,6 @@ using UnityEngine;
 
 namespace Core.Services
 {
-	public class BehaviourDelegateType
-	{
-		public CoreBehaviour behaviour;
-		public System.Action method;
-		public UpdateType type;
-
-		public BehaviourDelegateType(CoreBehaviour coreBehaviour, System.Action updateDelegate, UpdateType updateType)
-		{
-			behaviour = coreBehaviour;
-			method = updateDelegate;
-			type = updateType;
-		}
-	}
-
 	public class CoreBehaviour : MonoBehaviour
 	{
 		protected IUpdateService updateService;
