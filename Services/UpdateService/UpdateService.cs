@@ -15,13 +15,13 @@ namespace Core.Services.UpdateManager
 	public class BehaviourDelegateType
 	{
 		public CoreBehaviour behaviour;
-		public System.Action method;
+		public System.Action updateMethod;
 		public UpdateType type;
 
 		public BehaviourDelegateType(CoreBehaviour coreBehaviour, System.Action updateDelegate, UpdateType updateType)
 		{
 			behaviour = coreBehaviour;
-			method = updateDelegate;
+			updateMethod = updateDelegate;
 			type = updateType;
 		}
 	}
@@ -40,7 +40,7 @@ namespace Core.Services.UpdateManager
 		public IObservable<IService> Configure(ServiceConfiguration config)
 		{
 			return Observable.Create<IService>(
-				(IObserver<IService> observer)=>
+				(IObserver<IService> observer) =>
 				{
 					var subject = new Subject<IService>();
 					ServiceLocator.OnGameStart.Subscribe(OnGameStart);
@@ -54,7 +54,7 @@ namespace Core.Services.UpdateManager
 		public IObservable<IService> StartService()
 		{
 			return Observable.Create<IService>(
-				(IObserver<IService> observer)=>
+				(IObserver<IService> observer) =>
 				{
 					var subject = new Subject<IService>();
 					updateManager = Object.Instantiate<UpdateManager>(configuration.updateManager);
@@ -69,7 +69,7 @@ namespace Core.Services.UpdateManager
 		public IObservable<IService> StopService()
 		{
 			return Observable.Create<IService>(
-				(IObserver<IService> observer)=>
+				(IObserver<IService> observer) =>
 				{
 					var subject = new Subject<IService>();
 

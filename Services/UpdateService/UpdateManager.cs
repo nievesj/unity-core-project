@@ -7,80 +7,73 @@ namespace Core.Services.UpdateManager
 {
 	public class UpdateManager : MonoBehaviour
 	{
-		private BehaviourDelegateType[] update;
-		private BehaviourDelegateType[] fixedUpdate;
-		private BehaviourDelegateType[] lateUpdate;
-
-		private int updateCount;
-		private int fixedUpdateCount;
-		private int lateUpdateCount;
+		private List<BehaviourDelegateType> update;
+		private List<BehaviourDelegateType> fixedUpdate;
+		private List<BehaviourDelegateType> lateUpdate;
 
 		private void Awake()
 		{
-			update = new BehaviourDelegateType[0];
-			fixedUpdate = new BehaviourDelegateType[0];
-			lateUpdate = new BehaviourDelegateType[0];
+			update = new List<BehaviourDelegateType>();
+			fixedUpdate = new List<BehaviourDelegateType>();
+			lateUpdate = new List<BehaviourDelegateType>();
 		}
 
 		private void Update()
 		{
-			if (updateCount == 0)
-				return;
-
-			for (int i = 0; i < updateCount; i++)
+			if (update.Count > 0)
 			{
-				if (!update[i].behaviour)
-					continue;
+				for (int i = 0; i < update.Count; i++)
+				{
+					if (!update[i].behaviour)
+						continue;
 
-				update[i].method();
+					update[i].updateMethod();
+				}
 			}
 		}
 
 		private void FixedUpdate()
 		{
-			if (fixedUpdateCount == 0)
-				return;
-
-			for (int i = 0; i < fixedUpdateCount; i++)
+			if (fixedUpdate.Count > 0)
 			{
-				if (!fixedUpdate[i].behaviour)
-					continue;
+				for (int i = 0; i < fixedUpdate.Count; i++)
+				{
+					if (!fixedUpdate[i].behaviour)
+						continue;
 
-				fixedUpdate[i].method();
+					fixedUpdate[i].updateMethod();
+				}
 			}
 		}
 
 		private void LateUpdate()
 		{
-			if (lateUpdateCount == 0)
-				return;
-
-			for (int i = 0; i < lateUpdateCount; i++)
+			if (lateUpdate.Count > 0)
 			{
-				if (!lateUpdate[i].behaviour)
-					continue;
+				for (int i = 0; i < lateUpdate.Count; i++)
+				{
+					if (!lateUpdate[i].behaviour)
+						continue;
 
-				lateUpdate[i].method();
+					lateUpdate[i].updateMethod();
+				}
 			}
 		}
 
 		public void Attach(BehaviourDelegateType behaviourDelegateType)
 		{
-			if (!Contains(GetArray(behaviourDelegateType.type), behaviourDelegateType))
+			if (!Contains(behaviourDelegateType))
 			{
 				switch (behaviourDelegateType.type)
 				{
 					case UpdateType.Update:
-						update = Add(update, behaviourDelegateType);
-						updateCount++;
+						update.Add(behaviourDelegateType);
 						break;
 					case UpdateType.FidedUpdate:
-						fixedUpdate = Add(fixedUpdate, behaviourDelegateType);
-						fixedUpdateCount++;
+						fixedUpdate.Add(behaviourDelegateType);
 						break;
 					case UpdateType.LateUpdate:
-						lateUpdate = Add(lateUpdate, behaviourDelegateType);
-						lateUpdateCount++;
+						lateUpdate.Add(behaviourDelegateType);
 						break;
 				}
 			}
@@ -88,93 +81,36 @@ namespace Core.Services.UpdateManager
 
 		public void Detach(BehaviourDelegateType behaviourDelegateType)
 		{
-			if (Contains(GetArray(behaviourDelegateType.type), behaviourDelegateType))
+			if (Contains(behaviourDelegateType))
 			{
 				switch (behaviourDelegateType.type)
 				{
 					case UpdateType.Update:
-						update = Remove(update, behaviourDelegateType);
-						updateCount--;
+						update.Remove(behaviourDelegateType);
 						break;
 					case UpdateType.FidedUpdate:
-						fixedUpdate = Remove(update, behaviourDelegateType);
-						fixedUpdateCount--;
+						fixedUpdate.Remove(behaviourDelegateType);
 						break;
 					case UpdateType.LateUpdate:
-						lateUpdate = Remove(update, behaviourDelegateType);
-						lateUpdateCount--;
+						lateUpdate.Remove(behaviourDelegateType);
 						break;
 				}
 			}
 		}
 
-		private bool Contains(BehaviourDelegateType[] array, BehaviourDelegateType behaviour)
+		private bool Contains(BehaviourDelegateType behaviour)
 		{
-			int length = array.Length;
-
-			for (int i = 0; i < length; i++)
-			{
-				if (behaviour == array[i])
-					return true;
-			}
-
-			return false;
-		}
-
-		private BehaviourDelegateType[] GetArray(UpdateType type)
-		{
-			switch (type)
+			switch (behaviour.type)
 			{
 				case UpdateType.Update:
-					return update;
+					return update.Contains(behaviour);
 				case UpdateType.FidedUpdate:
-					return fixedUpdate;
+					return fixedUpdate.Contains(behaviour);
 				case UpdateType.LateUpdate:
-					return lateUpdate;
-			}
-
-			return null;
-		}
-
-		private bool Contains(CoreBehaviour[] array, CoreBehaviour behaviour)
-		{
-			int length = array.Length;
-
-			for (int i = 0; i < length; i++)
-			{
-				if (behaviour == array[i])
-					return true;
+					return lateUpdate.Contains(behaviour);
 			}
 
 			return false;
-		}
-
-		private BehaviourDelegateType[] Add(BehaviourDelegateType[] array, BehaviourDelegateType behaviour)
-		{
-			int length = array.Length;
-			BehaviourDelegateType[] extendedArray = new BehaviourDelegateType[length + 1];
-
-			for (int i = 0; i < length; i++)
-				extendedArray[i] = array[i];
-
-			extendedArray[extendedArray.Length - 1] = behaviour;
-			return extendedArray;
-		}
-
-		private BehaviourDelegateType[] Remove(BehaviourDelegateType[] array, BehaviourDelegateType behaviour)
-		{
-			int length = array.Length;
-			BehaviourDelegateType[] retractedArray = new BehaviourDelegateType[length - 1];
-
-			for (int i = 0; i < length; i++)
-			{
-				if (array[i] == behaviour)
-					continue;
-
-				retractedArray[i] = array[i];
-			}
-
-			return retractedArray;
 		}
 	}
 }
