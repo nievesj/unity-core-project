@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Core.Services
 {
-	public class CoreBehaviour : MonoBehaviour
+	public abstract class CoreBehaviour : MonoBehaviour
 	{
 		protected IUpdateService updateService;
 
@@ -17,10 +17,10 @@ namespace Core.Services
 			updateService = ServiceLocator.GetService<IUpdateService>();
 		}
 
-		protected virtual void Awake() {}
-		protected virtual void OnGamePaused(bool isPaused) {}
-		protected virtual void CoreUpdate() {}
-		protected virtual void CoreFixedUpdate() {}
-		protected virtual void CoreLateUpdate() {}
+		protected virtual void Awake() { }
+		protected virtual void OnGamePaused(bool isPaused) { }
+		protected virtual void CoreUpdate() { }
+		protected virtual void CoreFixedUpdate() { }
+		protected virtual void CoreLateUpdate() { }
 	}
 }

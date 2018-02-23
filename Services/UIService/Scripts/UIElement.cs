@@ -10,7 +10,7 @@ namespace Core.Services.UI
 	/// <summary>
 	/// UIElement is the base class for any UI element that is controlled by the UIService.
 	/// </summary>
-	public abstract class UIElement : MonoBehaviour
+	public abstract class UIElement : CoreBehaviour
 	{
 		protected IUIService uiService;
 		protected IAudioService audioService;
@@ -24,7 +24,7 @@ namespace Core.Services.UI
 		protected Subject<UIElement> onClosed = new Subject<UIElement>();
 		public IObservable<UIElement> OnClosed { get { return onClosed; } }
 
-		protected abstract void Awake();
+		protected override void Awake() { }
 
 		/// <summary>
 		/// Triggers after the transition on Show ends.
@@ -43,8 +43,10 @@ namespace Core.Services.UI
 			audioService = ServiceLocator.GetService<IAudioService>();
 		}
 
-		protected virtual void Start()
+		protected override void Start()
 		{
+			base.Start();
+
 			Show().Subscribe(OnWindowOpened);
 		}
 
@@ -55,7 +57,7 @@ namespace Core.Services.UI
 		public virtual IObservable<UIElement> Show()
 		{
 			return Observable.Create<UIElement>(
-				(IObserver<UIElement> observer)=>
+				(IObserver<UIElement> observer) =>
 				{
 					var subject = new Subject<UIElement>();
 
@@ -84,7 +86,7 @@ namespace Core.Services.UI
 		public virtual IObservable<UIElement> Hide(bool isClose = false)
 		{
 			return Observable.Create<UIElement>(
-				(IObserver<UIElement> observer)=>
+				(IObserver<UIElement> observer) =>
 				{
 					var subject = new Subject<UIElement>();
 
@@ -115,7 +117,7 @@ namespace Core.Services.UI
 		public virtual IObservable<UIElement> Close()
 		{
 			return Observable.Create<UIElement>(
-				(IObserver<UIElement> observer)=>
+				(IObserver<UIElement> observer) =>
 				{
 					Action<UIElement> OnCLosed = window =>
 					{
