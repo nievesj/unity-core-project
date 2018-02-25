@@ -1,0 +1,10 @@
+{
+    "name": "CoreFrameworkEditor-ASM",
+    "references": [
+        "CoreFramework-ASM"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": []
+}
