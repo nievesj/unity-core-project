@@ -28,19 +28,17 @@ namespace Core.Services.Input
 	}
 
 	/// <summary>
-	/// Enables basic mouse / touch controls that can be used to interact with the game world
-	/// It only tracks one finger.
-	/// Emits the following events:
-	/// OnMouseDown
-	/// OnMouseUp
-	/// OnMouseDrag
+	/// Enables basic mouse / touch controls that can be used to interact with the game world It only
+	/// tracks one finger. Emits the following events: OnMouseDown OnMouseUp OnMouseDrag
 	/// </summary>
 	public abstract class MouseTouchControls : CoreBehaviour
 	{
 		[SerializeField]
 		protected float minDragDistance = 1;
+
 		[SerializeField]
 		protected float timeToTriggerTap = 0.25f;
+
 		[SerializeField]
 		protected float timeToTriggerStationary = 1f;
 
@@ -58,11 +56,17 @@ namespace Core.Services.Input
 		private BehaviourDelegateType coreUpdateDelegate;
 
 		protected abstract void OnMouseDown(Vector3 pos);
+
 		protected abstract void OnMouseUp(Vector3 pos);
+
 		protected abstract void OnMouseDrag(Vector3 pos);
+
 		protected abstract void OnSingleTap(Vector3 pos);
+
 		protected abstract void OnDoubleTap(Vector3 pos);
+
 		protected abstract void OnStationary(Vector3 pos);
+
 		protected abstract void OnMobilePinch(Touch touch0, Touch touch1);
 
 		protected override void Start()
@@ -128,9 +132,11 @@ namespace Core.Services.Input
 					case TouchPhase.Began:
 						MouseDown(currentTouchMousePosition);
 						break;
+
 					case TouchPhase.Moved:
 						MouseDrag(currentTouchMousePosition);
 						break;
+
 					case TouchPhase.Stationary:
 						stationaryTimer += Time.deltaTime;
 
@@ -141,9 +147,11 @@ namespace Core.Services.Input
 							OnStationary(currentTouchMousePosition);
 						}
 						break;
+
 					case TouchPhase.Canceled:
 						// MouseUp(currentTouchMousePosition);
 						break;
+
 					case TouchPhase.Ended:
 						MouseUp(currentTouchMousePosition);
 						break;
@@ -263,8 +271,8 @@ namespace Core.Services.Input
 		}
 
 		/// <summary>
-		/// Platform independent ScreenPointToRay
-		/// Uses current mouse or touch position to calculate the ray
+		/// Platform independent ScreenPointToRay Uses current mouse or touch position to calculate
+		/// the ray
 		/// </summary>
 		/// <returns></returns>
 		protected Ray ScreenPointToRay()
