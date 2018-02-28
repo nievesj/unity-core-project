@@ -53,7 +53,7 @@ namespace Core.Services.Input
 		private float stationaryTimer = 0.0f;
 		private int tapCount = 0;
 		private bool onStationaryTriggered = false;
-		private BehaviourDelegateType coreUpdateDelegate;
+		protected BehaviourDelegateType _coreUpdateDelegate;
 
 		protected abstract void OnMouseDown(Vector3 pos);
 
@@ -72,8 +72,8 @@ namespace Core.Services.Input
 		protected override void Start()
 		{
 			base.Start();
-			coreUpdateDelegate = new BehaviourDelegateType(this, CoreUpdate, UpdateType.Update);
-			updateService.Attach(coreUpdateDelegate);
+			_coreUpdateDelegate = new BehaviourDelegateType(this, CoreUpdate, UpdateType.Update);
+			updateService.Attach(_coreUpdateDelegate);
 		}
 
 		protected override void CoreUpdate()
@@ -286,7 +286,7 @@ namespace Core.Services.Input
 
 		private void OnDestroy()
 		{
-			updateService.Detach(coreUpdateDelegate);
+			updateService.Detach(_coreUpdateDelegate);
 		}
 	}
 }

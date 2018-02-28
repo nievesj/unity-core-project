@@ -69,7 +69,7 @@ namespace Core.Services.UpdateManager
 					case UpdateType.Update:
 						update.Add(behaviourDelegateType);
 						break;
-					case UpdateType.FidedUpdate:
+					case UpdateType.FixedUpdate:
 						fixedUpdate.Add(behaviourDelegateType);
 						break;
 					case UpdateType.LateUpdate:
@@ -88,7 +88,7 @@ namespace Core.Services.UpdateManager
 					case UpdateType.Update:
 						update.Remove(behaviourDelegateType);
 						break;
-					case UpdateType.FidedUpdate:
+					case UpdateType.FixedUpdate:
 						fixedUpdate.Remove(behaviourDelegateType);
 						break;
 					case UpdateType.LateUpdate:
@@ -104,7 +104,7 @@ namespace Core.Services.UpdateManager
 			{
 				case UpdateType.Update:
 					return update.Contains(behaviour);
-				case UpdateType.FidedUpdate:
+				case UpdateType.FixedUpdate:
 					return fixedUpdate.Contains(behaviour);
 				case UpdateType.LateUpdate:
 					return lateUpdate.Contains(behaviour);
