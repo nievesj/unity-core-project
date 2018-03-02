@@ -11,62 +11,63 @@ namespace Core.Services
 	public class ServiceLocator : MonoBehaviour
 	{
 		[SerializeField]
-		private static GameConfiguration configuration;
+		private static GameConfiguration _configuration;
 
-		//Contains collection of running services
-		private static Dictionary<string, IService> services;
+		//Contains collection of running _services
+		private static Dictionary<string, IService> _services;
+
 		private static ServiceLocator _instance;
 
-		//Signal is triggered when all services are loaded and running. 
-		private static Subject<ServiceLocator> onGameStart = new Subject<ServiceLocator>();
-		internal static IObservable<ServiceLocator> OnGameStart { get { return onGameStart; } }
+		//Signal is triggered when all _services are loaded and running.
+		private static Subject<ServiceLocator> _onGameStart = new Subject<ServiceLocator>();
+
+		internal static IObservable<ServiceLocator> OnGameStart { get { return _onGameStart; } }
 
 		public static ServiceLocator Instance { get { return _instance; } }
 
-		private static Game gameInstance;
-		public static Game GameInstance { get { return gameInstance; } }
+		private static Game _gameInstance;
+		public static Game GameInstance { get { return _gameInstance; } }
 
 		/// <summary>
-		/// Creates and initializes all services.
+		/// Creates and initializes all _services.
 		/// </summary>
 		/// <param name="game"></param>
 		/// <returns></returns>
 		public static IObservable<ServiceLocator> SetUp(Game game)
 		{
 			return Observable.Create<ServiceLocator>(
-				(IObserver<ServiceLocator> observer)=>
+				(IObserver<ServiceLocator> observer) =>
 				{
-					gameInstance = game;
+					_gameInstance = game;
 					Instantiate(game);
 					var subject = new Subject<ServiceLocator>();
 
 					int servicesCreated = 0;
-					if (configuration.disableLogging)
+					if (_configuration.disableLogging)
 						Debug.unityLogger.logEnabled = false;
 
-					Action<ConfigurationServiceName> OnServiceCreated = configServiceName =>
+					Action<ConfigurationServiceName> onServiceCreated = configServiceName =>
 					{
 						servicesCreated++;
 						AddService(configServiceName.name, configServiceName.service);
 
-						if (servicesCreated.Equals(configuration.services.Count))
+						if (servicesCreated.Equals(_configuration.services.Count))
 						{
-							Debug.Log(("ServiceLocator: " + services.Count + " Services created and active").Colored(Colors.Lime));
+							Debug.Log(("ServiceLocator: " + _services.Count + " Services created and active").Colored(Colors.Lime));
 
-							onGameStart.OnNext(_instance);
-							onGameStart.OnCompleted();
+							_onGameStart.OnNext(_instance);
+							_onGameStart.OnCompleted();
 
 							observer.OnNext(_instance);
 							observer.OnCompleted();
 						}
-
 					};
 
 					Debug.Log(("GameConfiguration: Starting Services").Colored(Colors.Lime));
-					foreach (var service in configuration.services)
+					foreach (var service in _configuration.services)
 					{
 						Debug.Log(("--- Starting Service: " + service.name).Colored(Colors.Cyan));
-						service.CreateService().Subscribe(OnServiceCreated);
+						service.CreateService().Subscribe(onServiceCreated);
 					}
 
 					return subject.Subscribe();
@@ -76,14 +77,14 @@ namespace Core.Services
 		/// <summary>
 		/// Gets active service.
 		/// </summary>
-		/// <returns>Service</returns>
-		public static T GetService<T>()where T : class, IService
+		/// <returns> Service </returns>
+		public static T GetService<T>() where T : class, IService
 		{
-			if (!_instance)return null;
+			if (!_instance) return null;
 
-			if (services == null)services = new Dictionary<string, IService>();
-			foreach (var serviceKVP in services)
-				if (serviceKVP.Value is T)return (T)serviceKVP.Value;
+			if (_services == null) _services = new Dictionary<string, IService>();
+			foreach (var serviceKVP in _services)
+				if (serviceKVP.Value is T) return (T)serviceKVP.Value;
 
 			return null;
 		}
@@ -94,43 +95,43 @@ namespace Core.Services
 			if (!_instance)
 				_instance = go.AddComponent<ServiceLocator>();
 
-			configuration = game.GameConfiguration;
-			services = new Dictionary<string, IService>();
+			_configuration = game.GameConfiguration;
+			_services = new Dictionary<string, IService>();
 			DontDestroyOnLoad(_instance.gameObject);
 		}
 
 		internal static void AddService(string name, IService service)
 		{
-			if (services == null)services = new Dictionary<string, IService>();
+			if (_services == null) _services = new Dictionary<string, IService>();
 			if (service == null)
 			{
 				throw new System.Exception("Cannot add a null service to the ServiceLocator");
 			}
-			services.Add(name, service);
+			_services.Add(name, service);
 			service.StartService().Subscribe();
 		}
 
-		internal static T RemoveService<T>(string serviceName)where T : class, IService
+		internal static T RemoveService<T>(string serviceName) where T : class, IService
 		{
 			T returningService = GetService<T>();
 			if (returningService != null)
 			{
-				services[serviceName].StopService();
-				services.Remove(serviceName);
+				_services[serviceName].StopService();
+				_services.Remove(serviceName);
 			}
 			return returningService;
 		}
 
-		internal static T RemoveService<T>()where T : class, IService
+		internal static T RemoveService<T>() where T : class, IService
 		{
-			if (services == null)services = new Dictionary<string, IService>();
-			foreach (var serviceKVP in services)
+			if (_services == null) _services = new Dictionary<string, IService>();
+			foreach (var serviceKVP in _services)
 			{
 				if (serviceKVP.Value is T)
 				{
 					T rtn = (T)serviceKVP.Value;
-					services[serviceKVP.Key].StopService();
-					services.Remove(serviceKVP.Key);
+					_services[serviceKVP.Key].StopService();
+					_services.Remove(serviceKVP.Key);
 					return rtn;
 				}
 			}
@@ -139,7 +140,7 @@ namespace Core.Services
 
 		private void OnDestroy()
 		{
-			onGameStart.Dispose();
+			_onGameStart.Dispose();
 		}
 	}
 

@@ -8,7 +8,7 @@ namespace Core.Services.UpdateManager
 	public enum UpdateType
 	{
 		Update,
-		FidedUpdate,
+		FixedUpdate,
 		LateUpdate
 	}
 
@@ -29,6 +29,7 @@ namespace Core.Services.UpdateManager
 	public interface IUpdateService : IService
 	{
 		void Attach(BehaviourDelegateType behaviourDelegateType);
+
 		void Detach(BehaviourDelegateType behaviourDelegateType);
 	}
 
