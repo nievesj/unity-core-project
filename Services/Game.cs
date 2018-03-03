@@ -5,6 +5,7 @@ using Core.Services.Scenes;
 using Core.Services.UI;
 using UniRx;
 using UnityEngine;
+using Zenject;
 
 namespace Core.Services
 {
@@ -14,21 +15,21 @@ namespace Core.Services
 	public class Game : CoreBehaviour
 	{
 		[SerializeField]
-		//Main game configuration. This contains all services to be started when the game starts.
-		protected GameConfiguration configuration;
-		public GameConfiguration GameConfiguration { get { return configuration; } }
-
 		private static Subject<Game> onGameStarted = new Subject<Game>();
+
 		internal static IObservable<Game> OnGameStarted { get { return onGameStarted; } }
 
-		//Level loader reference. 
-		protected ILevelLoaderService LevelLoader { get { return ServiceLocator.GetService<ILevelLoaderService>(); } }
+		//Level loader reference.
+		[Inject]
+		protected ILevelLoaderService LevelLoader;
 
 		//Scene loader reference
-		protected ISceneLoaderService SceneLoader { get { return ServiceLocator.GetService<ISceneLoaderService>(); } }
+		[Inject]
+		protected ISceneLoaderService SceneLoader;
 
 		//UIService reference
-		protected IUIService UILoader { get { return ServiceLocator.GetService<IUIService>(); } }
+		[Inject]
+		protected IUIService UILoader;
 
 		protected override void Awake()
 		{
@@ -36,9 +37,9 @@ namespace Core.Services
 			DontDestroyOnLoad(this.gameObject);
 
 			//Setup service locator, this configures and starts all services.
-			ServiceLocator.SetUp(this)
-				.DoOnError(e => Debug.LogError("Catastrophic error, services couldn't be created. " + e.Message))
-				.Subscribe(OnGameStart);
+			//ServiceLocator.SetUp(this)
+			//	.DoOnError(e => Debug.LogError("Catastrophic error, services couldn't be created. " + e.Message))
+			//	.Subscribe(OnGameStart);
 		}
 
 		/// <summary>

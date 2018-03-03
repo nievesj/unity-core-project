@@ -10,8 +10,11 @@ namespace Core.Services.Audio
 	public interface IAudioService : IService
 	{
 		void PlayClip(AudioClip clip);
+
 		void PlayClip(AudioPlayer ap);
+
 		void PlayMusic(AudioPlayer ap);
+
 		void StopClip(AudioPlayer ap);
 
 		bool Mute { get; set; }
@@ -25,70 +28,43 @@ namespace Core.Services.Audio
 		protected List<AudioPlayer> activeAudioPlayers;
 
 		//Global mute
-		bool mute;
+		private bool mute;
+
 		public bool Mute
 		{
 			get { return mute; }
 			set
 			{
 				mute = value;
-				foreach (var ap in activeAudioPlayers)ap.Player.mute = mute;
+				foreach (var ap in activeAudioPlayers) ap.Player.mute = mute;
 			}
 		}
 
 		//Global volume
-		float volume;
+		private float volume;
+
 		public float Volume
 		{
 			get { return volume; }
 			set
 			{
 				volume = value;
-				foreach (var ap in activeAudioPlayers)ap.Player.volume = volume;
+				foreach (var ap in activeAudioPlayers) ap.Player.volume = volume;
 			}
 		}
 
-		public IObservable<IService> Configure(ServiceConfiguration config)
+		public AudioService(ServiceConfiguration config)
 		{
-			return Observable.Create<IService>(
-				(IObserver<IService> observer)=>
-				{
-					var subject = new Subject<IService>();
+			configuration = config as AudioServiceConfiguration;
+			ServiceLocator.OnGameStart.Subscribe(OnGameStart);
+			activeAudioPlayers = new List<AudioPlayer>();
 
-					configuration = config as AudioServiceConfiguration;
-					ServiceLocator.OnGameStart.Subscribe(OnGameStart);
-					activeAudioPlayers = new List<AudioPlayer>();
-
-					observer.OnNext(this);
-					return subject.Subscribe();
-				});
-		}
-
-		public IObservable<IService> StartService()
-		{
-			return Observable.Create<IService>(
-				(IObserver<IService> observer)=>
-				{
-					var subject = new Subject<IService>();
-
-					observer.OnNext(this);
-					return subject.Subscribe();
-				});
-		}
-
-		public IObservable<IService> StopService()
-		{
-			return Observable.Create<IService>(
-				(IObserver<IService> observer)=>
-				{
-					var subject = new Subject<IService>();
-
-					if (poller != null)
-						poller.Destroy();
-
-					observer.OnNext(this);
-					return subject.Subscribe();
-				});
+			if (configuration.audioSourcePrefab)
+			{
+				poller = new Pooler<AudioSource>(configuration.audioSourcePrefab.gameObject, configuration.poolAmount);
+			}
+			else
+				Debug.LogError("AudioService : OnGameStart - Failed to create pool. Configuration is missing the AudioSource prefab.");
 		}
 
 		protected void OnGameStart(ServiceLocator locator)
@@ -168,10 +144,10 @@ namespace Core.Services.Audio
 
 		protected IEnumerator WaitUntilDonePlaying(AudioPlayer ap)
 		{
-			CustomYieldInstruction wait = new WaitUntil(()=> ap.Player.clip.loadState == AudioDataLoadState.Loaded);
+			CustomYieldInstruction wait = new WaitUntil(() => ap.Player.clip.loadState == AudioDataLoadState.Loaded);
 			yield return wait;
 
-			wait = new WaitWhile(()=> ap.Player.isPlaying);
+			wait = new WaitWhile(() => ap.Player.isPlaying);
 			yield return wait;
 
 			if (ap.Clip)

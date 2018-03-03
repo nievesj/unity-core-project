@@ -8,8 +8,7 @@ namespace Core.Services.UI
 	public class UIServiceConfiguration : ServiceConfiguration
 	{
 		public UIContainer mainCanvas;
-		// public bool cacheWindows = false;
 
-		override protected IService ServiceClass { get { return new UIService(); } }
+		protected override IService ServiceClass { get { return new UIService(this); } }
 	}
 }

@@ -6,12 +6,14 @@ using Core.Services.Assets;
 using Core.Services.UI;
 using UniRx;
 using UnityEngine;
+using Zenject;
 
 namespace Core.Services.Levels
 {
 	public interface ILevelLoaderService : IService
 	{
 		IObservable<Level> UnloadLevel(Level level);
+
 		IObservable<Level> LoadLevel(string name);
 
 		Level CurrentLevel { get; }
@@ -20,49 +22,19 @@ namespace Core.Services.Levels
 	public class LevelLoaderService : ILevelLoaderService
 	{
 		protected LevelLoaderServiceConfiguration configuration;
+
+		[Inject]
 		protected IAssetService assetService;
+
+		[Inject]
 		protected IUIService uiService;
 
 		protected Level currentLevel;
 		public Level CurrentLevel { get { return currentLevel; } }
 
-		public IObservable<IService> Configure(ServiceConfiguration config)
+		public LevelLoaderService(ServiceConfiguration config)
 		{
-			return Observable.Create<IService>(
-				(IObserver<IService> observer)=>
-				{
-					var subject = new Subject<IService>();
-
-					configuration = config as LevelLoaderServiceConfiguration;
-					ServiceLocator.OnGameStart.Subscribe(OnGameStart);
-
-					observer.OnNext(this);
-					return subject.Subscribe();
-				});
-		}
-
-		public IObservable<IService> StartService()
-		{
-			return Observable.Create<IService>(
-				(IObserver<IService> observer)=>
-				{
-					var subject = new Subject<IService>();
-
-					observer.OnNext(this);
-					return subject.Subscribe();
-				});
-		}
-
-		public IObservable<IService> StopService()
-		{
-			return Observable.Create<IService>(
-				(IObserver<IService> observer)=>
-				{
-					var subject = new Subject<IService>();
-
-					observer.OnNext(this);
-					return subject.Subscribe();
-				});
+			configuration = config as LevelLoaderServiceConfiguration;
 		}
 
 		protected void OnGameStart(ServiceLocator locator)
@@ -74,13 +46,13 @@ namespace Core.Services.Levels
 		/// <summary>
 		/// Attemps to load a level. First the screen is faded
 		/// </summary>
-		/// <param name="name">bundle name</param>
-		/// <returns>Observable</returns>
+		/// <param name="name"> bundle name </param>
+		/// <returns> Observable </returns>
 		public IObservable<Level> LoadLevel(string name)
 		{
 			//Fade screen before loading level
 			return Observable.Create<Level>(
-				(IObserver<Level> observer)=>
+				(IObserver<Level> observer) =>
 				{
 					var subject = new Subject<Level>();
 					Action<UIElement> OnScreenFadeOn = element =>
@@ -114,7 +86,7 @@ namespace Core.Services.Levels
 			BundleRequest bundleRequest = new BundleRequest(AssetCategoryRoot.Levels, name, name);
 
 			return Observable.Create<Level>(
-				(IObserver<Level> observer)=>
+				(IObserver<Level> observer) =>
 				{
 					Action<Level> OnLevelLoaded = loadedLevel =>
 					{
@@ -139,8 +111,8 @@ namespace Core.Services.Levels
 		/// <summary>
 		/// Unloads level.
 		/// </summary>
-		/// <param name="level">level name</param>
-		/// <returns>Observable</returns>
+		/// <param name="level"> level name </param>
+		/// <returns> Observable </returns>
 		public IObservable<Level> UnloadLevel(Level level)
 		{
 			var subject = new Subject<Level>();

@@ -38,45 +38,14 @@ namespace Core.Services.UpdateManager
 		protected UpdateServiceConfiguration configuration;
 		protected UpdateManager updateManager;
 
-		public IObservable<IService> Configure(ServiceConfiguration config)
+		public UpdateService(ServiceConfiguration config)
 		{
-			return Observable.Create<IService>(
-				(IObserver<IService> observer) =>
-				{
-					var subject = new Subject<IService>();
-					ServiceLocator.OnGameStart.Subscribe(OnGameStart);
-					configuration = config as UpdateServiceConfiguration;
+			ServiceLocator.OnGameStart.Subscribe(OnGameStart);
+			configuration = config as UpdateServiceConfiguration;
 
-					observer.OnNext(this);
-					return subject.Subscribe();
-				});
-		}
+			updateManager = Object.Instantiate<UpdateManager>(configuration.updateManager);
 
-		public IObservable<IService> StartService()
-		{
-			return Observable.Create<IService>(
-				(IObserver<IService> observer) =>
-				{
-					var subject = new Subject<IService>();
-					updateManager = Object.Instantiate<UpdateManager>(configuration.updateManager);
-
-					GameObject.DontDestroyOnLoad(updateManager);
-
-					observer.OnNext(this);
-					return subject.Subscribe();
-				});
-		}
-
-		public IObservable<IService> StopService()
-		{
-			return Observable.Create<IService>(
-				(IObserver<IService> observer) =>
-				{
-					var subject = new Subject<IService>();
-
-					observer.OnNext(this);
-					return subject.Subscribe();
-				});
+			GameObject.DontDestroyOnLoad(updateManager);
 		}
 
 		protected void OnGameStart(ServiceLocator locator)

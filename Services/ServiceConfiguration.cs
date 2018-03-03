@@ -19,32 +19,25 @@ namespace Core.Services
 
 	public abstract class ServiceConfiguration : ScriptableObject
 	{
-		abstract protected IService ServiceClass { get; }
+		protected abstract IService ServiceClass { get; }
 
 		/// <summary>
 		/// Create service. This initializes and starts the service.
 		/// </summary>
-		/// <returns>Observable</returns>
+		/// <returns> Observable </returns>
 		public IObservable<ConfigurationServiceName> CreateService()
 		{
 			return Observable.Create<ConfigurationServiceName>(
-				(IObserver<ConfigurationServiceName> observer)=>
+				(IObserver<ConfigurationServiceName> observer) =>
 				{
 					var subject = new Subject<ConfigurationServiceName>();
 
 					IService service = ServiceClass;
-					if (service != null)
-					{
-						service.Configure(this).Subscribe(s =>
-						{
-							observer.OnNext(new ConfigurationServiceName(name, service));
-							observer.OnCompleted();
-						});
-					}
-					else
-					{
+					if (service == null)
 						observer.OnError(new System.Exception("Failed to create service " + name));
-					}
+
+					observer.OnNext(new ConfigurationServiceName(name, service));
+					observer.OnCompleted();
 
 					return subject;
 				});

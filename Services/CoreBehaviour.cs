@@ -13,14 +13,18 @@ namespace Core.Services
 
 		protected virtual void Start()
 		{
-			ServiceLocator.GetService<IUIService>().OnGamePaused.Subscribe(OnGamePaused);
-			updateService = ServiceLocator.GetService<IUpdateService>();
+			//ServiceLocator.GetService<IUIService>().OnGamePaused.Subscribe(OnGamePaused);
+			//updateService = ServiceLocator.GetService<IUpdateService>();
 		}
 
 		protected virtual void Awake() { }
+
 		protected virtual void OnGamePaused(bool isPaused) { }
+
 		protected virtual void CoreUpdate() { }
+
 		protected virtual void CoreFixedUpdate() { }
+
 		protected virtual void CoreLateUpdate() { }
 	}
 }

@@ -4,6 +4,7 @@ using Core.Services;
 using Core.Services.Assets;
 using UniRx;
 using UnityEngine;
+using Zenject;
 
 namespace Core.Services.UI
 {
@@ -24,9 +25,13 @@ namespace Core.Services.UI
 		IObservable<bool> OnGamePaused { get; }
 
 		IObservable<UIElement> OpenUIElement(string window);
+
 		IObservable<UIElement> CloseUIElement(UIElement window);
+
 		bool IsUIElementOpen(string window);
+
 		UIElement GetOpenUIElement(string window);
+
 		IObservable<UIElement> DarkenScreen(bool block);
 	}
 
@@ -34,7 +39,9 @@ namespace Core.Services.UI
 	{
 		protected UIServiceConfiguration configuration;
 
+		[Inject]
 		protected IAssetService assetService;
+
 		protected RectTransform mainCanvas;
 		protected UIScreenFader uiScreenFader;
 
@@ -44,20 +51,43 @@ namespace Core.Services.UI
 
 		//Global signal emited when a window is opened. Hot observable.
 		protected Subject<UIElement> onUIElementOpened = new Subject<UIElement>();
+
 		public IObservable<UIElement> OnUIElementOpened { get { return onUIElementOpened; } }
 
 		//Global signal emited when a window is closed. Hot observable.
 		protected Subject<UIElement> onUIElementClosed = new Subject<UIElement>();
+
 		public IObservable<UIElement> OnUIElementClosed { get { return onUIElementClosed; } }
 
 		//Global signal emited when a game is paused. Hot observable.
 		protected Subject<bool> onGamePaused = new Subject<bool>();
+
 		public IObservable<bool> OnGamePaused { get { return onGamePaused; } }
+
+		public UIService(ServiceConfiguration config)
+		{
+			configuration = config as UIServiceConfiguration;
+
+			activeUIElements = new Dictionary<string, UIElement>();
+			renderPriorityCanvas = new Dictionary<UIElementType, RectTransform>();
+
+			if (configuration.mainCanvas)
+			{
+				var canvas = Object.Instantiate<UIContainer>(configuration.mainCanvas);
+				mainCanvas = canvas.GetComponent<RectTransform>();
+				uiScreenFader = canvas.GetComponentInChildren<UIScreenFader>();
+				GameObject.DontDestroyOnLoad(mainCanvas);
+
+				renderPriorityCanvas.Add(UIElementType.Dialog, canvas.dialogContainer);
+				renderPriorityCanvas.Add(UIElementType.Panel, canvas.panelContainer);
+				renderPriorityCanvas.Add(UIElementType.Widget, canvas.widgetContainer);
+			}
+		}
 
 		public IObservable<IService> Configure(ServiceConfiguration config)
 		{
 			return Observable.Create<IService>(
-				(IObserver<IService> observer)=>
+				(IObserver<IService> observer) =>
 				{
 					var subject = new Subject<IService>();
 
@@ -76,7 +106,7 @@ namespace Core.Services.UI
 		public IObservable<IService> StartService()
 		{
 			return Observable.Create<IService>(
-				(IObserver<IService> observer)=>
+				(IObserver<IService> observer) =>
 				{
 					var subject = new Subject<IService>();
 
@@ -104,7 +134,7 @@ namespace Core.Services.UI
 		public IObservable<IService> StopService()
 		{
 			return Observable.Create<IService>(
-				(IObserver<IService> observer)=>
+				(IObserver<IService> observer) =>
 				{
 					var subject = new Subject<IService>();
 
@@ -121,19 +151,18 @@ namespace Core.Services.UI
 
 		protected void OnGameStart(ServiceLocator locator)
 		{
-			assetService = ServiceLocator.GetService<IAssetService>();
 		}
 
 		/// <summary>
 		/// Opens a window
 		/// </summary>
-		/// <param name="window">Window name</param>
-		/// <returns>Observable</returns>
+		/// <param name="window"> Window name </param>
+		/// <returns> Observable </returns>
 		public IObservable<UIElement> OpenUIElement(string window)
 		{
 			BundleRequest bundleNeeded = new BundleRequest(AssetCategoryRoot.Screens, window, window);
 			return Observable.Create<UIElement>(
-				(IObserver<UIElement> observer)=>
+				(IObserver<UIElement> observer) =>
 				{
 					System.Action<UIElement> OnWindowLoaded = loadedWindow =>
 					{
@@ -176,13 +205,10 @@ namespace Core.Services.UI
 		{
 			if (element is UIDialog)
 				return renderPriorityCanvas[UIElementType.Dialog];
-
 			else if (element is UIPanel)
 				return renderPriorityCanvas[UIElementType.Panel];
-
 			else if (element is UIWidget)
 				return renderPriorityCanvas[UIElementType.Widget];
-
 			else
 				return mainCanvas;
 		}
@@ -190,32 +216,27 @@ namespace Core.Services.UI
 		/// <summary>
 		/// Checks if a window is already open
 		/// </summary>
-		/// <param name="window">Window name</param>
-		/// <returns>bool</returns>
+		/// <param name="window"> Window name </param>
+		/// <returns> bool </returns>
 		public bool IsUIElementOpen(string window)
 		{
-			return activeUIElements.ContainsKey(window)? true : false;
+			return activeUIElements.ContainsKey(window) ? true : false;
 		}
 
 		/// <summary>
 		/// Returns the reference of an open window
 		/// </summary>
-		/// <param name="window">Window name</param>
-		/// <returns>UIWindow</returns>
+		/// <param name="window"> Window name </param>
+		/// <returns> UIWindow </returns>
 		public UIElement GetOpenUIElement(string window)
 		{
-			return activeUIElements.ContainsKey(window)? activeUIElements[window] : null;
+			return activeUIElements.ContainsKey(window) ? activeUIElements[window] : null;
 		}
 
-		/// <summary>
-		/// Closes a window
-		/// </summary>
-		/// <param name="window">Window name</param>
-		/// <returns>Observable</returns>
 		public IObservable<UIElement> CloseUIElement(UIElement window)
 		{
 			return window.Close()
-				.Subscribe(UIElementClosed)as IObservable<UIElement>;
+				.Subscribe(UIElementClosed) as IObservable<UIElement>;
 		}
 
 		public IObservable<UIElement> DarkenScreen(bool block)

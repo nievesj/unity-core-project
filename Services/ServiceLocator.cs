@@ -11,9 +11,6 @@ namespace Core.Services
 	public class ServiceLocator : MonoBehaviour
 	{
 		[SerializeField]
-		private static GameConfiguration _configuration;
-
-		//Contains collection of running _services
 		private static Dictionary<string, IService> _services;
 
 		private static ServiceLocator _instance;
@@ -43,32 +40,31 @@ namespace Core.Services
 					var subject = new Subject<ServiceLocator>();
 
 					int servicesCreated = 0;
-					if (_configuration.disableLogging)
-						Debug.unityLogger.logEnabled = false;
+					//if (_configuration.disableLogging)
+					//	Debug.unityLogger.logEnabled = false;
 
 					Action<ConfigurationServiceName> onServiceCreated = configServiceName =>
 					{
 						servicesCreated++;
 						AddService(configServiceName.name, configServiceName.service);
 
-						if (servicesCreated.Equals(_configuration.services.Count))
-						{
-							Debug.Log(("ServiceLocator: " + _services.Count + " Services created and active").Colored(Colors.Lime));
+						//if (servicesCreated.Equals(_configuration.services.Count))
+						//{
+						//	Debug.Log(("ServiceLocator: " + _services.Count + " Services created and active").Colored(Colors.Lime));
 
-							_onGameStart.OnNext(_instance);
-							_onGameStart.OnCompleted();
+						// _onGameStart.OnNext(_instance); _onGameStart.OnCompleted();
 
-							observer.OnNext(_instance);
-							observer.OnCompleted();
-						}
+						//	observer.OnNext(_instance);
+						//	observer.OnCompleted();
+						//}
 					};
 
 					Debug.Log(("GameConfiguration: Starting Services").Colored(Colors.Lime));
-					foreach (var service in _configuration.services)
-					{
-						Debug.Log(("--- Starting Service: " + service.name).Colored(Colors.Cyan));
-						service.CreateService().Subscribe(onServiceCreated);
-					}
+					//foreach (var service in _configuration.services)
+					//{
+					//	Debug.Log(("--- Starting Service: " + service.name).Colored(Colors.Cyan));
+					//	service.CreateService().Subscribe(onServiceCreated);
+					//}
 
 					return subject.Subscribe();
 				});
@@ -95,7 +91,7 @@ namespace Core.Services
 			if (!_instance)
 				_instance = go.AddComponent<ServiceLocator>();
 
-			_configuration = game.GameConfiguration;
+			//_configuration = game.GameConfiguration;
 			_services = new Dictionary<string, IService>();
 			DontDestroyOnLoad(_instance.gameObject);
 		}
@@ -108,7 +104,7 @@ namespace Core.Services
 				throw new System.Exception("Cannot add a null service to the ServiceLocator");
 			}
 			_services.Add(name, service);
-			service.StartService().Subscribe();
+			//service.StartService().Subscribe();
 		}
 
 		internal static T RemoveService<T>(string serviceName) where T : class, IService
@@ -116,7 +112,7 @@ namespace Core.Services
 			T returningService = GetService<T>();
 			if (returningService != null)
 			{
-				_services[serviceName].StopService();
+				//_services[serviceName].StopService();
 				_services.Remove(serviceName);
 			}
 			return returningService;
@@ -130,7 +126,7 @@ namespace Core.Services
 				if (serviceKVP.Value is T)
 				{
 					T rtn = (T)serviceKVP.Value;
-					_services[serviceKVP.Key].StopService();
+					//_services[serviceKVP.Key].StopService();
 					_services.Remove(serviceKVP.Key);
 					return rtn;
 				}
@@ -146,10 +142,10 @@ namespace Core.Services
 
 	public interface IService
 	{
-		IObservable<IService> StartService();
+		//IObservable<IService> StartService();
 
-		IObservable<IService> StopService();
+		//IObservable<IService> StopService();
 
-		IObservable<IService> Configure(ServiceConfiguration config);
+		//IObservable<IService> Configure(ServiceConfiguration config);
 	}
 }

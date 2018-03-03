@@ -7,72 +7,43 @@ using Core.Services.UI;
 using UniRx;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Zenject;
 
 namespace Core.Services.Scenes
 {
 	public interface ISceneLoaderService : IService
 	{
 		IObservable<UnityEngine.Object> LoadScene(string scene, LoadSceneMode mode);
+
 		IObservable<UnityEngine.Object> UnLoadScene(string scene);
 	}
 
 	public class SceneLoaderService : ISceneLoaderService
 	{
 		protected SceneLoaderServiceConfiguration configuration;
+
+		[Inject]
 		protected IAssetService assetService;
-		protected UI.IUIService uiService;
 
-		public IObservable<IService> Configure(ServiceConfiguration config)
+		[Inject]
+		protected IUIService uiService;
+
+		public SceneLoaderService(ServiceConfiguration config)
 		{
-			return Observable.Create<IService>(
-				(IObserver<IService> observer)=>
-				{
-					var subject = new Subject<IService>();
-
-					configuration = config as SceneLoaderServiceConfiguration;
-
-					observer.OnNext(this);
-					return subject.Subscribe();
-				});
-		}
-
-		public IObservable<IService> StartService()
-		{
-			return Observable.Create<IService>(
-				(IObserver<IService> observer)=>
-				{
-					var subject = new Subject<IService>();
-
-					assetService = ServiceLocator.GetService<IAssetService>();
-
-					observer.OnNext(this);
-					return subject.Subscribe();
-				});
-		}
-
-		public IObservable<IService> StopService()
-		{
-			return Observable.Create<IService>(
-				(IObserver<IService> observer)=>
-				{
-					var subject = new Subject<IService>();
-
-					observer.OnNext(this);
-					return subject.Subscribe();
-				});
+			configuration = config as SceneLoaderServiceConfiguration;
 		}
 
 		/// <summary>
 		/// Attempts to load a scene from an asset bundle
 		/// </summary>
 		/// <param name="scene"></param>
-		/// <param name="mode"></param>
+		/// <param name="mode"> </param>
 		/// <returns></returns>
 		public IObservable<UnityEngine.Object> LoadScene(string scene, LoadSceneMode mode = LoadSceneMode.Single)
 		{
 			//Fade screen before loading level
 			return Observable.Create<UnityEngine.Object>(
-				(IObserver<UnityEngine.Object> observer)=>
+				(IObserver<UnityEngine.Object> observer) =>
 				{
 					var subject = new Subject<UnityEngine.Object>();
 					Action<UIElement> OnScreenFadeOn = element =>
@@ -105,13 +76,13 @@ namespace Core.Services.Scenes
 		/// Gets a scene from an asset bundle
 		/// </summary>
 		/// <param name="scene"></param>
-		/// <param name="mode"></param>
+		/// <param name="mode"> </param>
 		/// <returns></returns>
 		private IObservable<UnityEngine.Object> GetScene(string scene, LoadSceneMode mode = LoadSceneMode.Single)
 		{
 			BundleRequest bundleNeeded = new BundleRequest(AssetCategoryRoot.Scenes, scene, scene);
 			return Observable.Create<UnityEngine.Object>(
-				(IObserver<UnityEngine.Object> observer)=>
+				(IObserver<UnityEngine.Object> observer) =>
 				{
 					System.Action<UnityEngine.Object> OnSceneLoaded = loadedScene =>
 					{
@@ -136,10 +107,11 @@ namespace Core.Services.Scenes
 
 		/// <summary>
 		/// This is triggered because there was an attempt to load a scene that is currently loaded.
-		/// Use case not supported. Calling this method will always trigger an OnError and send it up the stream.
+		/// Use case not supported. Calling this method will always trigger an OnError and send it up
+		/// the stream.
 		/// </summary>
 		/// <param name="scene"></param>
-		/// <param name="mode"></param>
+		/// <param name="mode"> </param>
 		/// <returns></returns>
 		private IObservable<UnityEngine.Object> GetPreviouslyLoadedScene(string scene, LoadSceneMode mode = LoadSceneMode.Single)
 		{
@@ -161,7 +133,7 @@ namespace Core.Services.Scenes
 		public IObservable<UnityEngine.Object> UnLoadScene(string scene)
 		{
 			return Observable.Create<UnityEngine.Object>(
-				(IObserver<UnityEngine.Object> observer)=>
+				(IObserver<UnityEngine.Object> observer) =>
 				{
 					SceneManager.UnloadSceneAsync(scene).AsObservable().Subscribe(x =>
 					{
