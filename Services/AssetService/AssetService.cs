@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Core.Services;
 using UniRx;
 using UnityEngine;
+using Zenject;
 
 namespace Core.Services.Assets
 {
@@ -48,6 +49,8 @@ namespace Core.Services.Assets
 		public UnityCloudBuildManifest CloudBuildManifest { get { return cloudBuildManifest; } }
 
 		private AssetServiceConfiguration configuration;
+
+		[Inject]
 		private AssetBundleLoader assetBundlebundleLoader;
 
 		public AssetService(ServiceConfiguration config)
@@ -59,6 +62,7 @@ namespace Core.Services.Assets
 					Debug.Log(("---- AssetService: Unity Cloud Build Manifest present. Build Version: " + cloudManifest.buildNumber).Colored(Colors.Aqua));
 					configuration = config as AssetServiceConfiguration;
 					cloudBuildManifest = cloudManifest;
+					//assetBundlebundleLoader = new AssetBundleLoader(this);
 				}
 				else
 				{

@@ -37,6 +37,10 @@ namespace Core.Services
 				{
 					Container.BindInstance<IAssetService>((IAssetService)configServiceName.service).AsSingle();
 					Container.QueueForInject((IAssetService)configServiceName.service);
+
+					Container.Bind<AssetBundleLoader>().AsSingle().WithArguments((IAssetService)configServiceName.service);
+
+					//Container.BindInstance<IAssetService>((IAssetService)configServiceName.service).AsSingle();
 				}
 
 				if (configServiceName.service is IAudioService)

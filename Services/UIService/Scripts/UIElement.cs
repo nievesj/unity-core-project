@@ -113,7 +113,7 @@ namespace Core.Services.UI
 		/// <summary>
 		/// Close window and tells iservice to destroy the uielement and unload the asset
 		/// </summary>
-		/// <returns>Observable</returns>
+		/// <returns> Observable </returns>
 		public virtual IObservable<UIElement> Close()
 		{
 			return Observable.Create<UIElement>(

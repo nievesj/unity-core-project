@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
+using Zenject;
 
 namespace Core.Services.Levels
 {
@@ -17,15 +18,20 @@ namespace Core.Services.Levels
 	}
 
 	/// <summary>
-	/// A level has the same purpose of a scene, but we can change them without having to load a scene.
-	/// This works well on most plaforms except for WebGL where loading scenes also clears the memory.
+	/// A level has the same purpose of a scene, but we can change them without having to load a
+	/// scene. This works well on most plaforms except for WebGL where loading scenes also clears the memory.
 	/// </summary>
 	public abstract class Level : CoreBehaviour
 	{
 		public AudioPlayer backgroundMusic;
 
+		[Inject]
 		protected ILevelLoaderService levelService;
+
+		[Inject]
 		protected IAudioService audioService;
+
+		[Inject]
 		protected IUIService uiService;
 
 		protected LevelState levelState;
@@ -36,9 +42,9 @@ namespace Core.Services.Levels
 			base.Awake();
 			Debug.Log(("Level: " + name + " loaded").Colored(Colors.LightBlue));
 
-			levelService = ServiceLocator.GetService<ILevelLoaderService>();
-			audioService = ServiceLocator.GetService<IAudioService>();
-			uiService = ServiceLocator.GetService<IUIService>();
+			//levelService = ServiceLocator.GetService<ILevelLoaderService>();
+			//audioService = ServiceLocator.GetService<IAudioService>();
+			//uiService = ServiceLocator.GetService<IUIService>();
 
 			levelState = LevelState.Loaded;
 		}
