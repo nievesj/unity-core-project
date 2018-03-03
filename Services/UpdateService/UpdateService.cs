@@ -28,9 +28,9 @@ namespace Core.Services.UpdateManager
 
 	public interface IUpdateService : IService
 	{
-		void Attach(BehaviourDelegateType behaviourDelegateType);
+		//void Attach(BehaviourDelegateType behaviourDelegateType);
 
-		void Detach(BehaviourDelegateType behaviourDelegateType);
+		//void Detach(BehaviourDelegateType behaviourDelegateType);
 	}
 
 	public class UpdateService : IUpdateService
@@ -40,7 +40,6 @@ namespace Core.Services.UpdateManager
 
 		public UpdateService(ServiceConfiguration config)
 		{
-			ServiceLocator.OnGameStart.Subscribe(OnGameStart);
 			configuration = config as UpdateServiceConfiguration;
 
 			updateManager = Object.Instantiate<UpdateManager>(configuration.updateManager);

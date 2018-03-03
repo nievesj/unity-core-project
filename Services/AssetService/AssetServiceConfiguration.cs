@@ -7,7 +7,7 @@ namespace Core.Services.Assets
 {
 	public class AssetServiceConfiguration : ServiceConfiguration
 	{
-		protected override IService ServiceClass { get { return new AssetService(this); } }
+		//protected override IService ServiceClass { get { return new AssetService(this, null); } }
 
 		[SerializeField]
 		protected string assetBundlesURL;

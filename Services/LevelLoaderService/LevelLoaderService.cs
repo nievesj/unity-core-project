@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Core.Services;
 using Core.Services.Assets;
+using Core.Services.Factory;
 using Core.Services.UI;
 using UniRx;
 using UnityEngine;
@@ -10,41 +11,35 @@ using Zenject;
 
 namespace Core.Services.Levels
 {
-	public interface ILevelLoaderService : IService
-	{
-		IObservable<Level> UnloadLevel(Level level);
-
-		IObservable<Level> LoadLevel(string name);
-
-		Level CurrentLevel { get; }
-	}
+	public interface ILevelLoaderService : IService { }
 
 	public class LevelLoaderService : ILevelLoaderService
 	{
-		protected LevelLoaderServiceConfiguration configuration;
+		[Inject]
+		private AssetService _assetService;
 
 		[Inject]
-		protected IAssetService assetService;
+		private UIService _uiService;
 
 		[Inject]
-		protected IUIService uiService;
+		private FactoryService _factoryService;
 
-		protected Level currentLevel;
+		private LevelLoaderServiceConfiguration _configuration;
+
+		private Level currentLevel;
 		public Level CurrentLevel { get { return currentLevel; } }
 
 		public LevelLoaderService(ServiceConfiguration config)
 		{
-			configuration = config as LevelLoaderServiceConfiguration;
+			_configuration = config as LevelLoaderServiceConfiguration;
 		}
 
-		protected void OnGameStart(ServiceLocator locator)
+		private void OnGameStart(ServiceLocator locator)
 		{
-			uiService = ServiceLocator.GetService<IUIService>();
-			assetService = ServiceLocator.GetService<IAssetService>();
 		}
 
 		/// <summary>
-		/// Attemps to load a level. First the screen is faded
+		/// Attemps to load a level. First the screen is faded 
 		/// </summary>
 		/// <param name="name"> bundle name </param>
 		/// <returns> Observable </returns>
@@ -67,14 +62,14 @@ namespace Core.Services.Levels
 					};
 
 					//Start fade screen
-					uiService.DarkenScreen(true).Subscribe(OnScreenFadeOn);
+					_uiService.DarkenScreen(true).Subscribe(OnScreenFadeOn);
 
 					return subject.Subscribe();
 				});
 		}
 
 		/// <summary>
-		/// Once the screen has been blocked, load the level
+		/// Once the screen has been blocked, load the level 
 		/// </summary>
 		/// <param name="name"></param>
 		/// <returns></returns>
@@ -93,23 +88,23 @@ namespace Core.Services.Levels
 						Resources.UnloadUnusedAssets();
 						Debug.Log(("LevelLoaderService: Loaded level - " + loadedLevel.name).Colored(Colors.LightBlue));
 
-						currentLevel = GameObject.Instantiate<Level>(loadedLevel);
+						currentLevel = _factoryService.Instantiate<Level>(loadedLevel);
 						currentLevel.name = loadedLevel.name;
 
 						//Level loaded, return screen to normal.
-						uiService.DarkenScreen(false).Subscribe();
+						_uiService.DarkenScreen(false).Subscribe();
 
 						observer.OnNext(currentLevel);
 						observer.OnCompleted();
 					};
 
-					return assetService.GetAndLoadAsset<Level>(bundleRequest)
+					return _assetService.GetAndLoadAsset<Level>(bundleRequest)
 						.Subscribe(OnLevelLoaded);
 				});
 		}
 
 		/// <summary>
-		/// Unloads level.
+		/// Unloads level. 
 		/// </summary>
 		/// <param name="level"> level name </param>
 		/// <returns> Observable </returns>
@@ -121,7 +116,7 @@ namespace Core.Services.Levels
 			{
 				Debug.Log(("LevelLoaderService: Unloading level  - " + currentLevel.name).Colored(Colors.LightBlue));
 				GameObject.Destroy(level.gameObject);
-				assetService.UnloadAsset(level.name, true);
+				_assetService.UnloadAsset(level.name, true);
 			}
 
 			subject.OnNext(null);

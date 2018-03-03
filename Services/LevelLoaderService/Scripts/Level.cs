@@ -3,6 +3,7 @@ using Core.Services.Audio;
 using Core.Services.UI;
 using System.Collections;
 using System.Collections.Generic;
+using Core.Services.Assets;
 using UniRx;
 using UnityEngine;
 using Zenject;
@@ -26,13 +27,16 @@ namespace Core.Services.Levels
 		public AudioPlayer backgroundMusic;
 
 		[Inject]
-		protected ILevelLoaderService levelService;
+		protected LevelLoaderService levelService;
 
 		[Inject]
-		protected IAudioService audioService;
+		protected AudioService audioService;
 
 		[Inject]
-		protected IUIService uiService;
+		protected UIService uiService;
+
+		[Inject]
+		protected AssetService assetService;
 
 		protected LevelState levelState;
 		public LevelState State { get { return levelState; } }

@@ -4,12 +4,14 @@ using Core.Services.UI;
 using Core.Services.UpdateManager;
 using UniRx;
 using UnityEngine;
+using Zenject;
 
 namespace Core.Services
 {
 	public abstract class CoreBehaviour : MonoBehaviour
 	{
-		protected IUpdateService updateService;
+		[Inject]
+		protected UpdateService updateService;
 
 		protected virtual void Start()
 		{

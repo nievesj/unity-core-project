@@ -9,60 +9,38 @@ using Zenject;
 namespace Core.Services.Assets
 {
 	/// <summary>
-	/// Central point to get asset bundles required to run the game.
+	/// Central point to get asset bundles required to run the game. 
 	/// </summary>
-	public interface IAssetService : IService
-	{
-		//Asset bundle location
-		string AssetBundlesURL { get; }
-
-		//Time when the manifest files expire
-		int ManifestCacheExpiringPeriodInDays { get; }
-
-		//Using streaming assets?
-		bool UseStreamingAssets { get; }
-
-		AssetCacheState AssetCacheState { get; }
-		AssetCacheStrategy AssetCacheStrategy { get; }
-		UnityCloudBuildManifest CloudBuildManifest { get; }
-
-		IObservable<T> GetAndLoadAsset<T>(BundleRequest bundleNeeded) where T : UnityEngine.Object;
-
-		T GetLoadedBundle<T>(string name) where T : UnityEngine.Object;
-
-		void UnloadAsset(string name, bool unloadAllDependencies);
-	}
+	public interface IAssetService : IService { }
 
 	public class AssetService : IAssetService
 	{
-		public uint AssetBundleVersionNumber { get { return 1; } }
+		public string AssetBundlesURL { get { return _configuration.AssetBundlesURL + AssetBundleUtilities.ClientPlatform + "/"; } }
+		public int ManifestCacheExpiringPeriodInDays { get { return _configuration.ManifestCachePeriod; } }
 
-		public string AssetBundlesURL { get { return configuration.AssetBundlesURL + AssetBundleUtilities.ClientPlatform + "/"; } }
-		public int ManifestCacheExpiringPeriodInDays { get { return configuration.ManifestCachePeriod; } }
+		public bool UseStreamingAssets { get { return _configuration.UseStreamingAssets; } }
 
-		public bool UseStreamingAssets { get { return configuration.UseStreamingAssets; } }
+		public AssetCacheState AssetCacheState { get { return _configuration.UseCache ? AssetCacheState.Cache : AssetCacheState.NoCache; } }
+		public AssetCacheStrategy AssetCacheStrategy { get { return _configuration.CacheBundleManifestsLocally ? AssetCacheStrategy.CopyBundleManifestFileLocally : AssetCacheStrategy.UseUnityCloudManifestBuildVersion; } }
 
-		public AssetCacheState AssetCacheState { get { return configuration.UseCache ? AssetCacheState.Cache : AssetCacheState.NoCache; } }
-		public AssetCacheStrategy AssetCacheStrategy { get { return configuration.CacheBundleManifestsLocally ? AssetCacheStrategy.CopyBundleManifestFileLocally : AssetCacheStrategy.UseUnityCloudManifestBuildVersion; } }
+		private UnityCloudBuildManifest _cloudBuildManifest;
+		public UnityCloudBuildManifest CloudBuildManifest { get { return _cloudBuildManifest; } }
 
-		private UnityCloudBuildManifest cloudBuildManifest;
-		public UnityCloudBuildManifest CloudBuildManifest { get { return cloudBuildManifest; } }
-
-		private AssetServiceConfiguration configuration;
+		private AssetServiceConfiguration _configuration;
 
 		[Inject]
 		private AssetBundleLoader assetBundlebundleLoader;
 
 		public AssetService(ServiceConfiguration config)
 		{
+			_configuration = config as AssetServiceConfiguration;
+
 			UnityCloufBuildManifestLoader.LoadBuildManifest().Subscribe(cloudManifest =>
 			{
 				if (cloudManifest != null)
 				{
 					Debug.Log(("---- AssetService: Unity Cloud Build Manifest present. Build Version: " + cloudManifest.buildNumber).Colored(Colors.Aqua));
-					configuration = config as AssetServiceConfiguration;
-					cloudBuildManifest = cloudManifest;
-					//assetBundlebundleLoader = new AssetBundleLoader(this);
+					_cloudBuildManifest = cloudManifest;
 				}
 				else
 				{
@@ -72,7 +50,7 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// Gets and loads the required asset bundle
+		/// Gets and loads the required asset bundle 
 		/// </summary>
 		/// <param name="bundleRequest"> Bundle to request </param>
 		/// <returns> Observable </returns>
@@ -82,7 +60,7 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// Unloads asset and removes it from memory
+		/// Unloads asset and removes it from memory 
 		/// </summary>
 		/// <param name="name">                  Asset name </param>
 		/// <param name="unloadAllDependencies"> Unload all dependencies? </param>
@@ -92,7 +70,7 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// Gets a bundle that has been previously loaded and it's stored in memory.
+		/// Gets a bundle that has been previously loaded and it's stored in memory. 
 		/// </summary>
 		/// <param name="name"> Asset name </param>
 		/// <returns> T </returns>
@@ -104,20 +82,11 @@ namespace Core.Services.Assets
 
 		private void OnGameStart(ServiceLocator locator)
 		{
-			assetBundlebundleLoader = new AssetBundleLoader(this);
+			//assetBundlebundleLoader = new AssetBundleLoader();
 
 			//TODO: Not needed for now. Can be used later to validate asset bundles and manifests.
 			//or to preload all assets
 			// LoadGameBundle();
 		}
-
-		/// <summary>
-		/// Not used for now.
-		/// </summary>
-		// private void LoadGameBundle() { BundleRequest game = new
-		// BundleRequest(AssetCategoryRoot.None, AssetBundleUtilities.ClientPlatform.ToString(),
-		// AssetBundleUtilities.ClientPlatform.ToString()); Resources.UnloadUnusedAssets();
-
-		// if (!configuration.UseCache) Caching.ClearCache(); }
 	}
 }

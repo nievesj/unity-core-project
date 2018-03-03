@@ -7,13 +7,13 @@ using System.IO;
 using UniRx;
 using UnityEngine;
 using UnityEngine.Networking;
+using Zenject;
 
 namespace Core.Services.Assets
 {
 	/// <summary>
-	/// Class contains the relevant information contained on a manifest file and it's used for caching bundles
-	/// 
-	/// TODO: store list of dependencies
+	/// Class contains the relevant information contained on a manifest file and it's used for
+	/// caching bundles /// TODO: store list of dependencies
 	/// </summary>
 	public class ManifestInfo
 	{
@@ -21,9 +21,13 @@ namespace Core.Services.Assets
 		private int version;
 		private string hash;
 		private BundleRequest bundle;
+
+		[Inject]
+		private AssetServiceConfiguration _assetServiceConfiguration;
+
 		private int ManifestCacheExpirePeriod
 		{
-			get { return ServiceLocator.GetService<IAssetService>().ManifestCacheExpiringPeriodInDays; }
+			get { return _assetServiceConfiguration.ManifestCachePeriod; }
 		}
 
 		public uint CRC { get { return crc; } }
@@ -36,13 +40,13 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// Gets .manifest file information
+		/// Gets .manifest file information 
 		/// </summary>
 		/// <returns></returns>
 		public IObservable<ManifestInfo> GetInfo()
 		{
 			return Observable.Create<ManifestInfo>(
-				(IObserver<ManifestInfo> observer)=>
+				(IObserver<ManifestInfo> observer) =>
 				{
 					var subject = new Subject<ManifestInfo>();
 
@@ -91,7 +95,7 @@ namespace Core.Services.Assets
 				version = 0;
 				hash = string.Empty;
 
-				string[] readtext = text.Split("\n" [0]);
+				string[] readtext = text.Split("\n"[0]);
 
 				for (int i = 0; i < readtext.Length; i++)
 					readtext[i].Trim();
@@ -117,7 +121,7 @@ namespace Core.Services.Assets
 		private IObservable<string> CacheManifest(string man)
 		{
 			return Observable.Create<string>(
-				(IObserver<string> observer)=>
+				(IObserver<string> observer) =>
 				{
 					Debug.Log(("ManifestInfo: Caching Manifest | " + bundle.ManifestName).Colored(Colors.Brown));
 
@@ -136,7 +140,7 @@ namespace Core.Services.Assets
 		private IObservable<string> GetCachedManifest()
 		{
 			return Observable.Create<string>(
-				(IObserver<string> observer)=>
+				(IObserver<string> observer) =>
 				{
 					Debug.Log(("ManifestInfo: Getting Cached Manifest | " + bundle.ManifestName).Colored(Colors.Brown));
 
@@ -156,18 +160,18 @@ namespace Core.Services.Assets
 		/// <summary>
 		/// Observable wrapper for GetManifestOperation 
 		/// </summary>
-		/// <returns>Observable</returns>
+		/// <returns> Observable </returns>
 		private IObservable<string> GetManifestFromWeb()
 		{
-			return Observable.FromCoroutine<string>((observer, cancellationToken)=> GetManifestOperation(observer, cancellationToken));
+			return Observable.FromCoroutine<string>((observer, cancellationToken) => GetManifestOperation(observer, cancellationToken));
 		}
 
 		/// <summary>
-		/// Gets manifest file from web.
+		/// Gets manifest file from web. 
 		/// </summary>
-		/// <param name="observer">Observer</param>
-		/// <param name="cancellationToken">Cancellation token</param>
-		/// <returns>IEnumerator</returns>
+		/// <param name="observer">          Observer </param>
+		/// <param name="cancellationToken"> Cancellation token </param>
+		/// <returns> IEnumerator </returns>
 		private IEnumerator GetManifestOperation(IObserver<string> observer, CancellationToken cancellationToken)
 		{
 			Debug.Log(("ManifestInfo: Downloading Manifest | " + bundle.ManifestName).Colored(Colors.Brown));
@@ -185,14 +189,14 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// Determines of a cached manifest file is expired and needs to be refreshed
+		/// Determines of a cached manifest file is expired and needs to be refreshed 
 		/// </summary>
-		/// <param name="expirationDays">Days in which a file is considered expired</param>
-		/// <returns>Observable</returns>
+		/// <param name="expirationDays"> Days in which a file is considered expired </param>
+		/// <returns> Observable </returns>
 		private IObservable<bool> IsManifestExpired(int expirationDays)
 		{
 			return Observable.Create<bool>(
-				(IObserver<bool> observer)=>
+				(IObserver<bool> observer) =>
 				{
 					var subject = new Subject<string>();
 					bool ret = false;
@@ -220,7 +224,7 @@ namespace Core.Services.Assets
 						}
 						else
 						{
-							Debug.Log(("ManifestInfo: Manifest file still valid. Expires in " + (expirationDays - manifestDays)+ " days | " + bundle.ManifestName).Colored(Colors.Brown));
+							Debug.Log(("ManifestInfo: Manifest file still valid. Expires in " + (expirationDays - manifestDays) + " days | " + bundle.ManifestName).Colored(Colors.Brown));
 						}
 					}
 
@@ -232,9 +236,9 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// Gets age of the manifest file, from the date it was created to the current system date
+		/// Gets age of the manifest file, from the date it was created to the current system date 
 		/// </summary>
-		/// <returns>TimeSpan in days</returns>
+		/// <returns> TimeSpan in days </returns>
 		private TimeSpan GetAgeManifest()
 		{
 			var fileContents = OpenFile(bundle.ManifestAgeFile);
@@ -246,7 +250,7 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// Saves manifest age file. This is just a simple json file with a date
+		/// Saves manifest age file. This is just a simple json file with a date 
 		/// </summary>
 		private void SaveAgeManifest()
 		{
@@ -255,15 +259,15 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// Saves a text file
+		/// Saves a text file 
 		/// </summary>
-		/// <param name="file">File path, name should be included</param>
-		/// <param name="data">Data</param>
+		/// <param name="file"> File path, name should be included </param>
+		/// <param name="data"> Data </param>
 		private void SaveFile(string file, string data)
 		{
 			try
 			{
-				using(StreamWriter writer =
+				using (StreamWriter writer =
 					new StreamWriter(file))
 				{
 					writer.Write(data);
@@ -276,15 +280,15 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// Reads a text file
+		/// Reads a text file 
 		/// </summary>
-		/// <param name="file">File path, name should be included</param>
-		/// <returns>File contents</returns>
+		/// <param name="file"> File path, name should be included </param>
+		/// <returns> File contents </returns>
 		private string OpenFile(string file)
 		{
 			try
 			{
-				using(StreamReader reader =
+				using (StreamReader reader =
 					new StreamReader(file))
 				{
 					return reader.ReadToEnd();

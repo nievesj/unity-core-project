@@ -9,6 +9,6 @@ namespace Core.Services.UpdateManager
 	{
 		public Core.Services.UpdateManager.UpdateManager updateManager;
 
-		protected override IService ServiceClass { get { return new UpdateService(this); } }
+		//protected override IService ServiceClass { get { return new UpdateService(this); } }
 	}
 }

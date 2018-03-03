@@ -13,9 +13,9 @@ namespace Core.Services.Scenes
 {
 	public interface ISceneLoaderService : IService
 	{
-		IObservable<UnityEngine.Object> LoadScene(string scene, LoadSceneMode mode);
+		//IObservable<UnityEngine.Object> LoadScene(string scene, LoadSceneMode mode);
 
-		IObservable<UnityEngine.Object> UnLoadScene(string scene);
+		//IObservable<UnityEngine.Object> UnLoadScene(string scene);
 	}
 
 	public class SceneLoaderService : ISceneLoaderService
@@ -23,10 +23,10 @@ namespace Core.Services.Scenes
 		protected SceneLoaderServiceConfiguration configuration;
 
 		[Inject]
-		protected IAssetService assetService;
+		protected AssetService assetService;
 
 		[Inject]
-		protected IUIService uiService;
+		protected UIService uiService;
 
 		public SceneLoaderService(ServiceConfiguration config)
 		{
@@ -34,7 +34,7 @@ namespace Core.Services.Scenes
 		}
 
 		/// <summary>
-		/// Attempts to load a scene from an asset bundle
+		/// Attempts to load a scene from an asset bundle 
 		/// </summary>
 		/// <param name="scene"></param>
 		/// <param name="mode"> </param>
@@ -73,7 +73,7 @@ namespace Core.Services.Scenes
 		}
 
 		/// <summary>
-		/// Gets a scene from an asset bundle
+		/// Gets a scene from an asset bundle 
 		/// </summary>
 		/// <param name="scene"></param>
 		/// <param name="mode"> </param>
@@ -126,7 +126,7 @@ namespace Core.Services.Scenes
 		}
 
 		/// <summary>
-		/// Unload scene.
+		/// Unload scene. 
 		/// </summary>
 		/// <param name="scene"></param>
 		/// <returns></returns>

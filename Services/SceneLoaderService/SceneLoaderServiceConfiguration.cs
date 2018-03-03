@@ -7,6 +7,6 @@ namespace Core.Services.Scenes
 {
 	public class SceneLoaderServiceConfiguration : ServiceConfiguration
 	{
-		protected override IService ServiceClass { get { return new SceneLoaderService(this); } }
+		//protected override IService ServiceClass { get { return new SceneLoaderService(this); } }
 	}
 }

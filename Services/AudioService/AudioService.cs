@@ -2,30 +2,24 @@
 using System.Collections.Generic;
 using Core.Polling;
 using Core.Services;
+using Core.Services.Factory;
 using UniRx;
 using UnityEngine;
+using Zenject;
 
 namespace Core.Services.Audio
 {
-	public interface IAudioService : IService
-	{
-		void PlayClip(AudioClip clip);
-
-		void PlayClip(AudioPlayer ap);
-
-		void PlayMusic(AudioPlayer ap);
-
-		void StopClip(AudioPlayer ap);
-
-		bool Mute { get; set; }
-		float Volume { get; set; }
-	}
+	public interface IAudioService : IService { }
 
 	public class AudioService : IAudioService
 	{
-		protected AudioServiceConfiguration configuration;
-		protected Pooler<AudioSource> poller;
-		protected List<AudioPlayer> activeAudioPlayers;
+		[Inject]
+		private FactoryService _factoryService;
+
+		private Pooler<AudioSource> pooler;
+
+		private AudioServiceConfiguration configuration;
+		private List<AudioPlayer> activeAudioPlayers;
 
 		//Global mute
 		private bool mute;
@@ -56,31 +50,23 @@ namespace Core.Services.Audio
 		public AudioService(ServiceConfiguration config)
 		{
 			configuration = config as AudioServiceConfiguration;
-			ServiceLocator.OnGameStart.Subscribe(OnGameStart);
 			activeAudioPlayers = new List<AudioPlayer>();
 
 			if (configuration.audioSourcePrefab)
 			{
-				poller = new Pooler<AudioSource>(configuration.audioSourcePrefab.gameObject, configuration.poolAmount);
+				//pooler = _factoryService.CreatePool<AudioSource>(configuration.audioSourcePrefab.gameObject, configuration.poolAmount);
 			}
 			else
 				Debug.LogError("AudioService : OnGameStart - Failed to create pool. Configuration is missing the AudioSource prefab.");
 		}
 
-		protected void OnGameStart(ServiceLocator locator)
-		{
-			if (configuration.audioSourcePrefab)
-			{
-				poller = new Pooler<AudioSource>(configuration.audioSourcePrefab.gameObject, configuration.poolAmount);
-			}
-			else
-				Debug.LogError("AudioService : OnGameStart - Failed to create pool. Configuration is missing the AudioSource prefab.");
-		}
+		private void OnGameStart(ServiceLocator locator) { }
 
 		public void PlayClip(AudioPlayer ap)
 		{
 			Play(ap);
-			ServiceLocator.Instance.StartCoroutine(WaitUntilDonePlaying(ap));
+
+			Observable.FromCoroutine<bool>((observer) => WaitUntilDonePlaying(ap, observer)).Subscribe();
 		}
 
 		public void PlayClip(AudioClip clip)
@@ -95,9 +81,9 @@ namespace Core.Services.Audio
 			Play(ap);
 		}
 
-		protected void Play(AudioPlayer ap)
+		private void Play(AudioPlayer ap)
 		{
-			if (poller != null && (!ap.Player || !ap.Player.gameObject.activeSelf))
+			if (pooler != null && (!ap.Player || !ap.Player.gameObject.activeSelf))
 			{
 				activeAudioPlayers.Add(ap);
 
@@ -108,7 +94,7 @@ namespace Core.Services.Audio
 				}
 
 				Debug.Log(("AudioService: Playing Clip - " + ap.Clip.name).Colored(Colors.Magenta));
-				ap.Player = poller.Pop();
+				ap.Player = pooler.Pop();
 
 				ap.Player.volume = volume;
 				ap.Player.mute = mute;
@@ -119,7 +105,7 @@ namespace Core.Services.Audio
 
 		public void StopClip(AudioPlayer ap)
 		{
-			if (poller != null && ap.Player)
+			if (pooler != null && ap.Player)
 			{
 				Debug.Log(("AudioService: Stopping Clip - " + ap.Clip.name).Colored(Colors.Magenta));
 
@@ -128,21 +114,21 @@ namespace Core.Services.Audio
 			}
 		}
 
-		protected void PushAudioSource(AudioPlayer ap)
+		private void PushAudioSource(AudioPlayer ap)
 		{
 			if (ap.PlayFrom)
 			{
-				ap.Player.transform.SetParent(poller.PoolerTransform);
+				ap.Player.transform.SetParent(pooler.PoolerTransform);
 				ap.Player.transform.localPosition = Vector3.zero;
 			}
 
 			activeAudioPlayers.Remove(ap);
-			poller.Push(ap.Player);
+			pooler.Push(ap.Player);
 			ap.Player.clip = null;
 			ap.Player = null;
 		}
 
-		protected IEnumerator WaitUntilDonePlaying(AudioPlayer ap)
+		private IEnumerator WaitUntilDonePlaying(AudioPlayer ap, IObserver<bool> observer)
 		{
 			CustomYieldInstruction wait = new WaitUntil(() => ap.Player.clip.loadState == AudioDataLoadState.Loaded);
 			yield return wait;

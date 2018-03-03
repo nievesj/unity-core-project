@@ -10,26 +10,25 @@ using Zenject;
 namespace Core.Services
 {
 	/// <summary>
-	/// Starting point for _Core framework. This should be treated as the BaseGame.
+	/// Starting point for _Core framework. This should be treated as the BaseGame. 
 	/// </summary>
 	public class Game : CoreBehaviour
 	{
-		[SerializeField]
 		private static Subject<Game> onGameStarted = new Subject<Game>();
 
 		internal static IObservable<Game> OnGameStarted { get { return onGameStarted; } }
 
 		//Level loader reference.
 		[Inject]
-		protected ILevelLoaderService LevelLoader;
+		protected LevelLoaderService LevelLoader;
 
 		//Scene loader reference
 		[Inject]
-		protected ISceneLoaderService SceneLoader;
+		protected SceneLoaderService SceneLoader;
 
-		//UIService reference
+		//uiService reference
 		[Inject]
-		protected IUIService UILoader;
+		protected UIService UILoader;
 
 		protected override void Awake()
 		{
@@ -43,7 +42,7 @@ namespace Core.Services
 		}
 
 		/// <summary>
-		/// Global signal emitted when the game starts.
+		/// Global signal emitted when the game starts. 
 		/// </summary>
 		/// <param name="locator"></param>
 		protected virtual void OnGameStart(ServiceLocator locator)

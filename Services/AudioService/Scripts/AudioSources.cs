@@ -2,18 +2,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
 
 namespace Core.Services.Audio
 {
 	public class AudioSources
 	{
-		Pooler<AudioSource> poller;
-		AudioSource prefab;
+		[Inject]
+		private Pooler<AudioSource> poller;
+
+		private AudioSource prefab;
 
 		public void Initialize(AudioSource obj, int pollingAmount)
 		{
-			poller = new Pooler<AudioSource>(obj.gameObject, pollingAmount);
+			//poller.Initialize(obj.gameObject, pollingAmount);
 		}
-
 	}
 }

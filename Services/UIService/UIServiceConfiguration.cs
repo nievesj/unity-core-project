@@ -9,6 +9,6 @@ namespace Core.Services.UI
 	{
 		public UIContainer mainCanvas;
 
-		protected override IService ServiceClass { get { return new UIService(this); } }
+		//protected override IService ServiceClass { get { return new UIService(this); } }
 	}
 }
