@@ -1,7 +1,7 @@
 
 
 # Core Framework for Unity
-Current Version 1.2
+Current Version 1.3
 
 Supported Unity versions: 2017.3 or latest. 
 
