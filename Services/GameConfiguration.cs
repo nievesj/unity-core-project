@@ -22,13 +22,11 @@ namespace Core.Services
 	public class GameConfiguration : ScriptableObjectInstaller<GameConfiguration>
 	{
 		public bool disableLogging = false;
+
 		public List<ServiceConfiguration> services = new List<ServiceConfiguration>();
-		public CoreFrameworkInstaller GameInstaller;
 
 		public override void InstallBindings()
 		{
-			Container.BindInstance(GameInstaller);
-
 			if (disableLogging)
 				Debug.unityLogger.logEnabled = false;
 
@@ -41,44 +39,44 @@ namespace Core.Services
 				if (service is AssetServiceConfiguration)
 				{
 					Container.Bind<AssetService>().AsSingle().WithArguments(service).NonLazy();
-					Container.Bind<AssetServiceConfiguration>().AsSingle();
+					Container.Bind<AssetServiceConfiguration>().AsSingle().NonLazy();
 					Container.Bind<AssetBundleLoader>().AsSingle().NonLazy();
-				}
-
-				if (service is AudioServiceConfiguration)
-				{
-					Container.Bind<AudioService>().AsSingle().WithArguments(service).NonLazy();
-					Container.Bind<AudioServiceConfiguration>().AsSingle();
 				}
 
 				if (service is LevelLoaderServiceConfiguration)
 				{
 					Container.Bind<LevelLoaderService>().AsSingle().WithArguments(service).NonLazy();
-					Container.Bind<LevelLoaderServiceConfiguration>().AsSingle();
+					Container.Bind<LevelLoaderServiceConfiguration>().AsSingle().NonLazy();
 				}
 
 				if (service is SceneLoaderServiceConfiguration)
 				{
 					Container.Bind<SceneLoaderService>().AsSingle().WithArguments(service).NonLazy();
-					Container.Bind<SceneLoaderServiceConfiguration>().AsSingle();
+					Container.Bind<SceneLoaderServiceConfiguration>().AsSingle().NonLazy();
 				}
 
 				if (service is UIServiceConfiguration)
 				{
 					Container.Bind<UIService>().AsSingle().WithArguments(service).NonLazy();
-					Container.Bind<UIServiceConfiguration>().AsSingle();
+					Container.Bind<UIServiceConfiguration>().AsSingle().NonLazy();
 				}
 
 				if (service is UpdateServiceConfiguration)
 				{
 					Container.Bind<UpdateService>().AsSingle().WithArguments(service).NonLazy();
-					Container.Bind<UpdateServiceConfiguration>().AsSingle();
+					Container.Bind<UpdateServiceConfiguration>().AsSingle().NonLazy();
 				}
 
 				if (service is FactoryServiceConfiguration)
 				{
 					Container.Bind<FactoryService>().AsSingle().WithArguments(service, Container).NonLazy();
-					Container.Bind<FactoryServiceConfiguration>().AsSingle();
+					Container.Bind<FactoryServiceConfiguration>().AsSingle().NonLazy();
+				}
+
+				if (service is AudioServiceConfiguration)
+				{
+					Container.Bind<AudioService>().AsSingle().WithArguments(service).NonLazy();
+					Container.Bind<AudioServiceConfiguration>().AsSingle().NonLazy();
 				}
 			}
 		}

@@ -8,15 +8,22 @@ using Zenject;
 
 namespace Core.Services
 {
+	public abstract class Service
+	{
+		internal virtual void SetUp(DiContainer context = null) { }
+	}
+
 	public abstract class CoreBehaviour : MonoBehaviour
 	{
 		[Inject]
 		protected UpdateService updateService;
 
+		[Inject]
+		protected UIService _uiService;
+
 		protected virtual void Start()
 		{
-			//ServiceLocator.GetService<IUIService>().OnGamePaused.Subscribe(OnGamePaused);
-			//updateService = ServiceLocator.GetService<IUpdateService>();
+			_uiService.OnGamePaused.Subscribe(OnGamePaused);
 		}
 
 		protected virtual void Awake() { }
@@ -28,5 +35,7 @@ namespace Core.Services
 		protected virtual void CoreFixedUpdate() { }
 
 		protected virtual void CoreLateUpdate() { }
+
+		protected virtual void OnDestroy() { }
 	}
 }

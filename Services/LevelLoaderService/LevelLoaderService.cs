@@ -11,9 +11,7 @@ using Zenject;
 
 namespace Core.Services.Levels
 {
-	public interface ILevelLoaderService : IService { }
-
-	public class LevelLoaderService : ILevelLoaderService
+	public class LevelLoaderService : Service
 	{
 		[Inject]
 		private AssetService _assetService;
@@ -34,12 +32,8 @@ namespace Core.Services.Levels
 			_configuration = config as LevelLoaderServiceConfiguration;
 		}
 
-		private void OnGameStart(ServiceLocator locator)
-		{
-		}
-
 		/// <summary>
-		/// Attemps to load a level. First the screen is faded 
+		/// Attemps to load a level. First the screen is faded
 		/// </summary>
 		/// <param name="name"> bundle name </param>
 		/// <returns> Observable </returns>
@@ -69,7 +63,7 @@ namespace Core.Services.Levels
 		}
 
 		/// <summary>
-		/// Once the screen has been blocked, load the level 
+		/// Once the screen has been blocked, load the level
 		/// </summary>
 		/// <param name="name"></param>
 		/// <returns></returns>
@@ -104,7 +98,7 @@ namespace Core.Services.Levels
 		}
 
 		/// <summary>
-		/// Unloads level. 
+		/// Unloads level.
 		/// </summary>
 		/// <param name="level"> level name </param>
 		/// <returns> Observable </returns>

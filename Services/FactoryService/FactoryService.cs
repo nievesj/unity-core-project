@@ -6,17 +6,20 @@ using Zenject;
 
 namespace Core.Services.Factory
 {
-	public interface IFactoryService : IService { }
-
-	public class FactoryService : IFactoryService
+	public class FactoryService : Service
 	{
 		private FactoryServiceConfiguration _configuration;
-		private readonly DiContainer _diContainer;
+		private DiContainer _diContainer;
 
-		public FactoryService(ServiceConfiguration config, DiContainer container)
+		public FactoryService(ServiceConfiguration config, DiContainer context = null)
 		{
 			_configuration = config as FactoryServiceConfiguration;
-			_diContainer = container;
+			_diContainer = context;
+		}
+
+		internal override void SetUp(DiContainer context)
+		{
+			_diContainer = context;
 		}
 
 		public T Instantiate<T>(T obj) where T : UnityEngine.Object

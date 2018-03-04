@@ -7,7 +7,7 @@ namespace Core.Services.Audio
 {
 	public class AudioServiceConfiguration : ServiceConfiguration
 	{
-		//protected override IService ServiceClass { get { return new AudioService(this); } }
+		public override Service ServiceClass { get { return new AudioService(this); } }
 
 		public AudioSource audioSourcePrefab;
 		public int poolAmount = 10;

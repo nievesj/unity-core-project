@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Core.Services.Factory;
 using UniRx;
 using UnityEngine;
+using Zenject;
 
 namespace Core.Services.UpdateManager
 {
@@ -26,30 +28,23 @@ namespace Core.Services.UpdateManager
 		}
 	}
 
-	public interface IUpdateService : IService
+	public class UpdateService : Service
 	{
-		//void Attach(BehaviourDelegateType behaviourDelegateType);
+		[Inject]
+		private FactoryService _factoryService;
 
-		//void Detach(BehaviourDelegateType behaviourDelegateType);
-	}
-
-	public class UpdateService : IUpdateService
-	{
 		protected UpdateServiceConfiguration configuration;
 		protected UpdateManager updateManager;
 
 		public UpdateService(ServiceConfiguration config)
 		{
 			configuration = config as UpdateServiceConfiguration;
-
-			updateManager = Object.Instantiate<UpdateManager>(configuration.updateManager);
-
-			GameObject.DontDestroyOnLoad(updateManager);
 		}
 
-		protected void OnGameStart(ServiceLocator locator)
+		internal override void SetUp(DiContainer context)
 		{
-			//TODO: add pause, this should notify updateManager to pause
+			updateManager = _factoryService.Instantiate<UpdateManager>(configuration.updateManager);
+			Object.DontDestroyOnLoad(updateManager);
 		}
 
 		public void Attach(BehaviourDelegateType behaviourDelegateType)

@@ -30,7 +30,7 @@ namespace Core.Services.Assets
 		private Dictionary<string, LoadedBundle> loadedBundles;
 
 		/// <summary>
-		/// Initialize object 
+		/// Initialize object
 		/// </summary>
 		/// <param name="service"></param>
 		internal AssetBundleLoader()
@@ -53,7 +53,6 @@ namespace Core.Services.Assets
 				return Observable.FromCoroutine<T>((observer, cancellationToken) => SimulateAssetBundle<T>(bundleRequest, observer, cancellationToken));
 			}
 #endif
-			Debug.Log("nop");
 			if (!assetService.UseStreamingAssets)
 			{
 				return Observable.FromCoroutine<T>((observer, cancellationToken) => GetBundleFromWebOrCacheOperation<T>(bundleRequest, observer, cancellationToken));
@@ -65,7 +64,7 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// Unloads asset and removes it from memory. Only do this when the asset is no longer needed. 
+		/// Unloads asset and removes it from memory. Only do this when the asset is no longer needed.
 		/// </summary>
 		/// <param name="name">                  Asset name </param>
 		/// <param name="unloadAllDependencies"> Unload all dependencies? </param>
@@ -92,7 +91,7 @@ namespace Core.Services.Assets
 #if UNITY_EDITOR
 
 		/// <summary>
-		/// Method attemps to get an asset from the asset database. 
+		/// Method attemps to get an asset from the asset database.
 		/// </summary>
 		/// <param name="bundleRequest">     Bundle to request </param>
 		/// <param name="observer">          Observer </param>
@@ -135,7 +134,7 @@ namespace Core.Services.Assets
 #endif
 
 		/// <summary>
-		/// Method attemps to get a bundle from the web/cloud 
+		/// Method attemps to get a bundle from the web/cloud
 		/// </summary>
 		/// <param name="bundleRequest">     Bundle to request </param>
 		/// <param name="observer">          Observer </param>
@@ -198,7 +197,7 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// Gets bundle from streaming assets directory 
+		/// Gets bundle from streaming assets directory
 		/// </summary>
 		/// <param name="bundleRequest"> Bundle to request </param>
 		/// <returns> Observable </returns>
@@ -211,7 +210,7 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// Operation to get bundle from streaming assets directory 
+		/// Operation to get bundle from streaming assets directory
 		/// </summary>
 		/// <param name="assetBundleCreateRequest"> Asset bundle create request </param>
 		/// <param name="bundleRequest">            Bundle to request </param>
@@ -235,7 +234,7 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// Extracts required asset from the asset bundle 
+		/// Extracts required asset from the asset bundle
 		/// </summary>
 		/// <param name="bundleRequest"> Bundle to request </param>
 		/// <param name="bundle">        Bundle </param>

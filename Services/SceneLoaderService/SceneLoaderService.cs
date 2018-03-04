@@ -11,14 +11,7 @@ using Zenject;
 
 namespace Core.Services.Scenes
 {
-	public interface ISceneLoaderService : IService
-	{
-		//IObservable<UnityEngine.Object> LoadScene(string scene, LoadSceneMode mode);
-
-		//IObservable<UnityEngine.Object> UnLoadScene(string scene);
-	}
-
-	public class SceneLoaderService : ISceneLoaderService
+	public class SceneLoaderService : Service
 	{
 		protected SceneLoaderServiceConfiguration configuration;
 
@@ -34,7 +27,7 @@ namespace Core.Services.Scenes
 		}
 
 		/// <summary>
-		/// Attempts to load a scene from an asset bundle 
+		/// Attempts to load a scene from an asset bundle
 		/// </summary>
 		/// <param name="scene"></param>
 		/// <param name="mode"> </param>
@@ -73,7 +66,7 @@ namespace Core.Services.Scenes
 		}
 
 		/// <summary>
-		/// Gets a scene from an asset bundle 
+		/// Gets a scene from an asset bundle
 		/// </summary>
 		/// <param name="scene"></param>
 		/// <param name="mode"> </param>
@@ -126,7 +119,7 @@ namespace Core.Services.Scenes
 		}
 
 		/// <summary>
-		/// Unload scene. 
+		/// Unload scene.
 		/// </summary>
 		/// <param name="scene"></param>
 		/// <returns></returns>

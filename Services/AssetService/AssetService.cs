@@ -9,11 +9,9 @@ using Zenject;
 namespace Core.Services.Assets
 {
 	/// <summary>
-	/// Central point to get asset bundles required to run the game. 
+	/// Central point to get asset bundles required to run the game.
 	/// </summary>
-	public interface IAssetService : IService { }
-
-	public class AssetService : IAssetService
+	public class AssetService : Service
 	{
 		public string AssetBundlesURL { get { return _configuration.AssetBundlesURL + AssetBundleUtilities.ClientPlatform + "/"; } }
 		public int ManifestCacheExpiringPeriodInDays { get { return _configuration.ManifestCachePeriod; } }
@@ -50,7 +48,7 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// Gets and loads the required asset bundle 
+		/// Gets and loads the required asset bundle
 		/// </summary>
 		/// <param name="bundleRequest"> Bundle to request </param>
 		/// <returns> Observable </returns>
@@ -60,7 +58,7 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// Unloads asset and removes it from memory 
+		/// Unloads asset and removes it from memory
 		/// </summary>
 		/// <param name="name">                  Asset name </param>
 		/// <param name="unloadAllDependencies"> Unload all dependencies? </param>
@@ -70,7 +68,7 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// Gets a bundle that has been previously loaded and it's stored in memory. 
+		/// Gets a bundle that has been previously loaded and it's stored in memory.
 		/// </summary>
 		/// <param name="name"> Asset name </param>
 		/// <returns> T </returns>
@@ -80,7 +78,7 @@ namespace Core.Services.Assets
 			return assetBundlebundleLoader.GetLoadedBundle<T>(name);
 		}
 
-		private void OnGameStart(ServiceLocator locator)
+		private void OnGameStart()
 		{
 			//assetBundlebundleLoader = new AssetBundleLoader();
 

@@ -1,7 +1,6 @@
 {
-    "name": "CoreFrameworkEditor-ASM",
+    "name": "ZenjectEditor-ASM",
     "references": [
-        "CoreFramework-ASM",
         "Zenject-ASM"
     ],
     "includePlatforms": [

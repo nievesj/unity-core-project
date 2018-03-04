@@ -8,9 +8,9 @@ namespace Core.Services
 	public struct ConfigurationServiceName
 	{
 		public string name;
-		public IService service;
+		public Service service;
 
-		public ConfigurationServiceName(string n, IService svc)
+		public ConfigurationServiceName(string n, Service svc)
 		{
 			name = n;
 			service = svc;
@@ -19,10 +19,10 @@ namespace Core.Services
 
 	public abstract class ServiceConfiguration : ScriptableObject
 	{
-		//protected abstract IService ServiceClass { get; }
+		public abstract Service ServiceClass { get; }
 
 		/// <summary>
-		/// Create service. This initializes and starts the service. 
+		/// Create service. This initializes and starts the service.
 		/// </summary>
 		/// <returns> Observable </returns>
 		//public IObservable<ConfigurationServiceName> CreateService()

@@ -6,6 +6,6 @@ namespace Core.Services.Factory
 {
 	public class FactoryServiceConfiguration : ServiceConfiguration
 	{
-		//protected override IService ServiceClass { get { return new FactoryService(this); } }
+		public override Service ServiceClass { get { return new FactoryService(this); } }
 	}
 }

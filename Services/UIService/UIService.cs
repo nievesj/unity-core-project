@@ -11,7 +11,7 @@ using Zenject;
 namespace Core.Services.UI
 {
 	/// <summary>
-	/// Used to determine the parent of the UI Element 
+	/// Used to determine the parent of the UI Element
 	/// </summary>
 	public enum UIElementType
 	{
@@ -20,9 +20,7 @@ namespace Core.Services.UI
 		Panel
 	}
 
-	public interface IUIService : IService { }
-
-	public class UIService : IService
+	public class UIService : Service
 	{
 		[Inject]
 		private AssetService _assetService;
@@ -61,13 +59,16 @@ namespace Core.Services.UI
 
 			_activeUIElements = new Dictionary<string, UIElement>();
 			_renderPriorityCanvas = new Dictionary<UIElementType, RectTransform>();
+		}
 
+		internal override void SetUp(DiContainer context)
+		{
 			if (_configuration.mainCanvas)
 			{
-				var canvas = Object.Instantiate<UIContainer>(_configuration.mainCanvas);
+				var canvas = _factoryService.Instantiate<UIContainer>(_configuration.mainCanvas);
 				_mainCanvas = canvas.GetComponent<RectTransform>();
 				_uiScreenFader = canvas.GetComponentInChildren<UIScreenFader>();
-				GameObject.DontDestroyOnLoad(_mainCanvas);
+				Object.DontDestroyOnLoad(_mainCanvas);
 
 				_renderPriorityCanvas.Add(UIElementType.Dialog, canvas.dialogContainer);
 				_renderPriorityCanvas.Add(UIElementType.Panel, canvas.panelContainer);
@@ -75,12 +76,8 @@ namespace Core.Services.UI
 			}
 		}
 
-		private void OnGameStart(ServiceLocator locator)
-		{
-		}
-
 		/// <summary>
-		/// Opens a window 
+		/// Opens a window
 		/// </summary>
 		/// <param name="window"> Window name </param>
 		/// <returns> Observable </returns>
@@ -139,7 +136,7 @@ namespace Core.Services.UI
 		}
 
 		/// <summary>
-		/// Checks if a window is already open 
+		/// Checks if a window is already open
 		/// </summary>
 		/// <param name="window"> Window name </param>
 		/// <returns> bool </returns>
@@ -149,7 +146,7 @@ namespace Core.Services.UI
 		}
 
 		/// <summary>
-		/// Returns the reference of an open window 
+		/// Returns the reference of an open window
 		/// </summary>
 		/// <param name="window"> Window name </param>
 		/// <returns> UIWindow </returns>
