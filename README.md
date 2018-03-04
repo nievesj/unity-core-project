@@ -49,7 +49,7 @@ Dependencies
 Core Framework depends on the the following components
 * [UniRx](https://github.com/neuecc/UniRx): Most of the Core Framework functionality is wrapped around Observables. 
 * [Zenject](https://github.com/modesttree/Zenject): Core Framework libraries are loaded and used with Dependency Injectiion.
-* [AssetBundles-Browser](https://github.com/Unity-Technologies/AssetBundles-Browser) Unity's tool for building and organizing asset bundles. 
+* [AssetBundles-Browser](https://github.com/Unity-Technologies/AssetBundles-Browser): Unity's tool for building and organizing asset bundles. 
 * [LeanTween](https://github.com/dentedpixel/LeanTween): Used in UI transitions.
 
 Which platforms are compatible?
