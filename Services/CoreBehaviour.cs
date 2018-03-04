@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using Core.Services.UI;
+﻿using Core.Services.UI;
 using Core.Services.UpdateManager;
+using System;
 using UniRx;
 using UnityEngine;
 using Zenject;
@@ -19,7 +17,7 @@ namespace Core.Services
 	public abstract class CoreBehaviour : MonoBehaviour
 	{
 		[Inject]
-		protected UpdateService updateService;
+		protected UpdateService _updateService;
 
 		[Inject]
 		protected UIService _uiService;

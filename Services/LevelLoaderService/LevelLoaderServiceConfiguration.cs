@@ -1,7 +1,4 @@
-﻿using Core.Services;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 
 namespace Core.Services.Levels
 {

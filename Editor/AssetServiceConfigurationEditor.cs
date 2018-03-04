@@ -1,7 +1,4 @@
-﻿using Core.Services;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 namespace Core.Services.Assets
@@ -9,7 +6,7 @@ namespace Core.Services.Assets
 	[CustomEditor(typeof(AssetServiceConfiguration))]
 	public class AssetServiceConfigurationEditor : Editor
 	{
-		AssetServiceConfiguration configuration;
+		private AssetServiceConfiguration configuration;
 
 		private void OnEnable()
 		{
@@ -34,20 +31,17 @@ namespace Core.Services.Assets
 
 				if (!configuration.AssetBundlesURL.Equals(string.Empty))
 				{
-
 					configuration.UseCache = EditorGUILayout.ToggleLeft("Cache Asset Bundles?", configuration.UseCache);
 					if (configuration.CacheBundleManifestsLocally == false && configuration.UseUnityCloudBuildManifestVersion == false)
 						configuration.CacheBundleManifestsLocally = true;
 
 					if (configuration.UseCache)
 					{
-
 						EditorUITools.HorizontalLine();
 
 						configuration.CacheBundleManifestsLocally = EditorGUILayout.ToggleLeft("Cache bundles by caching .manifest files locally?", configuration.CacheBundleManifestsLocally);
 						if (configuration.CacheBundleManifestsLocally)
 						{
-
 							configuration.UseUnityCloudBuildManifestVersion = false;
 
 							EditorGUILayout.LabelField("Manifest Cache Expiring Period in Days?");
@@ -57,7 +51,6 @@ namespace Core.Services.Assets
 						}
 						else
 						{
-
 							configuration.UseUnityCloudBuildManifestVersion = true;
 						}
 

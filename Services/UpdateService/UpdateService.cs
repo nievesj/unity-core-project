@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Core.Services.Factory;
-using UniRx;
+﻿using Core.Services.Factory;
 using UnityEngine;
 using Zenject;
 

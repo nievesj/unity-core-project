@@ -1,10 +1,6 @@
-﻿using Core.Services;
+﻿using Core.Services.Assets;
 using Core.Services.Audio;
 using Core.Services.UI;
-using System.Collections;
-using System.Collections.Generic;
-using Core.Services.Assets;
-using UniRx;
 using UnityEngine;
 using Zenject;
 

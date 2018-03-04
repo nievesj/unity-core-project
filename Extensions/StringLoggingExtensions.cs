@@ -1,12 +1,10 @@
-﻿using System;
-
-public static class StringLoggingExtensions
+﻿public static class StringLoggingExtensions
 {
 	/// <summary>
 	/// Sets the color of the text according to the parameter value.
 	/// </summary>
-	/// <param name="message">Message.</param>
-	/// <param name="color">Color.</param>
+	/// <param name="message"> Message. </param>
+	/// <param name="color">   Color. </param>
 	public static string Colored(this string message, Colors color)
 	{
 #if UNITY_EDITOR
@@ -19,8 +17,8 @@ public static class StringLoggingExtensions
 	/// <summary>
 	/// Sets the color of the text according to the traditional HTML format parameter value.
 	/// </summary>
-	/// <param name="message">Message</param>
-	/// <param name="color">Color</param>
+	/// <param name="message"> Message </param>
+	/// <param name="color">   Color </param>
 	public static string Colored(this string message, string colorCode)
 	{
 #if UNITY_EDITOR
@@ -33,8 +31,8 @@ public static class StringLoggingExtensions
 	/// <summary>
 	/// Sets the size of the text according to the parameter value, given in pixels.
 	/// </summary>
-	/// <param name="message">Message.</param>
-	/// <param name="size">Size.</param>
+	/// <param name="message"> Message. </param>
+	/// <param name="size">    Size. </param>
 	public static string Sized(this string message, int size)
 	{
 #if UNITY_EDITOR
@@ -47,7 +45,7 @@ public static class StringLoggingExtensions
 	/// <summary>
 	/// Renders the text in boldface.
 	/// </summary>
-	/// <param name="message">Message.</param>
+	/// <param name="message"> Message. </param>
 	public static string Bold(this string message)
 	{
 #if UNITY_EDITOR
@@ -60,7 +58,7 @@ public static class StringLoggingExtensions
 	/// <summary>
 	/// Renders the text in italics.
 	/// </summary>
-	/// <param name="message">Message.</param>
+	/// <param name="message"> Message. </param>
 	public static string Italics(this string message)
 	{
 #if UNITY_EDITOR

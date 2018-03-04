@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using UniRx;
 using UnityEditor;
 using UnityEngine;
 
@@ -22,7 +20,7 @@ public class ClearCacheMenuItem
 			var cache = Caching.GetCacheByPath(cachePaths[0]);
 
 			Debug.Log(("Cache location: " + s).Colored(Colors.Yellow));
-			Debug.Log(("Cache was using: " + ((cache.spaceOccupied / 1024f)/ 1024f)+ " MB").Colored(Colors.Yellow));
+			Debug.Log(("Cache was using: " + ((cache.spaceOccupied / 1024f) / 1024f) + " MB").Colored(Colors.Yellow));
 
 			cache.ClearCache();
 

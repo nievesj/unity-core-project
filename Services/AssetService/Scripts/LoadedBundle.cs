@@ -1,6 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UniRx;
 using UnityEngine;
 
@@ -42,26 +40,26 @@ namespace Core.Services.Assets
 		/// </summary>
 		/// <param name="name"></param>
 		/// <returns></returns>
-		public IObservable<T> LoadAssetAsync<T>(string name)where T : UnityEngine.Object
+		public IObservable<T> LoadAssetAsync<T>(string name) where T : UnityEngine.Object
 		{
 			Debug.Log(("LoadedBundle: Asynchronously loading asset: " + name).Colored(Colors.Yellow));
 
 			//If the asset bundle contains a scene, pass the scene up the stream so it can be loaded
 			if (assetBundle.GetAllScenePaths().Length > 0)
-				return Observable.FromCoroutine<T>((observer)=> RunSceneRequestOperation<T>(assetBundle as T, observer));
+				return Observable.FromCoroutine<T>((observer) => RunSceneRequestOperation<T>(assetBundle as T, observer));
 			else
-				return Observable.FromCoroutine<T>((observer)=> RunAssetBundleRequestOperation<T>(assetBundle.LoadAssetAsync(name), observer));
+				return Observable.FromCoroutine<T>((observer) => RunAssetBundleRequestOperation<T>(assetBundle.LoadAssetAsync(name), observer));
 		}
 
 		/// <summary>
-		/// Wrapper method to load a scene.
-		/// We cannot use assetBundle.LoadAssetAsync to load a scene, therefore a dummy method is needed to pass the scene up the stream
+		/// Wrapper method to load a scene. We cannot use assetBundle.LoadAssetAsync to load a scene,
+		/// therefore a dummy method is needed to pass the scene up the stream
 		/// </summary>
-		/// <param name="obj">Scene</param>
-		/// <param name="observer">Observer</param>
-		/// <param name="cancellationToken">Cancellation Token</param>
+		/// <param name="obj">               Scene </param>
+		/// <param name="observer">          Observer </param>
+		/// <param name="cancellationToken"> Cancellation Token </param>
 		/// <returns></returns>
-		private IEnumerator RunSceneRequestOperation<T>(T obj, IObserver<T> observer)where T : UnityEngine.Object
+		private IEnumerator RunSceneRequestOperation<T>(T obj, IObserver<T> observer) where T : UnityEngine.Object
 		{
 			yield return null;
 
@@ -72,11 +70,11 @@ namespace Core.Services.Assets
 		/// <summary>
 		/// Operation extracts an asset from the loaded bundle
 		/// </summary>
-		/// <param name="asyncOperation"></param>
-		/// <param name="observer"></param>
+		/// <param name="asyncOperation">   </param>
+		/// <param name="observer">         </param>
 		/// <param name="cancellationToken"></param>
 		/// <returns></returns>
-		private IEnumerator RunAssetBundleRequestOperation<T>(UnityEngine.AssetBundleRequest asyncOperation, IObserver<T> observer)where T : UnityEngine.Object
+		private IEnumerator RunAssetBundleRequestOperation<T>(UnityEngine.AssetBundleRequest asyncOperation, IObserver<T> observer) where T : UnityEngine.Object
 		{
 			yield return asyncOperation;
 

@@ -14,14 +14,14 @@ namespace Core.Services
 		protected UIService _UIService;
 
 		[Inject]
-		private Subject<Unit> onGameStart;
+		private Subject<Unit> _onGameStart;
 
 		protected override void Awake()
 		{
 			//Make this object persistent
 			DontDestroyOnLoad(this.gameObject);
 
-			onGameStart.Subscribe(OnGameStart);
+			_onGameStart.Subscribe(OnGameStart);
 		}
 
 		/// <summary>

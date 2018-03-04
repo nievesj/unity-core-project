@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Core.Services.UpdateManager
@@ -69,9 +67,11 @@ namespace Core.Services.UpdateManager
 					case UpdateType.Update:
 						update.Add(behaviourDelegateType);
 						break;
+
 					case UpdateType.FixedUpdate:
 						fixedUpdate.Add(behaviourDelegateType);
 						break;
+
 					case UpdateType.LateUpdate:
 						lateUpdate.Add(behaviourDelegateType);
 						break;
@@ -88,9 +88,11 @@ namespace Core.Services.UpdateManager
 					case UpdateType.Update:
 						update.Remove(behaviourDelegateType);
 						break;
+
 					case UpdateType.FixedUpdate:
 						fixedUpdate.Remove(behaviourDelegateType);
 						break;
+
 					case UpdateType.LateUpdate:
 						lateUpdate.Remove(behaviourDelegateType);
 						break;
@@ -104,8 +106,10 @@ namespace Core.Services.UpdateManager
 			{
 				case UpdateType.Update:
 					return update.Contains(behaviour);
+
 				case UpdateType.FixedUpdate:
 					return fixedUpdate.Contains(behaviour);
+
 				case UpdateType.LateUpdate:
 					return lateUpdate.Contains(behaviour);
 			}

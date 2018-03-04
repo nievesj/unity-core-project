@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -45,7 +42,7 @@ namespace Core.Services
 		/// Creates a new inspector label
 		/// </summary>
 		/// <param name="message"></param>
-		/// <param name="style"></param>
+		/// <param name="style">  </param>
 		public static void LabelUIElement(string message, GUIStyle style)
 		{
 			GUILayout.BeginVertical();
@@ -67,12 +64,15 @@ namespace Core.Services
 				case LabelMessageType.GREEN:
 					s.normal.textColor = Color.green;
 					break;
+
 				case LabelMessageType.RED:
 					s.normal.textColor = Color.red;
 					break;
+
 				case LabelMessageType.WHITE:
 					s.normal.textColor = Color.white;
 					break;
+
 				case LabelMessageType.WHITEBOLD:
 					s.normal.textColor = Color.white;
 					s.fontStyle = FontStyle.Bold;
@@ -85,8 +85,8 @@ namespace Core.Services
 		}
 
 		/// <summary>
-		/// Gathers and returns all sorting layers created within the editor.
-		/// This method relies on UnityEditorInternal which could break in future Unity versions.
+		/// Gathers and returns all sorting layers created within the editor. This method relies on
+		/// UnityEditorInternal which could break in future Unity versions.
 		/// </summary>
 		/// <returns></returns>
 		public static string[] GetSortingLayerNames()

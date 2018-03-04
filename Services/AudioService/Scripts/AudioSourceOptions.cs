@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Audio;
 
 namespace Core.Services.Audio
@@ -50,6 +48,7 @@ namespace Core.Services.Audio
 
 		[Range(0, 360)]
 		public float spread = 0;
+
 		public AudioRolloffMode rolloffMode = AudioRolloffMode.Logarithmic;
 		public float minDistance = 1f;
 		public float maxDistance = 500;

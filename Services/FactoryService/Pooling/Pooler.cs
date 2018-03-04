@@ -1,16 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Core.Services.Factory;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 
-namespace Core.Polling
+namespace Core.Services.Factory
 {
 	public class Pooler<T> where T : Component
 	{
-		[Inject]
-		private FactoryService _factoryService;
-
 		private Stack<T> _pool;
 
 		private int _activeElements = 0;
@@ -30,7 +25,7 @@ namespace Core.Polling
 		public int ActiveElements { get { return _activeElements; } }
 
 		/// <summary>
-		/// Initialize pooler 
+		/// Initialize pooler
 		/// </summary>
 		/// <param name="pre">    Gameobject to be pooled </param>
 		/// <param name="amount"> Pool size </param>
@@ -46,7 +41,7 @@ namespace Core.Polling
 		}
 
 		/// <summary>
-		/// Get element from the _pool 
+		/// Get element from the _pool
 		/// </summary>
 		/// <returns></returns>
 		public T Pop()
@@ -58,7 +53,7 @@ namespace Core.Polling
 		}
 
 		/// <summary>
-		/// Get element from the _pool, if there are no more elements allocated, create a new one 
+		/// Get element from the _pool, if there are no more elements allocated, create a new one
 		/// </summary>
 		/// <returns></returns>
 		public T PopResize()
@@ -99,7 +94,7 @@ namespace Core.Polling
 		}
 
 		/// <summary>
-		/// Return element to the _pool 
+		/// Return element to the _pool
 		/// </summary>
 		/// <param name="obj"></param>
 		public void Push(T obj)
@@ -114,7 +109,7 @@ namespace Core.Polling
 		}
 
 		/// <summary>
-		/// Destroy _pool 
+		/// Destroy _pool
 		/// </summary>
 		public void Destroy()
 		{

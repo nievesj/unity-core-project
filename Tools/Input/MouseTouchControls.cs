@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Core.Services.UI;
-using Core.Services.UpdateManager;
-using UniRx;
+﻿using Core.Services.UpdateManager;
 using UnityEngine;
 
 namespace Core.Services.Input
@@ -73,7 +69,7 @@ namespace Core.Services.Input
 		{
 			base.Start();
 			_coreUpdateDelegate = new BehaviourDelegateType(this, CoreUpdate, UpdateType.Update);
-			updateService.Attach(_coreUpdateDelegate);
+			_updateService.Attach(_coreUpdateDelegate);
 		}
 
 		protected override void CoreUpdate()
@@ -286,7 +282,7 @@ namespace Core.Services.Input
 
 		protected override void OnDestroy()
 		{
-			updateService.Detach(_coreUpdateDelegate);
+			_updateService.Detach(_coreUpdateDelegate);
 		}
 	}
 }

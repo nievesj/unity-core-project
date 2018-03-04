@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using Core.Services;
-using Core.Services.Assets;
+﻿using Core.Services.Assets;
 using Core.Services.Factory;
 using Core.Services.UI;
+using System;
 using UniRx;
 using UnityEngine;
 using Zenject;

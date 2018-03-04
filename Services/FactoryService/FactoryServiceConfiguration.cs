@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace Core.Services.Factory
+﻿namespace Core.Services.Factory
 {
 	public class FactoryServiceConfiguration : ServiceConfiguration
 	{

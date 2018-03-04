@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace Core
+﻿namespace Core
 {
 	public class Constants
 	{
