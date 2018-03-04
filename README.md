@@ -22,7 +22,7 @@ The purpose of Core Framework is to help speed up development in Unity3D by prov
 	* Can trigger sounds when a transition plays
 * Basic audio system
 * Mouse / Touch input control
-* Pooler tool
+* Factory tool
 * Console window colors! Colorize your debug messages with colors so they are easier to read.
 * Base game starting point ([Example Project](https://github.com/nievesj/unity_core_example))
 
@@ -47,9 +47,10 @@ This project is meant to be added to an existing Unity Project, either by downlo
 Dependencies
 ---
 Core Framework depends on the the following components
-* [LeanTween](https://github.com/dentedpixel/LeanTween)
-* [UniRx](https://github.com/neuecc/UniRx) (Reactive Extensions for Unity) Most of the Core Framework functionality is wrapped around Observables. 
+* [UniRx](https://github.com/neuecc/UniRx): Most of the Core Framework functionality is wrapped around Observables. 
+* [Zenject](https://github.com/modesttree/Zenject): Core Framework libraries are loaded and used with Dependency Injectiion.
 * [AssetBundles-Browser](https://github.com/Unity-Technologies/AssetBundles-Browser) Unity's tool for building and organizing asset bundles. 
+* [LeanTween](https://github.com/dentedpixel/LeanTween): Used in UI transitions.
 
 Which platforms are compatible?
 ---
