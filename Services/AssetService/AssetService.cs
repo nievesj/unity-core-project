@@ -13,25 +13,24 @@ namespace Core.Services.Assets
 	/// </summary>
 	public class AssetService : Service
 	{
-		public string AssetBundlesURL { get { return _configuration.AssetBundlesURL + AssetBundleUtilities.ClientPlatform + "/"; } }
-		public int ManifestCacheExpiringPeriodInDays { get { return _configuration.ManifestCachePeriod; } }
-
-		public bool UseStreamingAssets { get { return _configuration.UseStreamingAssets; } }
-
-		public AssetCacheState AssetCacheState { get { return _configuration.UseCache ? AssetCacheState.Cache : AssetCacheState.NoCache; } }
-		public AssetCacheStrategy AssetCacheStrategy { get { return _configuration.CacheBundleManifestsLocally ? AssetCacheStrategy.CopyBundleManifestFileLocally : AssetCacheStrategy.UseUnityCloudManifestBuildVersion; } }
-
-		private UnityCloudBuildManifest _cloudBuildManifest;
-		public UnityCloudBuildManifest CloudBuildManifest { get { return _cloudBuildManifest; } }
-
-		private AssetServiceConfiguration _configuration;
-
 		[Inject]
 		private AssetBundleLoader assetBundlebundleLoader;
 
+		public bool UseStreamingAssets { get { return Configuration.UseStreamingAssets; } }
+
+		public AssetCacheState AssetCacheState { get { return Configuration.UseCache ? AssetCacheState.Cache : AssetCacheState.NoCache; } }
+
+		public AssetCacheStrategy AssetCacheStrategy { get { return Configuration.CacheBundleManifestsLocally ? AssetCacheStrategy.CopyBundleManifestFileLocally : AssetCacheStrategy.UseUnityCloudManifestBuildVersion; } }
+
+		private UnityCloudBuildManifest _cloudBuildManifest;
+
+		public UnityCloudBuildManifest CloudBuildManifest { get { return _cloudBuildManifest; } }
+
+		public readonly AssetServiceConfiguration Configuration;
+
 		public AssetService(ServiceConfiguration config)
 		{
-			_configuration = config as AssetServiceConfiguration;
+			Configuration = config as AssetServiceConfiguration;
 
 			UnityCloufBuildManifestLoader.LoadBuildManifest().Subscribe(cloudManifest =>
 			{
@@ -76,15 +75,6 @@ namespace Core.Services.Assets
 		{
 			Debug.Log(assetBundlebundleLoader == null ? true : false);
 			return assetBundlebundleLoader.GetLoadedBundle<T>(name);
-		}
-
-		private void OnGameStart()
-		{
-			//assetBundlebundleLoader = new AssetBundleLoader();
-
-			//TODO: Not needed for now. Can be used later to validate asset bundles and manifests.
-			//or to preload all assets
-			// LoadGameBundle();
 		}
 	}
 }

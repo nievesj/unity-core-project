@@ -284,7 +284,7 @@ namespace Core.Services.Input
 #endif
 		}
 
-		private void OnDestroy()
+		protected override void OnDestroy()
 		{
 			updateService.Detach(_coreUpdateDelegate);
 		}

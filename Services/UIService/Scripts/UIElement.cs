@@ -9,7 +9,7 @@ using Zenject;
 namespace Core.Services.UI
 {
 	/// <summary>
-	/// UIElement is the base class for any UI element that is controlled by the uiService. 
+	/// UIElement is the base class for any UI element that is controlled by the _uiService. 
 	/// </summary>
 	public abstract class UIElement : CoreBehaviour
 	{
@@ -130,7 +130,7 @@ namespace Core.Services.UI
 		}
 
 		/// <summary>
-		///Communicates to uiService that the window is opened and active
+		///Communicates to _uiService that the window is opened and active
 		/// </summary>
 		/// <param name="uiElement"></param>
 		protected virtual void OnWindowOpened(UIElement uiElement)
@@ -140,7 +140,7 @@ namespace Core.Services.UI
 		}
 
 		/// <summary>
-		/// Communicates to uiService that the window is ready to be destroyed and the asset unloaded 
+		/// Communicates to _uiService that the window is ready to be destroyed and the asset unloaded 
 		/// </summary>
 		/// <param name="uiElement"></param>
 		protected virtual void OnWindowClosed(UIElement uiElement)

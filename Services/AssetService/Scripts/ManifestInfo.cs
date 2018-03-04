@@ -21,26 +21,19 @@ namespace Core.Services.Assets
 		private int version;
 		private string hash;
 		private BundleRequest bundle;
-
-		[Inject]
-		private AssetServiceConfiguration _assetServiceConfiguration;
-
-		private int ManifestCacheExpirePeriod
-		{
-			get { return _assetServiceConfiguration.ManifestCachePeriod; }
-		}
-
+		private int _manifestCacheExpirePeriod;
 		public uint CRC { get { return crc; } }
 		public int Version { get { return version; } }
 		public Hash128 Hash { get { return Hash128.Parse(hash); } }
 
-		public ManifestInfo(BundleRequest bundleNeeded)
+		public ManifestInfo(BundleRequest bundleNeeded, int period)
 		{
 			bundle = bundleNeeded;
+			_manifestCacheExpirePeriod = period;
 		}
 
 		/// <summary>
-		/// Gets .manifest file information 
+		/// Gets .manifest file information
 		/// </summary>
 		/// <returns></returns>
 		public IObservable<ManifestInfo> GetInfo()
@@ -78,7 +71,7 @@ namespace Core.Services.Assets
 						observer.OnCompleted();
 					};
 
-					IsManifestExpired(ManifestCacheExpirePeriod).Subscribe(OnManifestExpiredCheck);
+					IsManifestExpired(_manifestCacheExpirePeriod).Subscribe(OnManifestExpiredCheck);
 
 					observer.OnNext(null);
 					observer.OnCompleted();
@@ -158,7 +151,7 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// Observable wrapper for GetManifestOperation 
+		/// Observable wrapper for GetManifestOperation
 		/// </summary>
 		/// <returns> Observable </returns>
 		private IObservable<string> GetManifestFromWeb()
@@ -167,7 +160,7 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// Gets manifest file from web. 
+		/// Gets manifest file from web.
 		/// </summary>
 		/// <param name="observer">          Observer </param>
 		/// <param name="cancellationToken"> Cancellation token </param>
@@ -189,7 +182,7 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// Determines of a cached manifest file is expired and needs to be refreshed 
+		/// Determines of a cached manifest file is expired and needs to be refreshed
 		/// </summary>
 		/// <param name="expirationDays"> Days in which a file is considered expired </param>
 		/// <returns> Observable </returns>
@@ -236,7 +229,7 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// Gets age of the manifest file, from the date it was created to the current system date 
+		/// Gets age of the manifest file, from the date it was created to the current system date
 		/// </summary>
 		/// <returns> TimeSpan in days </returns>
 		private TimeSpan GetAgeManifest()
@@ -250,7 +243,7 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// Saves manifest age file. This is just a simple json file with a date 
+		/// Saves manifest age file. This is just a simple json file with a date
 		/// </summary>
 		private void SaveAgeManifest()
 		{
@@ -259,7 +252,7 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// Saves a text file 
+		/// Saves a text file
 		/// </summary>
 		/// <param name="file"> File path, name should be included </param>
 		/// <param name="data"> Data </param>
@@ -280,7 +273,7 @@ namespace Core.Services.Assets
 		}
 
 		/// <summary>
-		/// Reads a text file 
+		/// Reads a text file
 		/// </summary>
 		/// <param name="file"> File path, name should be included </param>
 		/// <returns> File contents </returns>

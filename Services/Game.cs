@@ -1,11 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Core.Services.Audio;
-using Core.Services.Factory;
-using Core.Services.Levels;
-using Core.Services.Scenes;
-using Core.Services.UI;
-using Core.Services.UpdateManager;
+﻿using Core.Services.UI;
 using UniRx;
 using UnityEngine;
 using Zenject;
@@ -13,7 +6,7 @@ using Zenject;
 namespace Core.Services
 {
 	/// <summary>
-	/// Starting point for _Core framework. This should be treated as the BaseGame.
+	/// Starting point for Core Framework.
 	/// </summary>
 	public abstract class Game : CoreBehaviour
 	{

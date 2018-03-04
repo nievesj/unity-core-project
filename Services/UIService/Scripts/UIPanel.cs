@@ -13,6 +13,7 @@ namespace Core.Services.UI
 	{
 		[SerializeField]
 		protected Button showHideButton;
+
 		protected bool isShowing = false;
 		protected bool isTransitioning = false;
 
@@ -47,7 +48,7 @@ namespace Core.Services.UI
 			isTransitioning = false;
 		}
 
-		protected void OnDestroy()
+		protected override void OnDestroy()
 		{
 			Close().Subscribe();
 		}

@@ -38,5 +38,7 @@ namespace Core.Services.Assets
 		protected bool useUnityCloudBuildManifestVersion = true;
 
 		public bool UseUnityCloudBuildManifestVersion { get { return useUnityCloudBuildManifestVersion; } set { useUnityCloudBuildManifestVersion = value; } }
+
+		public string PlatformAssetBundleURL { get { return AssetBundlesURL + AssetBundleUtilities.ClientPlatform + "/"; } }
 	}
 }

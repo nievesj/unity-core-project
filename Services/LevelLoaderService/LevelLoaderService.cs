@@ -24,8 +24,9 @@ namespace Core.Services.Levels
 
 		private LevelLoaderServiceConfiguration _configuration;
 
-		private Level currentLevel;
-		public Level CurrentLevel { get { return currentLevel; } }
+		private Level _currentLevel;
+
+		public Level CurrentLevel { get { return _currentLevel; } }
 
 		public LevelLoaderService(ServiceConfiguration config)
 		{
@@ -69,10 +70,10 @@ namespace Core.Services.Levels
 		/// <returns></returns>
 		private IObservable<Level> DoLoadLevel(string name)
 		{
-			if (currentLevel)
-				UnloadLevel(currentLevel);
+			if (_currentLevel)
+				UnloadLevel(_currentLevel);
 
-			BundleRequest bundleRequest = new BundleRequest(AssetCategoryRoot.Levels, name, name);
+			BundleRequest bundleRequest = new BundleRequest(AssetCategoryRoot.Levels, name, name, _assetService.Configuration);
 
 			return Observable.Create<Level>(
 				(IObserver<Level> observer) =>
@@ -82,13 +83,13 @@ namespace Core.Services.Levels
 						Resources.UnloadUnusedAssets();
 						Debug.Log(("LevelLoaderService: Loaded level - " + loadedLevel.name).Colored(Colors.LightBlue));
 
-						currentLevel = _factoryService.Instantiate<Level>(loadedLevel);
-						currentLevel.name = loadedLevel.name;
+						_currentLevel = _factoryService.Instantiate<Level>(loadedLevel);
+						_currentLevel.name = loadedLevel.name;
 
 						//Level loaded, return screen to normal.
 						_uiService.DarkenScreen(false).Subscribe();
 
-						observer.OnNext(currentLevel);
+						observer.OnNext(_currentLevel);
 						observer.OnCompleted();
 					};
 
@@ -108,7 +109,7 @@ namespace Core.Services.Levels
 
 			if (level)
 			{
-				Debug.Log(("LevelLoaderService: Unloading level  - " + currentLevel.name).Colored(Colors.LightBlue));
+				Debug.Log(("LevelLoaderService: Unloading level  - " + _currentLevel.name).Colored(Colors.LightBlue));
 				GameObject.Destroy(level.gameObject);
 				_assetService.UnloadAsset(level.name, true);
 			}

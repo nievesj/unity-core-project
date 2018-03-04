@@ -34,6 +34,7 @@ namespace Core.Services.UpdateManager
 		private FactoryService _factoryService;
 
 		protected UpdateServiceConfiguration configuration;
+
 		protected UpdateManager updateManager;
 
 		public UpdateService(ServiceConfiguration config)
@@ -41,8 +42,10 @@ namespace Core.Services.UpdateManager
 			configuration = config as UpdateServiceConfiguration;
 		}
 
-		internal override void SetUp(DiContainer context)
+		public override void Initialize()
 		{
+			base.Initialize();
+
 			updateManager = _factoryService.Instantiate<UpdateManager>(configuration.updateManager);
 			Object.DontDestroyOnLoad(updateManager);
 		}

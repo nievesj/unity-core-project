@@ -143,7 +143,7 @@ namespace Core.Services.Assets
 		private IEnumerator GetBundleFromWebOrCacheOperation<T>(BundleRequest bundleRequest, IObserver<T> observer, CancellationToken cancellationToken) where T : UnityEngine.Object
 		{
 			UnityWebRequest www = null;
-			ManifestInfo manifestInfo = new ManifestInfo(bundleRequest);
+			ManifestInfo manifestInfo = new ManifestInfo(bundleRequest, assetService.Configuration.ManifestCachePeriod);
 			AssetBundle bundle;
 
 			Debug.Log(("AssetBundleLoader: " + assetService.AssetCacheState + " | Requesting: " + bundleRequest.AssetName + " | " + bundleRequest.BundleName).Colored(Colors.Aqua));

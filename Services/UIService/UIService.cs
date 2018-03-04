@@ -61,8 +61,10 @@ namespace Core.Services.UI
 			_renderPriorityCanvas = new Dictionary<UIElementType, RectTransform>();
 		}
 
-		internal override void SetUp(DiContainer context)
+		public override void Initialize()
 		{
+			base.Initialize();
+
 			if (_configuration.mainCanvas)
 			{
 				var canvas = _factoryService.Instantiate<UIContainer>(_configuration.mainCanvas);
@@ -83,14 +85,14 @@ namespace Core.Services.UI
 		/// <returns> Observable </returns>
 		public IObservable<UIElement> OpenUIElement(string window)
 		{
-			BundleRequest bundleNeeded = new BundleRequest(AssetCategoryRoot.Screens, window, window);
+			BundleRequest bundleNeeded = new BundleRequest(AssetCategoryRoot.Screens, window, window, _assetService.Configuration);
 			return Observable.Create<UIElement>(
 				(IObserver<UIElement> observer) =>
 				{
 					System.Action<UIElement> OnWindowLoaded = loadedWindow =>
 					{
 						if (!_mainCanvas)
-							observer.OnError(new System.Exception("uiService: StartService - UICanvas is missing from the scene. Was is destroyed?."));
+							observer.OnError(new System.Exception("_uiService: StartService - UICanvas is missing from the scene. Was is destroyed?."));
 
 						var obj = _factoryService.Instantiate<UIElement>(loadedWindow, DetermineRenderPriorityCanvas(loadedWindow));
 
@@ -101,14 +103,14 @@ namespace Core.Services.UI
 						if (!_activeUIElements.ContainsKey(obj.name))
 							_activeUIElements.Add(obj.name, obj);
 
-						//Trigger OnGamePaused signal. Is up to the game to determine what happens. That's beyond the scope of the uiService.
+						//Trigger OnGamePaused signal. Is up to the game to determine what happens. That's beyond the scope of the _uiService.
 						if (obj is UIDialog)
 							_onGamePaused.OnNext(true);
 
 						observer.OnNext(obj);
 						observer.OnCompleted();
 
-						Debug.Log(("uiService: Loaded window - " + loadedWindow.name).Colored(Colors.LightBlue));
+						Debug.Log(("_uiService: Loaded window - " + loadedWindow.name).Colored(Colors.LightBlue));
 					};
 
 					return _assetService.GetAndLoadAsset<UIElement>(bundleNeeded).Subscribe(OnWindowLoaded);
@@ -168,9 +170,9 @@ namespace Core.Services.UI
 
 		private void UIElementClosed(UIElement window)
 		{
-			Debug.Log(("uiService: Closed window - " + window.name).Colored(Colors.LightBlue));
+			Debug.Log(("_uiService: Closed window - " + window.name).Colored(Colors.LightBlue));
 
-			//Trigger OnGamePaused signal. Is up to the game to determine what happens. That's beyond the scope of the uiService.
+			//Trigger OnGamePaused signal. Is up to the game to determine what happens. That's beyond the scope of the _uiService.
 			if (window is UIDialog)
 				_onGamePaused.OnNext(false);
 

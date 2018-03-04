@@ -38,44 +38,45 @@ namespace Core.Services
 
 				if (service is AssetServiceConfiguration)
 				{
-					Container.Bind<AssetService>().AsSingle().WithArguments(service).NonLazy();
+					Container.BindInterfacesAndSelfTo<AssetService>().AsSingle().WithArguments(service).NonLazy();
+
 					Container.Bind<AssetServiceConfiguration>().AsSingle().NonLazy();
 					Container.Bind<AssetBundleLoader>().AsSingle().NonLazy();
 				}
 
 				if (service is LevelLoaderServiceConfiguration)
 				{
-					Container.Bind<LevelLoaderService>().AsSingle().WithArguments(service).NonLazy();
+					Container.BindInterfacesAndSelfTo<LevelLoaderService>().AsSingle().WithArguments(service).NonLazy();
 					Container.Bind<LevelLoaderServiceConfiguration>().AsSingle().NonLazy();
 				}
 
 				if (service is SceneLoaderServiceConfiguration)
 				{
-					Container.Bind<SceneLoaderService>().AsSingle().WithArguments(service).NonLazy();
+					Container.BindInterfacesAndSelfTo<SceneLoaderService>().AsSingle().WithArguments(service).NonLazy();
 					Container.Bind<SceneLoaderServiceConfiguration>().AsSingle().NonLazy();
 				}
 
 				if (service is UIServiceConfiguration)
 				{
-					Container.Bind<UIService>().AsSingle().WithArguments(service).NonLazy();
+					Container.BindInterfacesAndSelfTo<UIService>().AsSingle().WithArguments(service).NonLazy();
 					Container.Bind<UIServiceConfiguration>().AsSingle().NonLazy();
 				}
 
 				if (service is UpdateServiceConfiguration)
 				{
-					Container.Bind<UpdateService>().AsSingle().WithArguments(service).NonLazy();
+					Container.BindInterfacesAndSelfTo<UpdateService>().AsSingle().WithArguments(service).NonLazy();
 					Container.Bind<UpdateServiceConfiguration>().AsSingle().NonLazy();
 				}
 
 				if (service is FactoryServiceConfiguration)
 				{
-					Container.Bind<FactoryService>().AsSingle().WithArguments(service, Container).NonLazy();
+					Container.BindInterfacesAndSelfTo<FactoryService>().AsSingle().WithArguments(service, Container).NonLazy();
 					Container.Bind<FactoryServiceConfiguration>().AsSingle().NonLazy();
 				}
 
 				if (service is AudioServiceConfiguration)
 				{
-					Container.Bind<AudioService>().AsSingle().WithArguments(service).NonLazy();
+					Container.BindInterfacesAndSelfTo<AudioService>().AsSingle().WithArguments(service).NonLazy();
 					Container.Bind<AudioServiceConfiguration>().AsSingle().NonLazy();
 				}
 			}

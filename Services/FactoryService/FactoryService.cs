@@ -9,16 +9,12 @@ namespace Core.Services.Factory
 	public class FactoryService : Service
 	{
 		private FactoryServiceConfiguration _configuration;
+
 		private DiContainer _diContainer;
 
-		public FactoryService(ServiceConfiguration config, DiContainer context = null)
+		public FactoryService(ServiceConfiguration config, DiContainer context)
 		{
 			_configuration = config as FactoryServiceConfiguration;
-			_diContainer = context;
-		}
-
-		internal override void SetUp(DiContainer context)
-		{
 			_diContainer = context;
 		}
 

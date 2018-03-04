@@ -27,30 +27,27 @@ namespace Core.Services.Levels
 		public AudioPlayer backgroundMusic;
 
 		[Inject]
-		protected LevelLoaderService levelService;
+		protected LevelLoaderService _levelService;
 
 		[Inject]
-		protected AudioService audioService;
+		protected AudioService _audioService;
 
 		[Inject]
 		protected UIService uiService;
 
 		[Inject]
-		protected AssetService assetService;
+		protected AssetService _assetService;
 
-		protected LevelState levelState;
-		public LevelState State { get { return levelState; } }
+		protected LevelState _levelState;
+
+		public LevelState State { get { return _levelState; } }
 
 		protected override void Awake()
 		{
 			base.Awake();
 			Debug.Log(("Level: " + name + " loaded").Colored(Colors.LightBlue));
 
-			//levelService = ServiceLocator.GetService<ILevelLoaderService>();
-			//audioService = ServiceLocator.GetService<IAudioService>();
-			//uiService = ServiceLocator.GetService<IUIService>();
-
-			levelState = LevelState.Loaded;
+			_levelState = LevelState.Loaded;
 		}
 
 		protected override void Start()
@@ -59,23 +56,23 @@ namespace Core.Services.Levels
 
 			Debug.Log(("Level: " + name + " started").Colored(Colors.LightBlue));
 
-			levelState = LevelState.Started;
-			levelState = LevelState.InProgress;
+			_levelState = LevelState.Started;
+			_levelState = LevelState.InProgress;
 
-			if (audioService != null && backgroundMusic != null && backgroundMusic.Clip != null)
-				audioService.PlayMusic(backgroundMusic);
+			if (_audioService != null && backgroundMusic != null && backgroundMusic.Clip != null)
+				_audioService.PlayMusic(backgroundMusic);
 		}
 
 		public virtual void Unload()
 		{
-			if (audioService != null && backgroundMusic != null && backgroundMusic.Clip != null)
-				audioService.StopClip(backgroundMusic);
+			if (_audioService != null && backgroundMusic != null && backgroundMusic.Clip != null)
+				_audioService.StopClip(backgroundMusic);
 		}
 
-		protected virtual void OnDestroy()
+		protected override void OnDestroy()
 		{
-			if (audioService != null && backgroundMusic != null && backgroundMusic.Clip != null)
-				audioService.StopClip(backgroundMusic);
+			if (_audioService != null && backgroundMusic != null && backgroundMusic.Clip != null)
+				_audioService.StopClip(backgroundMusic);
 		}
 	}
 }

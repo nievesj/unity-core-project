@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Core.Services.UI;
 using Core.Services.UpdateManager;
@@ -8,9 +9,11 @@ using Zenject;
 
 namespace Core.Services
 {
-	public abstract class Service
+	public abstract class Service : IInitializable, IDisposable
 	{
-		internal virtual void SetUp(DiContainer context = null) { }
+		public virtual void Initialize() { }
+
+		public virtual void Dispose() { }
 	}
 
 	public abstract class CoreBehaviour : MonoBehaviour

@@ -16,10 +16,10 @@ namespace Core.Services.Scenes
 		protected SceneLoaderServiceConfiguration configuration;
 
 		[Inject]
-		protected AssetService assetService;
+		protected AssetService _assetService;
 
 		[Inject]
-		protected UIService uiService;
+		protected UIService _uiService;
 
 		public SceneLoaderService(ServiceConfiguration config)
 		{
@@ -51,7 +51,7 @@ namespace Core.Services.Scenes
 					};
 
 					//Start fade screen
-					uiService.DarkenScreen(true).Subscribe(OnScreenFadeOn);
+					_uiService.DarkenScreen(true).Subscribe(OnScreenFadeOn);
 
 					return subject.Subscribe();
 				});
@@ -59,7 +59,7 @@ namespace Core.Services.Scenes
 
 		private IObservable<UnityEngine.Object> DoLoadScene(string scene, LoadSceneMode mode = LoadSceneMode.Single)
 		{
-			if (assetService.GetLoadedBundle<UnityEngine.Object>(scene))
+			if (_assetService.GetLoadedBundle<UnityEngine.Object>(scene))
 				return GetPreviouslyLoadedScene(scene, mode);
 			else
 				return GetScene(scene, mode);
@@ -73,7 +73,7 @@ namespace Core.Services.Scenes
 		/// <returns></returns>
 		private IObservable<UnityEngine.Object> GetScene(string scene, LoadSceneMode mode = LoadSceneMode.Single)
 		{
-			BundleRequest bundleNeeded = new BundleRequest(AssetCategoryRoot.Scenes, scene, scene);
+			BundleRequest bundleNeeded = new BundleRequest(AssetCategoryRoot.Scenes, scene, scene, _assetService.Configuration);
 			return Observable.Create<UnityEngine.Object>(
 				(IObserver<UnityEngine.Object> observer) =>
 				{
@@ -84,7 +84,7 @@ namespace Core.Services.Scenes
 							Resources.UnloadUnusedAssets();
 
 							//Scene loaded, return screen to normal.
-							uiService.DarkenScreen(false).Subscribe();
+							_uiService.DarkenScreen(false).Subscribe();
 
 							observer.OnNext(loadedScene);
 							observer.OnCompleted();
@@ -94,7 +94,7 @@ namespace Core.Services.Scenes
 
 						Debug.Log(("SceneLoaderService: Loaded scene - " + scene).Colored(Colors.LightBlue));
 					};
-					return assetService.GetAndLoadAsset<UnityEngine.Object>(bundleNeeded).Subscribe(OnSceneLoaded);
+					return _assetService.GetAndLoadAsset<UnityEngine.Object>(bundleNeeded).Subscribe(OnSceneLoaded);
 				});
 		}
 
@@ -110,7 +110,7 @@ namespace Core.Services.Scenes
 		{
 			var subject = new Subject<UnityEngine.Object>();
 
-			uiService.DarkenScreen(false).Subscribe();
+			_uiService.DarkenScreen(false).Subscribe();
 
 			subject.OnError(new System.Exception("Scene " + scene + " is already loaded and open. Opening the same scene twice is not supported."));
 			subject.OnCompleted();
@@ -132,7 +132,7 @@ namespace Core.Services.Scenes
 					{
 						Debug.Log(("SceneLoaderService: Unloaded scene - " + scene).Colored(Colors.LightBlue));
 
-						assetService.UnloadAsset(scene, true);
+						_assetService.UnloadAsset(scene, true);
 
 						observer.OnNext(null);
 						observer.OnCompleted();

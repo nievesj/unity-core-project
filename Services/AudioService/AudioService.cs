@@ -52,8 +52,10 @@ namespace Core.Services.Audio
 			_activeAudioPlayers = new List<AudioPlayer>();
 		}
 
-		internal override void SetUp(DiContainer context)
+		public override void Initialize()
 		{
+			base.Initialize();
+
 			if (_configuration.audioSourcePrefab)
 			{
 				_pooler = _factoryService.CreatePool<AudioSource>(_configuration.audioSourcePrefab.gameObject, _configuration.poolAmount);

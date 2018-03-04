@@ -28,7 +28,6 @@ namespace Core.Services.Assets
 		//Directory where the bundle is located.
 		private AssetCategoryRoot assetCategory;
 
-		[Inject]
 		private AssetServiceConfiguration _assetServiceConfiguration;
 
 		public AssetCategoryRoot AssetCategory { get { return assetCategory; } }
@@ -36,7 +35,7 @@ namespace Core.Services.Assets
 		private string bundleName;
 		public string BundleName { get { return bundleName; } }
 
-		//Manifest file assiciated to the bundle. This is needed in case the HASH number is requiered for caching the bundle
+		//Manifest file associated to the bundle. This is needed in case the HASH number is requiered for caching the bundle
 		public string ManifestName { get { return bundleName + ".manifest"; } }
 
 		private string assetName;
@@ -50,9 +49,9 @@ namespace Core.Services.Assets
 			get
 			{
 				if (AssetCategory.Equals(AssetCategoryRoot.None))
-					return _assetServiceConfiguration.AssetBundlesURL + BundleName + "?r=" + (UnityEngine.Random.value * 9999999); //this random value prevents caching on the web server
+					return _assetServiceConfiguration.PlatformAssetBundleURL + BundleName + "?r=" + (UnityEngine.Random.value * 9999999); //this random value prevents caching on the web server
 				else
-					return _assetServiceConfiguration.AssetBundlesURL + AssetCategory.ToString().ToLower() + "/" + BundleName;
+					return _assetServiceConfiguration.PlatformAssetBundleURL + AssetCategory.ToString().ToLower() + "/" + BundleName;
 			}
 		}
 
@@ -63,9 +62,9 @@ namespace Core.Services.Assets
 				Debug.Log(("AssetBundleLoader: Loading Manifest " + ManifestName).Colored(Colors.Aqua));
 
 				if (AssetCategory.Equals(AssetCategoryRoot.None))
-					return _assetServiceConfiguration.AssetBundlesURL + ManifestName + "?r=" + (UnityEngine.Random.value * 9999999); //this random value prevents caching on the web server;
+					return _assetServiceConfiguration.PlatformAssetBundleURL + ManifestName + "?r=" + (UnityEngine.Random.value * 9999999); //this random value prevents caching on the web server;
 				else
-					return _assetServiceConfiguration.AssetBundlesURL + AssetCategory.ToString().ToLower() + "/" + ManifestName;
+					return _assetServiceConfiguration.PlatformAssetBundleURL + AssetCategory.ToString().ToLower() + "/" + ManifestName;
 			}
 		}
 
@@ -91,16 +90,17 @@ namespace Core.Services.Assets
 			}
 		}
 
-		public BundleRequest(AssetCategoryRoot cat, string bundle, string asset)
+		public BundleRequest(AssetCategoryRoot cat, string bundle, string asset, AssetServiceConfiguration config)
 		{
 			assetCategory = cat;
 			bundleName = bundle.ToLower();
 			assetName = asset.ToLower();
+			_assetServiceConfiguration = config;
 		}
 	}
 
 	/// <summary>
-	/// Bundle root or package containing the desired asset 
+	/// Bundle root or package containing the desired asset
 	/// </summary>
 	public enum AssetCategoryRoot
 	{
@@ -115,7 +115,7 @@ namespace Core.Services.Assets
 	}
 
 	/// <summary>
-	/// Device type 
+	/// Device type
 	/// </summary>
 	public enum AssetDeviceType
 	{
@@ -150,7 +150,7 @@ namespace Core.Services.Assets
 	}
 
 	/// <summary>
-	/// Cache or no cache 
+	/// Cache or no cache
 	/// </summary>
 	public enum AssetCacheState
 	{

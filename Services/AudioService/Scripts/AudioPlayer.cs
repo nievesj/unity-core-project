@@ -8,17 +8,20 @@ namespace Core.Services.Audio
 	public class AudioPlayer
 	{
 		[SerializeField]
-		AudioClip clip;
+		private AudioClip clip;
+
 		public AudioClip Clip { get { return clip; } }
 
 		[SerializeField]
-		Transform playFrom;
+		private Transform playFrom;
+
 		public Transform PlayFrom { get { return playFrom; } }
 
 		public float pitch { get; set; }
 
 		[SerializeField]
-		AudioSource audioSource;
+		private AudioSource audioSource;
+
 		public AudioSource Player
 		{
 			get { return audioSource; }
@@ -35,7 +38,8 @@ namespace Core.Services.Audio
 		}
 
 		[SerializeField]
-		AudioSourceOptions audioSourceOptions;
+		private AudioSourceOptions audioSourceOptions;
+
 		public AudioSourceOptions AudioOptions { get { return audioSourceOptions; } }
 
 		public AudioPlayer(AudioClip ac)
@@ -53,7 +57,7 @@ namespace Core.Services.Audio
 		public AudioPlayer(AudioClip ac, GameObject from)
 		{
 			clip = ac;
-			playFrom = from.transform;;
+			playFrom = from.transform; ;
 		}
 
 		protected void SetUpOptions(AudioSource aus)
