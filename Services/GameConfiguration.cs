@@ -36,7 +36,7 @@ namespace Core.Services
 				if (service is AssetServiceConfiguration)
 				{
 					Container.BindInterfacesAndSelfTo<AssetService>().AsSingle().WithArguments(service).NonLazy();
-
+					
 					Container.Bind<AssetServiceConfiguration>().AsSingle().NonLazy();
 					Container.Bind<AssetBundleLoader>().AsSingle().NonLazy();
 				}
