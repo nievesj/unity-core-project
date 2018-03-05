@@ -68,11 +68,17 @@ namespace Core.Services.Input
 
 		protected abstract void OnMobilePinch(Touch touch0, Touch touch1);
 
+		protected override void Awake()
+		{
+			base.Awake();
+
+			mainCamera = Camera.main;
+		}
+
 		protected override void Start()
 		{
 			base.Start();
 
-			mainCamera = Camera.main;
 			coreUpdateDelegate = new BehaviourDelegateType(this, CoreUpdate, UpdateType.Update);
 			_updateService.Attach(coreUpdateDelegate);
 		}
@@ -81,14 +87,14 @@ namespace Core.Services.Input
 		{
 			if (controlState == ControlState.Enabled)
 			{
-#if (UNITY_IOS || UNITY_ANDROID)&& !UNITY_EDITOR
+#if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
 				TouchControl();
 #elif UNITY_WEBGL || UNITY_EDITOR || UNITY_STANDALONE || UNITY_FACEBOOK
 				MouseControl();
 #endif
 
 				//tap timers
-				if ((tapCount > 0)&& (tapTimer > timeToTriggerTap))
+				if ((tapCount > 0) && (tapTimer > timeToTriggerTap))
 				{
 					tapTimer = 0;
 					tapCount = 0;
@@ -141,8 +147,8 @@ namespace Core.Services.Input
 					case TouchPhase.Stationary:
 						stationaryTimer += Time.deltaTime;
 
-						if (!onStationaryTriggered && mouseTouchState == MouseTouchState.MouseDown && (stationaryTimer >= timeToTriggerStationary)&&
-							(Vector3.Distance(startDragOnMouseDownPosition, currentTouchMousePosition)< minDragDistance))
+						if (!onStationaryTriggered && mouseTouchState == MouseTouchState.MouseDown && (stationaryTimer >= timeToTriggerStationary) &&
+							(Vector3.Distance(startDragOnMouseDownPosition, currentTouchMousePosition) < minDragDistance))
 						{
 							onStationaryTriggered = true;
 							OnStationary(currentTouchMousePosition);
@@ -175,8 +181,8 @@ namespace Core.Services.Input
 
 			//For Android, WebGL, PC, Mac, Linux the drag happens here
 #if UNITY_WEBGL || UNITY_EDITOR || UNITY_STANDALONE || UNITY_FACEBOOK
-			if (!onStationaryTriggered && mouseTouchState == MouseTouchState.MouseDown && (stationaryTimer >= timeToTriggerStationary)&&
-				(Vector3.Distance(startDragOnMouseDownPosition, mousePosition)< minDragDistance))
+			if (!onStationaryTriggered && mouseTouchState == MouseTouchState.MouseDown && (stationaryTimer >= timeToTriggerStationary) &&
+				(Vector3.Distance(startDragOnMouseDownPosition, mousePosition) < minDragDistance))
 			{
 				onStationaryTriggered = true;
 				OnStationary(mousePosition);
@@ -213,7 +219,7 @@ namespace Core.Services.Input
 
 		private void MouseDrag(Vector3 mousePosition)
 		{
-			if (Vector3.Distance(startDragOnMouseDownPosition, mousePosition)> minDragDistance)
+			if (Vector3.Distance(startDragOnMouseDownPosition, mousePosition) > minDragDistance)
 			{
 				mouseTouchState = MouseTouchState.MouseDrag;
 				OnMouseFingerDrag(mousePosition);
@@ -228,7 +234,7 @@ namespace Core.Services.Input
 		{
 			Vector3 position = Vector3.zero;
 
-#if (UNITY_IOS || UNITY_ANDROID)&& !UNITY_EDITOR
+#if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
 			if (UnityEngine.Input.touchCount > 0)// && Input.GetTouch(0).phase == TouchPhase.Moved)
 			{
 				position = mainCamera.ScreenToWorldPoint(UnityEngine.Input.GetTouch(0).position);
@@ -246,7 +252,7 @@ namespace Core.Services.Input
 		/// <returns></returns>
 		protected Vector3 GetPointerLocationWorldPosition(Vector3 pos)
 		{
-			return mainCamera.ScreenToWorldPoint(pos);;
+			return mainCamera.ScreenToWorldPoint(pos); ;
 		}
 
 		/// <summary>
@@ -257,7 +263,7 @@ namespace Core.Services.Input
 		{
 			Vector3 position = Vector3.zero;
 
-#if (UNITY_IOS || UNITY_ANDROID)&& !UNITY_EDITOR
+#if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
 			if (UnityEngine.Input.touchCount > 0 && UnityEngine.Input.GetTouch(0).phase == TouchPhase.Moved)
 			{
 				position.x = .03f * UnityEngine.Input.GetTouch(0).deltaPosition.x;
@@ -273,7 +279,7 @@ namespace Core.Services.Input
 
 		protected Vector3 ScreenToViewportPoint()
 		{
-#if (UNITY_IOS || UNITY_ANDROID)&& !UNITY_EDITOR
+#if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
 			return mainCamera.ScreenToViewportPoint(UnityEngine.Input.GetTouch(0).position);
 #elif UNITY_WEBGL || UNITY_EDITOR || UNITY_STANDALONE || UNITY_FACEBOOK
 			return mainCamera.ScreenToViewportPoint(UnityEngine.Input.mousePosition);
@@ -287,7 +293,7 @@ namespace Core.Services.Input
 		/// <returns></returns>
 		protected Ray ScreenPointToRay()
 		{
-#if (UNITY_IOS || UNITY_ANDROID)&& !UNITY_EDITOR
+#if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
 			return mainCamera.ScreenPointToRay(UnityEngine.Input.GetTouch(0).position);
 #elif UNITY_WEBGL || UNITY_EDITOR || UNITY_STANDALONE || UNITY_FACEBOOK
 			return mainCamera.ScreenPointToRay(UnityEngine.Input.mousePosition);
