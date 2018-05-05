@@ -153,7 +153,7 @@ namespace Core.Services.Assets
 				yield return manifestInfo.GetInfo().ToYieldInstruction();
 
 				//Use hash number from the manifest file to determine if UnityWebRequest gets the bundle from web or cache
-				www = UnityWebRequest.GetAssetBundle(bundleRequest.AssetPath, manifestInfo.Hash, 0);
+				www = UnityWebRequestAssetBundle.GetAssetBundle(bundleRequest.AssetPath, manifestInfo.Hash, 0);
 			}
 			else if (_assetService.AssetCacheState.Equals(AssetCacheState.Cache) && _assetService.AssetCacheStrategy.Equals(AssetCacheStrategy.UseUnityCloudManifestBuildVersion))
 			{
@@ -162,12 +162,12 @@ namespace Core.Services.Assets
 				if (_assetService.CloudBuildManifest != null)
 					buildNumber = System.Convert.ToUInt32(_assetService.CloudBuildManifest.buildNumber);
 
-				www = UnityWebRequest.GetAssetBundle(bundleRequest.AssetPath, buildNumber, 0);
+				www = UnityWebRequestAssetBundle.GetAssetBundle(bundleRequest.AssetPath, buildNumber, 0);
 			}
 			else if (_assetService.AssetCacheState.Equals(AssetCacheState.NoCache))
 			{
 				//No caching, just get the bundle
-				www = UnityWebRequest.GetAssetBundle(bundleRequest.AssetPath);
+				www = UnityWebRequestAssetBundle.GetAssetBundle(bundleRequest.AssetPath);
 			}
 
 			//Wait until www is done.

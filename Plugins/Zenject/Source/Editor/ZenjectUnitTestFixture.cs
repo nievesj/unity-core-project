@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using ModestTree.Util;
 using Zenject;
-using NUnit.Framework;
 using ModestTree;
 using Assert=ModestTree.Assert;
 
@@ -24,7 +23,6 @@ namespace Zenject
             get { return _container; }
         }
 
-        [SetUp]
         public virtual void Setup()
         {
             _container = new DiContainer();

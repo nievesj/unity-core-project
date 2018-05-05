@@ -1,0 +1,12 @@
+{
+    "name": "ZenjectSourceEditor-ASM",
+    "references": [
+        "Zenject-ASM"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}

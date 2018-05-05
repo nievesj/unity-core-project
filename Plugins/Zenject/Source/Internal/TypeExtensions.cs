@@ -383,8 +383,12 @@ namespace ModestTree
         public static IEnumerable<Attribute> AllAttributes(
             this MemberInfo provider, params Type[] attributeTypes)
         {
-            var allAttributes = System.Attribute.GetCustomAttributes(provider, typeof(Attribute), true);
-
+            Attribute[] allAttributes;
+#if NETFX_CORE 
+            allAttributes = provider.GetCustomAttributes<Attribute>(true).ToArray(); 
+#else  
+            allAttributes = System.Attribute.GetCustomAttributes(provider, typeof(Attribute), true);
+#endif
             if (attributeTypes.Length == 0)
             {
                 return allAttributes;
@@ -417,8 +421,12 @@ namespace ModestTree
         public static IEnumerable<Attribute> AllAttributes(
             this ParameterInfo provider, params Type[] attributeTypes)
         {
-            var allAttributes = System.Attribute.GetCustomAttributes(provider, typeof(Attribute), true);
-
+            Attribute[] allAttributes;
+#if NETFX_CORE 
+            allAttributes = provider.GetCustomAttributes<Attribute>(true).ToArray(); 
+#else  
+            allAttributes = System.Attribute.GetCustomAttributes(provider, typeof(Attribute), true);
+#endif
             if (attributeTypes.Length == 0)
             {
                 return allAttributes;
