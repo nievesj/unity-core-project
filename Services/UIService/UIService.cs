@@ -71,6 +71,11 @@ namespace Core.Services.UI
 				_uiScreenFader = canvas.GetComponentInChildren<UIScreenFader>();
 				Object.DontDestroyOnLoad(_mainCanvas);
 
+				var canvasElem = canvas.GetComponent<Canvas>();
+	
+				if (canvasElem.renderMode == RenderMode.ScreenSpaceCamera)
+					canvasElem.worldCamera = Camera.main;
+				
 				_renderPriorityCanvas.Add(UIElementType.Dialog, canvas.dialogContainer);
 				_renderPriorityCanvas.Add(UIElementType.Panel, canvas.panelContainer);
 				_renderPriorityCanvas.Add(UIElementType.Widget, canvas.widgetContainer);
