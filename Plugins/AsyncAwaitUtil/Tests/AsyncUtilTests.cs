@@ -300,7 +300,6 @@ namespace UnityAsyncAwaitUtil
         async Task RunAwaitSecondsTestAsync()
         {
             Debug.Log("Waiting 1 second...");
-            await new WaitForEndOfFrame()
             await new WaitForSeconds(1.0f);
             Debug.Log("Done!");
         }
