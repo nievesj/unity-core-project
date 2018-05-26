@@ -1,122 +1,89 @@
-﻿using Core.Services.Assets;
+﻿using System;
+using System.Threading.Tasks;
+using Core.Services.Assets;
 using Core.Services.Factory;
 using Core.Services.UI;
-using System;
 using UniRx;
 using UnityEngine;
 using Zenject;
+using Object = UnityEngine.Object;
 
 namespace Core.Services.Levels
 {
-	public class LevelLoaderService : Service
-	{
-		[Inject]
-		private AssetService _assetService;
+    public class LevelLoaderService : Service
+    {
+        [Inject]
+        private AssetService _assetService;
 
-		[Inject]
-		private UIService _uiService;
+        [Inject]
+        private UIService _uiService;
 
-		[Inject]
-		private FactoryService _factoryService;
+        [Inject]
+        private FactoryService _factoryService;
 
-		private LevelLoaderServiceConfiguration _configuration;
+        private LevelLoaderServiceConfiguration _configuration;
 
-		private Level _currentLevel;
+        private Level _currentLevel;
 
-		public Level CurrentLevel { get { return _currentLevel; } }
+        public Level CurrentLevel => _currentLevel;
 
-		public LevelLoaderService(ServiceConfiguration config)
-		{
-			_configuration = config as LevelLoaderServiceConfiguration;
-		}
+        public LevelLoaderService(ServiceConfiguration config)
+        {
+            _configuration = config as LevelLoaderServiceConfiguration;
+        }
 
-		/// <summary>
-		/// Attemps to load a level. First the screen is faded
-		/// </summary>
-		/// <param name="name"> bundle name </param>
-		/// <returns> Observable </returns>
-		public IObservable<Level> LoadLevel(string name)
-		{
-			//Fade screen before loading level
-			return Observable.Create<Level>(
-				(IObserver<Level> observer) =>
-				{
-					var subject = new Subject<Level>();
-					Action<UIElement> OnScreenFadeOn = element =>
-					{
-						Action<Level> OnLevelLoaded = loadedLevel =>
-						{
-							observer.OnNext(loadedLevel);
-							observer.OnCompleted();
-						};
+        /// <summary>
+        /// Attemps to load a level. First the screen is faded
+        /// </summary>
+        /// <param name="name"> bundle name </param>
+        /// <returns> Observable </returns>
+        public async Task<Level> LoadLevel(string name)
+        {
+            //Fade screen before loading level
+            _uiService.DarkenScreen(true).Subscribe();
+            return await DoLoadLevel(name);
+        }
 
-						DoLoadLevel(name).Subscribe(OnLevelLoaded);
-					};
+        /// <summary>
+        /// Once the screen has been blocked, load the level
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        private async Task<Level> DoLoadLevel(string name)
+        {
+            if (_currentLevel)
+                UnloadLevel(_currentLevel);
 
-					//Start fade screen
-					_uiService.DarkenScreen(true).Subscribe(OnScreenFadeOn);
+            var bundleRequest = new BundleRequest(AssetCategoryRoot.Levels, name, name, _assetService.Configuration);
+            var level = await _assetService.GetAndLoadAsset<Level>(bundleRequest);
 
-					return subject.Subscribe();
-				});
-		}
+            Resources.UnloadUnusedAssets();
+            Debug.Log(("LevelLoaderService: Loaded level - " + level.name).Colored(Colors.LightBlue));
 
-		/// <summary>
-		/// Once the screen has been blocked, load the level
-		/// </summary>
-		/// <param name="name"></param>
-		/// <returns></returns>
-		private IObservable<Level> DoLoadLevel(string name)
-		{
-			if (_currentLevel)
-				UnloadLevel(_currentLevel);
+            _currentLevel = _factoryService.Instantiate<Level>(level);
+            _currentLevel.name = level.name;
 
-			BundleRequest bundleRequest = new BundleRequest(AssetCategoryRoot.Levels, name, name, _assetService.Configuration);
+            //Level loaded, return screen to normal.
+            _uiService.DarkenScreen(false).Subscribe();
 
-			return Observable.Create<Level>(
-				(IObserver<Level> observer) =>
-				{
-					Action<Level> OnLevelLoaded = loadedLevel =>
-					{
-						Resources.UnloadUnusedAssets();
-						Debug.Log(("LevelLoaderService: Loaded level - " + loadedLevel.name).Colored(Colors.LightBlue));
+            return _currentLevel;
+        }
 
-						_currentLevel = _factoryService.Instantiate<Level>(loadedLevel);
-						_currentLevel.name = loadedLevel.name;
+        /// <summary>
+        /// Unloads level.
+        /// </summary>
+        /// <param name="level"> level name </param>
+        /// <returns> Observable </returns>
+        public void UnloadLevel(Level level)
+        {
+            if (!level)
+                return;
 
-						//Level loaded, return screen to normal.
-						_uiService.DarkenScreen(false).Subscribe();
+            Debug.Log(("LevelLoaderService: Unloading level  - " + _currentLevel.name).Colored(Colors.LightBlue));
+            Object.Destroy(level.gameObject);
+            _assetService.UnloadAsset(level.name, true);
 
-						observer.OnNext(_currentLevel);
-						observer.OnCompleted();
-					};
-
-					return _assetService.GetAndLoadAsset<Level>(bundleRequest)
-						.Subscribe(OnLevelLoaded);
-				});
-		}
-
-		/// <summary>
-		/// Unloads level.
-		/// </summary>
-		/// <param name="level"> level name </param>
-		/// <returns> Observable </returns>
-		public IObservable<Level> UnloadLevel(Level level)
-		{
-			var subject = new Subject<Level>();
-
-			if (level)
-			{
-				Debug.Log(("LevelLoaderService: Unloading level  - " + _currentLevel.name).Colored(Colors.LightBlue));
-				GameObject.Destroy(level.gameObject);
-				_assetService.UnloadAsset(level.name, true);
-			}
-
-			subject.OnNext(null);
-			subject.OnCompleted();
-
-			Resources.UnloadUnusedAssets();
-
-			return subject;
-		}
-	}
+            Resources.UnloadUnusedAssets();
+        }
+    }
 }

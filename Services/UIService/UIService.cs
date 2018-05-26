@@ -116,8 +116,8 @@ namespace Core.Services.UI
 
 						Debug.Log(("_uiService: Loaded window - " + loadedWindow.name).Colored(Colors.LightBlue));
 					};
-
-					return _assetService.GetAndLoadAsset<UIElement>(bundleNeeded).Subscribe(OnWindowLoaded);
+					
+					return _assetService.GetAndLoadAsset<UIElement>(bundleNeeded).ToObservable().Subscribe(OnWindowLoaded);
 				});
 		}
 

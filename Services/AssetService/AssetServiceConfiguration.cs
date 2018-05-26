@@ -2,40 +2,35 @@
 
 namespace Core.Services.Assets
 {
-	public class AssetServiceConfiguration : ServiceConfiguration
-	{
-		public override Service ServiceClass { get { return new AssetService(this); } }
+    public class AssetServiceConfiguration : ServiceConfiguration
+    {
+        public override Service ServiceClass => new AssetService(this);
 
-		[SerializeField]
-		protected string assetBundlesURL;
+        [SerializeField]
+        private string _assetBundlesURL;
 
-		public string AssetBundlesURL { get { return assetBundlesURL; } set { assetBundlesURL = value; } }
+        public string AssetBundlesURL { get { return _assetBundlesURL; } set { _assetBundlesURL = value; } }
 
-		[SerializeField]
-		protected bool useStreamingAssets = false;
+        [SerializeField]
+        private bool _useStreamingAssets = false;
 
-		public bool UseStreamingAssets { get { return useStreamingAssets; } set { useStreamingAssets = value; } }
+        public bool UseStreamingAssets { get { return _useStreamingAssets; } set { _useStreamingAssets = value; } }
 
-		[SerializeField]
-		protected bool useCache = true;
+        [SerializeField]
+        private bool _useCache = true;
 
-		public bool UseCache { get { return useCache; } set { useCache = value; } }
+        public bool UseCache { get { return _useCache; } set { _useCache = value; } }
 
-		[SerializeField]
-		protected bool cacheBundleManifestsLocally = true;
+        [SerializeField]
+        private int _manifestCachePeriod = 5;
 
-		public bool CacheBundleManifestsLocally { get { return cacheBundleManifestsLocally; } set { cacheBundleManifestsLocally = value; } }
+        public int ManifestCachePeriod { get { return _manifestCachePeriod; } set { _manifestCachePeriod = value; } }
 
-		[SerializeField]
-		protected int manifestCachePeriod = 5;
+        [SerializeField]
+        private bool _useUnityCloudBuildManifestVersion = true;
 
-		public int ManifestCachePeriod { get { return manifestCachePeriod; } set { manifestCachePeriod = value; } }
+        public bool UseUnityCloudBuildManifestVersion { get { return _useUnityCloudBuildManifestVersion; } set { _useUnityCloudBuildManifestVersion = value; } }
 
-		[SerializeField]
-		protected bool useUnityCloudBuildManifestVersion = true;
-
-		public bool UseUnityCloudBuildManifestVersion { get { return useUnityCloudBuildManifestVersion; } set { useUnityCloudBuildManifestVersion = value; } }
-
-		public string PlatformAssetBundleURL { get { return AssetBundlesURL + AssetBundleUtilities.ClientPlatform + "/"; } }
-	}
+        public string PlatformAssetBundleURL => AssetBundlesURL + AssetBundleUtilities.ClientPlatform + "/";
+    }
 }
