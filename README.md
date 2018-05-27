@@ -1,6 +1,6 @@
 # Core Framework for Unity
 
-Current Version 1.4 (.Net 4.6)
+Current Version 1.4 - Not backwards compatible with previous versions as the .net runtime was updated to 4.6
 
 Supported Unity versions: 2018.1.0f2. or latest.
 
