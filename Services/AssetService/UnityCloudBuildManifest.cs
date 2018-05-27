@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using UniRx;
 using UnityEngine;
 
@@ -24,37 +25,24 @@ namespace Core.Services.Assets
 		public string cloudBuildTargetName;
 	}
 
-	public class UnityCloufBuildManifestLoader
+	public static class UnityCloufBuildManifestLoader
 	{
 		/// <summary>
 		/// Loads UnityCloudBuildManifest into a structure the rest of the system can use,
 		/// </summary>
 		/// <returns></returns>
-		public static IObservable<UnityCloudBuildManifest> LoadBuildManifest()
+		public static async Task<UnityCloudBuildManifest> LoadBuildManifest()
 		{
-			return Observable.Create<UnityCloudBuildManifest>(
-				(IObserver<UnityCloudBuildManifest> observer) =>
-				{
-					Action<ResourceRequest> OnResourceLoaded = resource =>
-					{
-						if (resource.asset)
-						{
-							var text = resource.asset as TextAsset;
-							var manifest = JsonUtility.FromJson<UnityCloudBuildManifest>(text.text);
+			var res = await Resources.LoadAsync(Constants.UnityBuildManifest);
+			UnityCloudBuildManifest manifest = null;
+			if (res)
+			{
+				var text = res as TextAsset;
+				if (text != null)
+					manifest = JsonUtility.FromJson<UnityCloudBuildManifest>(text.text);
+			}
 
-							observer.OnNext(manifest);
-							observer.OnCompleted();
-						}
-						else
-						{
-							observer.OnNext(null);
-							observer.OnCompleted();
-						}
-					};
-
-					//FIXME: Make this a constant in case unity decides to change the name later, of the developer implements another process
-					return Resources.LoadAsync("UnityCloudBuildManifest.json").AsAsyncOperationObservable<ResourceRequest>().Subscribe(OnResourceLoaded);
-				});
+			return manifest;
 		}
 	}
 }

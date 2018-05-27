@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 using Zenject;
-
 #if UNITY_EDITOR
 using UnityEditor;
+
 #endif
 
 namespace Core.Services.Assets
@@ -39,16 +39,40 @@ namespace Core.Services.Assets
         /// </summary>
         /// <param name="bundleRequest"> Bundle to request </param>
         /// <returns> Observable </returns>
-        internal async Task<T> LoadAsset<T>(BundleRequest bundleRequest) where T : UnityEngine.Object
+        internal async Task<T> LoadAsset<T>(BundleRequest bundleRequest) where T : Object
         {
 #if UNITY_EDITOR
             if (EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES)
                 return await SimulateAssetBundle<T>(bundleRequest);
 #endif
-            if (!_assetService.UseStreamingAssets)
-                return await GetBundleFromWebOrCacheOperation<T>(bundleRequest);
-            else
-                return await GetBundleFromStreamingAssets<T>(bundleRequest);
+            var bundle = await LoadBundle(bundleRequest);
+            return await bundle.LoadAssetAsync<T>(bundleRequest.AssetName);
+        }
+
+        internal async Task<LoadedBundle> LoadBundle(BundleRequest bundleRequest)
+        {
+            if (!_loadedBundles.ContainsKey(bundleRequest.BundleName))
+            {
+                AssetBundle bundle;
+                if (!_assetService.UseStreamingAssets)
+                    bundle = await GetBundleFromWebOrCacheAsync(bundleRequest);
+                else
+                    bundle = await GetBundleFromStreamingAssetsAsync(bundleRequest);
+                
+                _loadedBundles.Add(bundleRequest.BundleName, new LoadedBundle(bundle));
+            }
+
+            return _loadedBundles[bundleRequest.BundleName];
+        }
+
+        internal async Task<Object> LoadScene(BundleRequest bundleRequest)
+        {
+            var bundle = await LoadBundle(bundleRequest);
+
+            if (bundle.Bundle.GetAllScenePaths().Length > 0)
+                return bundle.Bundle;
+
+            return null;
         }
 
         /// <summary>
@@ -56,7 +80,7 @@ namespace Core.Services.Assets
         /// </summary>
         /// <param name="name">                  Asset name </param>
         /// <param name="unloadAllDependencies"> Unload all dependencies? </param>
-        internal void UnloadAsset(string name, bool unloadAllDependencies)
+        internal void UnloadAssetBundle(string name, bool unloadAllDependencies)
         {
             name = name.ToLower();
 
@@ -69,11 +93,12 @@ namespace Core.Services.Assets
             }
         }
 
-        internal T GetLoadedBundle<T>(string name) where T : UnityEngine.Object
+        internal T GetLoadedBundle<T>(string name) where T : Object
         {
             if (_loadedBundles.ContainsKey(name.ToLower()))
                 return _loadedBundles[name.ToLower()].Bundle as T;
-            else return null;
+            
+             return null;
         }
 
 #if UNITY_EDITOR
@@ -83,7 +108,7 @@ namespace Core.Services.Assets
         /// </summary>
         /// <param name="bundleRequest">     Bundle to request </param>
         /// <returns> IEnumerator </returns>
-        private async Task<T> SimulateAssetBundle<T>(BundleRequest bundleRequest) where T : UnityEngine.Object
+        private async Task<T> SimulateAssetBundle<T>(BundleRequest bundleRequest) where T : Object
         {
             Debug.Log(("AssetBundleLoader: Simulated | Requesting: " + bundleRequest.AssetName + " | " + bundleRequest.BundleName).Colored(Colors.Aqua));
 
@@ -124,43 +149,37 @@ namespace Core.Services.Assets
         /// </summary>
         /// <param name="bundleRequest">     Bundle to request </param>
         /// <returns> IEnumerator </returns>
-        private async Task<T> GetBundleFromWebOrCacheOperation<T>(BundleRequest bundleRequest) where T : UnityEngine.Object
+        private async Task<AssetBundle> GetBundleFromWebOrCacheAsync(BundleRequest bundleRequest)
         {
-            UnityWebRequest www = null;
-            var manifestInfo = new ManifestInfo(bundleRequest, _assetService.Configuration.ManifestCachePeriod);
-
-            Debug.Log(("AssetBundleLoader: " + _assetService.AssetCacheState + " | Requesting: " + bundleRequest.AssetName + " | " + bundleRequest.BundleName).Colored(Colors.Aqua));
-
-            if (_assetService.AssetCacheState.Equals(AssetCacheState.Cache) && _assetService.AssetCacheStrategy.Equals(AssetCacheStrategy.UseUnityCloudManifestBuildVersion))
+            var www = new UnityWebRequest();
+            using (www)
             {
-                //cache bundles by using Unity Cloud Build manifest
-                uint buildNumber = 0;
-                if (_assetService.CloudBuildManifest != null)
-                    buildNumber = System.Convert.ToUInt32(_assetService.CloudBuildManifest.buildNumber);
+                Debug.Log(("AssetBundleLoader: " + _assetService.AssetCacheState + " | Requesting: " + bundleRequest.AssetName + " | " + bundleRequest.BundleName).Colored(Colors.Aqua));
+                if (_assetService.AssetCacheState == AssetCacheState.Cache && _assetService.AssetCacheStrategy == AssetCacheStrategy.UseUnityCloudManifestBuildVersion)
+                {
+                    //cache bundles by using Unity Cloud Build manifest
+                    uint buildNumber = 0;
+                    if (_assetService.CloudBuildManifest != null)
+                        buildNumber = System.Convert.ToUInt32(_assetService.CloudBuildManifest.buildNumber);
 
-                www = UnityWebRequestAssetBundle.GetAssetBundle(bundleRequest.AssetPath, buildNumber, 0);
-            }
-            else if (_assetService.AssetCacheState.Equals(AssetCacheState.NoCache))
-            {
-                //No caching, just get the bundle
-                www = UnityWebRequestAssetBundle.GetAssetBundle(bundleRequest.AssetPath);
-            }
+                    www = UnityWebRequestAssetBundle.GetAssetBundle(bundleRequest.AssetPath, buildNumber, 0);
+                }
+                else if (_assetService.AssetCacheState == AssetCacheState.NoCache)
+                {
+                    //No caching, just get the bundle
+                    www = UnityWebRequestAssetBundle.GetAssetBundle(bundleRequest.AssetPath);
+                }
 
-            //Wait until www is done.
-            await www.SendWebRequest();
+                //Wait until www is done.
+                await www.SendWebRequest();
 
-            //get bundle
-            var bundle = DownloadHandlerAssetBundle.GetContent(www);
-            www.Dispose(); //TODO: use using
+                //get bundle
+                var bundle = DownloadHandlerAssetBundle.GetContent(www);
 
-            if (www.isNetworkError)
-            {
-                throw new System.Exception("AssetBundleLoader: " + www.error);
-            }
-            else
-            {
-                //Extract asset from bundle. This assumes that theres is only one asset per bundle. Other use cases will need to modify this.
-                return await ProcessDownloadedBundle<T>(bundleRequest, new LoadedBundle(bundle, manifestInfo));
+                if (www.isNetworkError)
+                    throw new System.Exception("AssetBundleLoader: " + www.error);
+
+                return bundle;
             }
         }
 
@@ -169,38 +188,12 @@ namespace Core.Services.Assets
         /// </summary>
         /// <param name="bundleRequest"> Bundle to request </param>
         /// <returns> Observable </returns>
-        private async Task<T> GetBundleFromStreamingAssets<T>(BundleRequest bundleRequest) where T : UnityEngine.Object
+        private async Task<AssetBundle> GetBundleFromStreamingAssetsAsync(BundleRequest bundleRequest) 
         {
             Debug.Log(("AssetBundleLoader: Using StreamingAssets - " + " Requesting:" + bundleRequest.AssetCategory + " | " + bundleRequest.BundleName).Colored(Colors.Aqua));
             var path = Path.Combine(Application.streamingAssetsPath, bundleRequest.AssetPathFromLocalStreamingAssets);
 
-            return await RunAssetBundleCreateRequestOperation<T>(path, bundleRequest);
-        }
-
-        /// <summary>
-        /// Operation to get bundle from streaming assets directory
-        /// </summary>
-        /// <param name="path"></param>
-        /// <param name="bundleRequest">Bundle to request </param>
-        /// <returns></returns>
-        private async Task<T> RunAssetBundleCreateRequestOperation<T>(string path, BundleRequest bundleRequest) where T : UnityEngine.Object
-        {
-            var assetBundle = await AssetBundle.LoadFromFileAsync(path);
-            return await ProcessDownloadedBundle<T>(bundleRequest, new LoadedBundle(assetBundle));
-        }
-
-        /// <summary>
-        /// Extracts required asset from the asset bundle
-        /// </summary>
-        /// <param name="bundleRequest"> Bundle to request </param>
-        /// <param name="bundle">        Bundle </param>
-        /// <returns></returns>
-        private async Task<T> ProcessDownloadedBundle<T>(BundleRequest bundleRequest, LoadedBundle bundle) where T : UnityEngine.Object
-        {
-            if (!_loadedBundles.ContainsKey(bundleRequest.BundleName))
-                _loadedBundles.Add(bundleRequest.BundleName, bundle);
-
-            return await bundle.LoadAssetAsync<T>(bundleRequest.AssetName);
+            return await AssetBundle.LoadFromFileAsync(path);
         }
     }
 }

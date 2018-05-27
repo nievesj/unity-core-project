@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Threading.Tasks;
-using UniRx;
 using UnityEngine;
 
 namespace Core.Services.Assets
@@ -18,12 +17,6 @@ namespace Core.Services.Assets
         public LoadedBundle(AssetBundle asset)
         {
             _assetBundle = asset;
-        }
-
-        public LoadedBundle(AssetBundle asset, ManifestInfo info)
-        {
-            _assetBundle = asset;
-            _manifestInfo = info;
         }
 
         /// <summary>
@@ -43,42 +36,17 @@ namespace Core.Services.Assets
         /// <returns></returns>
         public async Task<T> LoadAssetAsync<T>(string name) where T : UnityEngine.Object
         {
-            //TODO: Change this to GetComponentFromAssetBundle
-            Debug.Log(("LoadedBundle: Asynchronously loading asset: " + name).Colored(Colors.Yellow));
+            Debug.Log(("LoadedBundle: Async loading asset: " + name).Colored(Colors.Yellow));
 
-            //If the asset bundle contains a scene, pass the scene up the stream so it can be loaded
-            // if (_assetBundle.GetAllScenePaths().Length > 0)
-            //     return Observable.FromCoroutine<T>((observer) => RunSceneRequestOperation<T>(_assetBundle as T, observer));
-            // else
-            
-                return await RunAssetBundleRequestAsync<T>(_assetBundle.LoadAssetAsync(name));
-        }
-
-        /// <summary>
-        /// Wrapper method to load a scene. We cannot use assetBundle.LoadAssetAsync to load a scene,
-        /// therefore a dummy method is needed to pass the scene up the stream
-        /// </summary>
-        /// <param name="obj">               Scene </param>
-        /// <param name="observer">          Observer </param>
-        /// <param name="cancellationToken"> Cancellation Token </param>
-        /// <returns></returns>
-        private IEnumerator RunSceneRequestOperation<T>(T obj, IObserver<T> observer) where T : UnityEngine.Object
-        {
-            //TODO: improve scene loading
-            yield return null;
-
-            observer.OnNext(obj);
-            observer.OnCompleted();
+            return await GetAssetCompomnentAsync<T>(_assetBundle.LoadAssetAsync(name));
         }
 
         /// <summary>
         /// Operation extracts an asset from the loaded bundle
         /// </summary>
         /// <param name="asyncOperation">   </param>
-        /// <param name="observer">         </param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        private async Task<T> RunAssetBundleRequestAsync<T>(UnityEngine.AssetBundleRequest asyncOperation) where T : UnityEngine.Object
+        private async Task<T> GetAssetCompomnentAsync<T>(AssetBundleRequest asyncOperation) where T : UnityEngine.Object
         {
             await asyncOperation;
 

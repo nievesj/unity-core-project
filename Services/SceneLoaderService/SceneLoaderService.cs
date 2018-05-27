@@ -11,17 +11,17 @@ namespace Core.Services.Scenes
 {
     public class SceneLoaderService : Service
     {
-        protected SceneLoaderServiceConfiguration configuration;
+        private SceneLoaderServiceConfiguration _configuration;
 
         [Inject]
-        protected AssetService _assetService;
+        private AssetService _assetService;
 
         [Inject]
-        protected UIService _uiService;
+        private UIService _uiService;
 
         public SceneLoaderService(ServiceConfiguration config)
         {
-            configuration = config as SceneLoaderServiceConfiguration;
+            _configuration = config as SceneLoaderServiceConfiguration;
         }
 
         /// <summary>
@@ -33,14 +33,6 @@ namespace Core.Services.Scenes
         public async Task<UnityEngine.Object> LoadScene(string scene, LoadSceneMode mode = LoadSceneMode.Single)
         {
             _uiService.DarkenScreen(true).Subscribe();
-            return await DoLoadScene(scene, mode);
-        }
-
-        private async Task<UnityEngine.Object> DoLoadScene(string scene, LoadSceneMode mode = LoadSceneMode.Single)
-        {
-            if (_assetService.GetLoadedBundle<UnityEngine.Object>(scene))
-                throw new Exception("Scene " + scene + " is already loaded and open. Opening the same scene twice is not supported.");
-
             return await GetScene(scene, mode);
         }
 
@@ -52,8 +44,10 @@ namespace Core.Services.Scenes
         /// <returns></returns>
         private async Task<UnityEngine.Object> GetScene(string scene, LoadSceneMode mode = LoadSceneMode.Single)
         {
-            var bundleNeeded = new BundleRequest(AssetCategoryRoot.Scenes, scene, scene, _assetService.Configuration);
-            var sceneObject = await _assetService.GetAndLoadAsset<UnityEngine.Object>(bundleNeeded);
+            if (_assetService.GetLoadedBundle<UnityEngine.Object>(scene))
+                throw new Exception("Scene " + scene + " is already loaded and open. Opening the same scene twice is not supported.");
+
+            var sceneObject = await _assetService.GetScene(new BundleRequest(AssetCategoryRoot.Scenes, scene, scene, _assetService.Configuration));
 
             if (sceneObject)
             {
@@ -77,9 +71,9 @@ namespace Core.Services.Scenes
         public async Task UnLoadScene(string scene)
         {
             await SceneManager.UnloadSceneAsync(scene);
-            
+
             Debug.Log(("SceneLoaderService: Unloaded scene - " + scene).Colored(Colors.LightBlue));
-            
+
             _assetService.UnloadAsset(scene, true);
         }
     }

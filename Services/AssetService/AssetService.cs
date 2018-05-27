@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using UniRx;
 using UnityEngine;
 using Zenject;
 
@@ -11,9 +10,6 @@ namespace Core.Services.Assets
     /// </summary>
     public class AssetService : Service
     {
-        [Inject]
-        private AssetBundleLoader _assetBundlebundleLoader;
-
         public bool UseStreamingAssets => Configuration.UseStreamingAssets;
 
         public AssetCacheState AssetCacheState => Configuration.UseCache ? AssetCacheState.Cache : AssetCacheState.NoCache;
@@ -26,23 +22,26 @@ namespace Core.Services.Assets
 
         public readonly AssetServiceConfiguration Configuration;
 
+        [Inject]
+        private AssetBundleLoader _assetBundlebundleLoader;
+
         public AssetService(ServiceConfiguration config)
         {
             Configuration = config as AssetServiceConfiguration;
-
-            UnityCloufBuildManifestLoader.LoadBuildManifest()
-                .Subscribe(cloudManifest =>
+            Func<Task> runTask = async () =>
+            {
+                var cloudManifest = await UnityCloufBuildManifestLoader.LoadBuildManifest();
+                if (cloudManifest != null)
                 {
-                    if (cloudManifest != null)
-                    {
-                        Debug.Log(("---- AssetService: Unity Cloud Build Manifest present. Build Version: " + cloudManifest.buildNumber).Colored(Colors.Aqua));
-                        _cloudBuildManifest = cloudManifest;
-                    }
-                    else
-                    {
-                        Debug.Log("---- AssetService: Unity Cloud Build Manifest missing. This is ok. Ignoring.".Colored(Colors.Aqua));
-                    }
-                });
+                    Debug.Log(("---- AssetService: Unity Cloud Build Manifest present. Build Version: " + cloudManifest.buildNumber).Colored(Colors.Aqua));
+                    _cloudBuildManifest = cloudManifest;
+                }
+                else
+                {
+                    Debug.Log("---- AssetService: Unity Cloud Build Manifest missing. This is ok. Ignoring.".Colored(Colors.Aqua));
+                }
+            };
+            runTask();
         }
 
         /// <summary>
@@ -55,6 +54,11 @@ namespace Core.Services.Assets
             return await _assetBundlebundleLoader.LoadAsset<T>(bundleRequest);
         }
 
+        public async Task<UnityEngine.Object> GetScene(BundleRequest bundleRequest) 
+        {
+            return await _assetBundlebundleLoader.LoadScene(bundleRequest);
+        }
+
         /// <summary>
         /// Unloads asset and removes it from memory
         /// </summary>
@@ -62,7 +66,7 @@ namespace Core.Services.Assets
         /// <param name="unloadAllDependencies"> Unload all dependencies? </param>
         public void UnloadAsset(string name, bool unloadAllDependencies)
         {
-            _assetBundlebundleLoader.UnloadAsset(name, unloadAllDependencies);
+            _assetBundlebundleLoader.UnloadAssetBundle(name, unloadAllDependencies);
         }
 
         /// <summary>
