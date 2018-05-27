@@ -4,13 +4,7 @@ Current Version 1.4 (.Net 4.6)
 
 Supported Unity versions: 2018.1.0f2. or latest.
 
- 
-
-If you need to use the old scripting runtime (.net 3.5) then use the
-[release-1.3
-branch](https://github.com/nievesj/unity-core-project/tree/release-1.3).
-
- 
+If you need to use the old scripting runtime (.net 3.5) then use the [release-1.3 branch](https://github.com/nievesj/unity-core-project/tree/release-1.3).
 
 What is Core Framework?
 ---
