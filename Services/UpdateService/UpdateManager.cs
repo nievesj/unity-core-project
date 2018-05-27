@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Core.Services.UpdateManager
 {
+    [Obsolete]
     public class UpdateManager : MonoBehaviour
     {
         private List<BehaviourDelegateType> update;

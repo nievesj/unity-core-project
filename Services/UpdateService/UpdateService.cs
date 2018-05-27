@@ -1,6 +1,7 @@
-﻿using Core.Services.Factory;
-using UnityEngine;
+﻿using System;
+using Core.Services.Factory;
 using Zenject;
+using Object = UnityEngine.Object;
 
 namespace Core.Services.UpdateManager
 {
@@ -11,6 +12,7 @@ namespace Core.Services.UpdateManager
 		LateUpdate
 	}
 
+	[Obsolete]
 	public class BehaviourDelegateType
 	{
 		public CoreBehaviour behaviour;
@@ -25,6 +27,7 @@ namespace Core.Services.UpdateManager
 		}
 	}
 
+	[Obsolete]
 	public class UpdateService : Service
 	{
 		[Inject]
