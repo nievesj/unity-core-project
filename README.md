@@ -90,11 +90,12 @@ The service also detects the platform it's running on, and uses that to get the 
 
 This functionality is entirely seamless to the developer, thus requesting an asset is now as easy as:
 
-       assetService.GetAndLoadAsset<Ball>(bundleRequest)
-			.Subscribe(loadedBall =>
-			{
-				var myBall = GameObject.Instantiate<Ball>(loadedBall);
-			});
+       _assetService.GetAndLoadAsset<Ball>(bundleNeeded)
+                .TaskToObservable()
+                .Subscribe(ball =>
+                {
+                    var myBall = Instantiate<Ball>(ball);
+                });
 
 Simulating Asset Bundles
 ---
