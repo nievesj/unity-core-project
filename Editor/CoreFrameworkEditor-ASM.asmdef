@@ -2,10 +2,12 @@
     "name": "CoreFrameworkEditor-ASM",
     "references": [
         "CoreFramework-ASM",
-        "Zenject-ASM"
+        "Zenject"
     ],
+    "optionalUnityReferences": [],
     "includePlatforms": [
         "Editor"
     ],
-    "excludePlatforms": []
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
 }

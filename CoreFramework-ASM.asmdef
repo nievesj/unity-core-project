@@ -1,8 +1,10 @@
 {
     "name": "CoreFramework-ASM",
     "references": [
-        "Zenject-ASM"
+        "Zenject"
     ],
+    "optionalUnityReferences": [],
     "includePlatforms": [],
-    "excludePlatforms": []
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
 }
