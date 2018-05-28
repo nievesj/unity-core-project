@@ -35,8 +35,9 @@ namespace AssetBundleBrowser
         [SerializeField]
         float m_VerticalSplitterPercentLeft;
         const float k_SplitterWidth = 3f;
-        private static float m_UpdateDelay = 0f;
+        private static float s_UpdateDelay = 0f;
 
+        SearchField m_searchField;
 
         EditorWindow m_Parent = null;
 
@@ -66,6 +67,8 @@ namespace AssetBundleBrowser
                 (int)(m_Position.y + m_HorizontalSplitterRect.height * m_VerticalSplitterPercentLeft),
                 (m_HorizontalSplitterRect.width) - k_SplitterWidth,
                 k_SplitterWidth);
+
+            m_searchField = new SearchField();
         }
 
 
@@ -73,10 +76,10 @@ namespace AssetBundleBrowser
         internal void Update()
         {
             var t = Time.realtimeSinceStartup;
-            if (t - m_UpdateDelay > 0.1f ||
-                m_UpdateDelay > t) //something went strangely wrong if this second check is true.
+            if (t - s_UpdateDelay > 0.1f ||
+                s_UpdateDelay > t) //something went strangely wrong if this second check is true.
             {
-                m_UpdateDelay = t - 0.001f;
+                s_UpdateDelay = t - 0.001f;
 
                 if(AssetBundleModel.Model.Update())
                 {
@@ -138,7 +141,7 @@ namespace AssetBundleBrowser
             if (AssetBundleModel.Model.BundleListIsEmpty())
             {
                 m_BundleTree.OnGUI(m_Position);
-                var style = GUI.skin.label;
+                var style = new GUIStyle(GUI.skin.label);
                 style.alignment = TextAnchor.MiddleCenter;
                 style.wordWrap = true;
                 GUI.Label(
@@ -167,15 +170,18 @@ namespace AssetBundleBrowser
                 //Right half.
                 float panelLeft = m_HorizontalSplitterRect.x + k_SplitterWidth;
                 float panelWidth = m_VerticalSplitterRectRight.width - k_SplitterWidth * 2;
-                float panelHeight = m_VerticalSplitterRectRight.y - m_Position.y;
+                float searchHeight = 20f;
+                float panelTop = m_Position.y + searchHeight;
+                float panelHeight = m_VerticalSplitterRectRight.y - panelTop;
+                OnGUISearchBar(new Rect(panelLeft, m_Position.y, panelWidth, searchHeight));
                 m_AssetList.OnGUI(new Rect(
                     panelLeft,
-                    m_Position.y,
+                    panelTop,
                     panelWidth,
                     panelHeight));
                 m_MessageList.OnGUI(new Rect(
                     panelLeft,
-                    m_Position.y + panelHeight + k_SplitterWidth,
+                    panelTop + panelHeight + k_SplitterWidth,
                     panelWidth,
                     (m_Position.height - panelHeight) - k_SplitterWidth * 2));
 
@@ -184,6 +190,16 @@ namespace AssetBundleBrowser
             }
         }
 
+        void OnGUISearchBar(Rect rect)
+        {
+            m_BundleTree.searchString = m_searchField.OnGUI(rect, m_BundleTree.searchString);
+            m_AssetList.searchString = m_BundleTree.searchString;
+        }
+
+        public bool hasSearch
+        {
+            get { return m_BundleTree.hasSearch;  }
+        }
 
         private void HandleHorizontalResize()
         {
