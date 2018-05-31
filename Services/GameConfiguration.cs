@@ -31,7 +31,7 @@ namespace Core.Services
 			Debug.Log(("GameConfiguration: Starting Services").Colored(Colors.Lime));
 			foreach (var service in services)
 			{
-				Debug.Log(("--- Starting Service: " + service.name).Colored(Colors.Cyan));
+				Debug.Log(($"--- Starting Service: {service.name}").Colored(Colors.Cyan));
 
 				if (service is AssetServiceConfiguration)
 				{

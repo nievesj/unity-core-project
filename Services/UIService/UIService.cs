@@ -108,7 +108,7 @@ namespace Core.Services.UI
             if (obj is UIDialog)
                 _onGamePaused.OnNext(true);
 
-            Debug.Log(("UI Service: Loaded window - " + screen.name).Colored(Colors.LightBlue));
+            Debug.Log(($"UI Service: Loaded window - {screen.name}").Colored(Colors.LightBlue));
 
             return obj;
         }
