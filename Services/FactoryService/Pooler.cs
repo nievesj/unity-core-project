@@ -25,10 +25,12 @@ namespace Core.Services.Factory
         public int ActiveElements => _activeElements;
 
         /// <summary>
-        ///     Initialize pooler
+        /// Initialize pooler
         /// </summary>
         /// <param name="prefab">    Gameobject to be pooled </param>
         /// <param name="amount"> Pool size </param>
+        /// <param name="container"></param>
+        /// <param name="poolTransform"></param>
         public Pooler(Component prefab, int amount, DiContainer container, Transform poolTransform = null)
         {
             if (poolTransform)
@@ -47,7 +49,7 @@ namespace Core.Services.Factory
         }
 
         /// <summary>
-        ///     Get element from the _pool
+        /// Get element from the _pool
         /// </summary>
         /// <returns></returns>
         public T Pop()
@@ -59,7 +61,7 @@ namespace Core.Services.Factory
         }
 
         /// <summary>
-        ///     Get element from the _pool, if there are no more elements allocated, create a new one
+        /// Get element from the _pool, if there are no more elements allocated, create a new one
         /// </summary>
         /// <returns></returns>
         public T PopResize()
@@ -72,9 +74,9 @@ namespace Core.Services.Factory
         }
 
         /// <summary>
-        ///     Resize _pool.This changes the size of the _pool, however, if there are elements alive
-        ///     that have been pooled, they will stay alive until they are pushed back into the _pool at
-        ///     which moment they will be destroyed if they dont fit in the ne wpool size
+        /// Resize _pool.This changes the size of the _pool, however, if there are elements alive
+        /// that have been pooled, they will stay alive until they are pushed back into the _pool at
+        /// which moment they will be destroyed if they dont fit in the ne wpool size
         /// </summary>
         /// <param name="val"> New _pool size </param>
         public void ResizePool(int val)
@@ -94,7 +96,7 @@ namespace Core.Services.Factory
         }
 
         /// <summary>
-        ///     Return element to the _pool
+        /// Return element to the _pool
         /// </summary>
         /// <param name="obj"></param>
         public void Push(T obj)
@@ -109,7 +111,7 @@ namespace Core.Services.Factory
         }
 
         /// <summary>
-        ///     Destroy _pool
+        /// Destroy _pool
         /// </summary>
         public void Destroy()
         {
