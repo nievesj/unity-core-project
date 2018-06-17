@@ -30,7 +30,7 @@ namespace Core.Services.Factory
 			return _diContainer.InstantiatePrefab(obj, t);
 		}
 
-		public Pooler<T> CreatePool<T>(GameObject prefab, int amount,  Transform poolTransform = null) where T : UnityEngine.Component
+		public Pooler<T> CreatePool<T>(Component prefab, int amount,  Transform poolTransform = null) where T : Component
 		{
 			return new Pooler<T>(prefab, amount, _diContainer, poolTransform);
 		}

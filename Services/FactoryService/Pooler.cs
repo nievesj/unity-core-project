@@ -10,7 +10,7 @@ namespace Core.Services.Factory
 
         private int _activeElements = 0;
 
-        private GameObject _prefab;
+        private Component _prefab;
 
         private DiContainer _diContainer;
 
@@ -24,33 +24,33 @@ namespace Core.Services.Factory
 
         public int ActiveElements => _activeElements;
 
-	    /// <summary>
-	    ///     Initialize pooler
-	    /// </summary>
-	    /// <param name="pre">    Gameobject to be pooled </param>
-	    /// <param name="amount"> Pool size </param>
-	    public Pooler(GameObject pre, int amount, DiContainer container, Transform poolTransform = null)
+        /// <summary>
+        ///     Initialize pooler
+        /// </summary>
+        /// <param name="prefab">    Gameobject to be pooled </param>
+        /// <param name="amount"> Pool size </param>
+        public Pooler(Component prefab, int amount, DiContainer container, Transform poolTransform = null)
         {
             if (poolTransform)
                 _poolerTransform = poolTransform;
             else
             {
-                var go = new GameObject(Constants.PooledObject + pre.name);
+                var go = new GameObject(Constants.PooledObject + prefab.name);
                 _poolerTransform = go.transform;
             }
-            
-            _prefab = pre;
+
+            _prefab = prefab;
             _sizeLimit = amount;
             _diContainer = container;
 
             CreatePool(amount);
         }
 
-	    /// <summary>
-	    ///     Get element from the _pool
-	    /// </summary>
-	    /// <returns></returns>
-	    public T Pop()
+        /// <summary>
+        ///     Get element from the _pool
+        /// </summary>
+        /// <returns></returns>
+        public T Pop()
         {
             if (_pool.Count == 0)
                 return null;
@@ -58,11 +58,11 @@ namespace Core.Services.Factory
             return Get();
         }
 
-	    /// <summary>
-	    ///     Get element from the _pool, if there are no more elements allocated, create a new one
-	    /// </summary>
-	    /// <returns></returns>
-	    public T PopResize()
+        /// <summary>
+        ///     Get element from the _pool, if there are no more elements allocated, create a new one
+        /// </summary>
+        /// <returns></returns>
+        public T PopResize()
         {
             _sizeLimit++;
             if (_pool.Count == 0)
@@ -71,13 +71,13 @@ namespace Core.Services.Factory
             return Get();
         }
 
-	    /// <summary>
-	    ///     Resize _pool.This changes the size of the _pool, however, if there are elements alive
-	    ///     that have been pooled, they will stay alive until they are pushed back into the _pool at
-	    ///     which moment they will be destroyed if they dont fit in the ne wpool size
-	    /// </summary>
-	    /// <param name="val"> New _pool size </param>
-	    public void ResizePool(int val)
+        /// <summary>
+        ///     Resize _pool.This changes the size of the _pool, however, if there are elements alive
+        ///     that have been pooled, they will stay alive until they are pushed back into the _pool at
+        ///     which moment they will be destroyed if they dont fit in the ne wpool size
+        /// </summary>
+        /// <param name="val"> New _pool size </param>
+        public void ResizePool(int val)
         {
             _sizeLimit = val;
             var totalElems = _pool.Count + _activeElements;
@@ -93,11 +93,11 @@ namespace Core.Services.Factory
                     }
         }
 
-	    /// <summary>
-	    ///     Return element to the _pool
-	    /// </summary>
-	    /// <param name="obj"></param>
-	    public void Push(T obj)
+        /// <summary>
+        ///     Return element to the _pool
+        /// </summary>
+        /// <param name="obj"></param>
+        public void Push(T obj)
         {
             obj.gameObject.SetActive(false);
             if (_pool.Count + _activeElements <= _sizeLimit)
@@ -108,10 +108,10 @@ namespace Core.Services.Factory
             _activeElements--;
         }
 
-	    /// <summary>
-	    ///     Destroy _pool
-	    /// </summary>
-	    public void Destroy()
+        /// <summary>
+        ///     Destroy _pool
+        /// </summary>
+        public void Destroy()
         {
             DestroyPool();
 
@@ -141,7 +141,7 @@ namespace Core.Services.Factory
                 _pool.Push(CreateObject(_prefab));
         }
 
-        private T CreateObject(GameObject prefab)
+        private T CreateObject(Component prefab)
         {
             var go = _diContainer.InstantiatePrefab(prefab, _poolerTransform);
             go.SetActive(false);
@@ -151,8 +151,12 @@ namespace Core.Services.Factory
         private void DestroyPool()
         {
             foreach (var obj in _pool)
+            {
                 if (obj)
-                    GameObject.Destroy(obj.gameObject);
+                {
+                    Object.Destroy(obj.gameObject);
+                }
+            }
         }
     }
 }

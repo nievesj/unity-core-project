@@ -51,7 +51,7 @@ namespace Core.Services.Assets
 
         internal async Task<LoadedBundle> LoadBundle(BundleRequest bundleRequest)
         {
-                  if (!_loadedBundles.ContainsKey(bundleRequest.BundleName))
+            if (!_loadedBundles.ContainsKey(bundleRequest.BundleName))
             {
                 AssetBundle bundle;
                 if (_assetService.UseStreamingAssets)
@@ -93,8 +93,8 @@ namespace Core.Services.Assets
         {
             if (_loadedBundles.ContainsKey(name.ToLower()))
                 return _loadedBundles[name.ToLower()].Bundle as T;
-            
-             return null;
+
+            return null;
         }
 
 #if UNITY_EDITOR
@@ -105,7 +105,7 @@ namespace Core.Services.Assets
         /// <param name="bundleRequest">     Bundle to request </param>
         private async Task<T> SimulateAssetBundle<T>(BundleRequest bundleRequest) where T : Object
         {
-            Debug.Log(($"AssetBundleLoader: Simulated | Requesting: {bundleRequest.AssetName}  {bundleRequest.BundleName}").Colored(Colors.Aqua));
+            Debug.Log($"AssetBundleLoader: Simulated | Requesting: {bundleRequest.AssetName}  {bundleRequest.BundleName}".Colored(Colors.Aqua));
 
             var assets = new List<T>();
             //Get guid from the asset
@@ -148,7 +148,7 @@ namespace Core.Services.Assets
             var www = new UnityWebRequest();
             using (www)
             {
-                Debug.Log(($"AssetBundleLoader:  {_assetService.AssetCacheState}  | Requesting:  {bundleRequest.AssetName}  {bundleRequest.BundleName}").Colored(Colors.Aqua));
+                Debug.Log($"AssetBundleLoader:  {_assetService.AssetCacheState}  | Requesting:  {bundleRequest.AssetName}  {bundleRequest.BundleName}".Colored(Colors.Aqua));
                 if (_assetService.CloudBuildManifest != null && _assetService.AssetCacheState == AssetCacheState.Cache && _assetService.AssetCacheStrategy == AssetCacheStrategy.UseUnityCloudManifestBuildVersion)
                 {
                     //cache bundles by using Unity Cloud Build manifest
@@ -158,8 +158,8 @@ namespace Core.Services.Assets
                 }
                 else if (_assetService.CloudBuildManifest == null || _assetService.AssetCacheState == AssetCacheState.NoCache)
                 {
-                    if(_assetService.AssetCacheState == AssetCacheState.Cache)
-                        Debug.Log(("AssetBundleLoader:  Caching is enabled, but Unity Cloud Build Manifest was missing, bundle was not cached.").Colored(Colors.Aqua));
+                    if (_assetService.AssetCacheState == AssetCacheState.Cache)
+                        Debug.Log("AssetBundleLoader:  Caching is enabled, but Unity Cloud Build Manifest was missing, bundle was not cached.".Colored(Colors.Aqua));
 
                     //No caching, just get the bundle
                     www = UnityWebRequestAssetBundle.GetAssetBundle(bundleRequest.AssetPath);
@@ -182,9 +182,9 @@ namespace Core.Services.Assets
         /// Gets bundle from streaming assets directory
         /// </summary>
         /// <param name="bundleRequest"> Bundle to request </param>
-        private async Task<AssetBundle> GetBundleFromStreamingAssetsAsync(BundleRequest bundleRequest) 
+        private async Task<AssetBundle> GetBundleFromStreamingAssetsAsync(BundleRequest bundleRequest)
         {
-            Debug.Log(($"AssetBundleLoader: Using StreamingAssets -  Requesting: {bundleRequest.AssetCategory}  {bundleRequest.BundleName}").Colored(Colors.Aqua));
+            Debug.Log($"AssetBundleLoader: Using StreamingAssets -  Requesting: {bundleRequest.AssetCategory}  {bundleRequest.BundleName}".Colored(Colors.Aqua));
             var path = Path.Combine(Application.streamingAssetsPath, bundleRequest.AssetPathFromLocalStreamingAssets);
 
             return await AssetBundle.LoadFromFileAsync(path);

@@ -56,7 +56,7 @@ namespace Core.Services.Audio
 
 			if (_configuration.audioSourcePrefab)
 			{
-				_pooler = _factoryService.CreatePool<AudioSource>(_configuration.audioSourcePrefab.gameObject, _configuration.poolAmount);
+				_pooler = _factoryService.CreatePool<AudioSource>(_configuration.audioSourcePrefab, _configuration.poolAmount);
 			}
 			else
 				Debug.LogError("AudioService : PlayClip - Failed to create pool. Configuration is missing the AudioSource prefab.");
