@@ -6,28 +6,23 @@ namespace Core.Services.Factory
 {
     public class Pooler<T> where T : Component
     {
-        private Stack<T> _pool;
-
-        private int _activeElements = 0;
-
-        private Component _prefab;
-
-        private DiContainer _diContainer;
-
-        private Transform _poolerTransform;
-
+        private readonly Transform _poolerTransform;
         public Transform PoolerTransform => _poolerTransform;
-
+        
         private int _sizeLimit = 1;
-
         public int SizeLimit => _sizeLimit;
-
+        
+        private int _activeElements = 0;
         public int ActiveElements => _activeElements;
+        
+        private Stack<T> _pool;
+        private readonly Component _prefab;
+        private readonly DiContainer _diContainer;
 
-        /// <summary>
+         /// <summary>
         /// Initialize pooler
         /// </summary>
-        /// <param name="prefab">    Gameobject to be pooled </param>
+        /// <param name="prefab"> Gameobject to be pooled </param>
         /// <param name="amount"> Pool size </param>
         /// <param name="container"></param>
         /// <param name="poolTransform"></param>
@@ -76,7 +71,7 @@ namespace Core.Services.Factory
         /// <summary>
         /// Resize _pool.This changes the size of the _pool, however, if there are elements alive
         /// that have been pooled, they will stay alive until they are pushed back into the _pool at
-        /// which moment they will be destroyed if they dont fit in the ne wpool size
+        /// which moment they will be destroyed if they dont fit in the new pool size
         /// </summary>
         /// <param name="val"> New _pool size </param>
         public void ResizePool(int val)
@@ -91,7 +86,7 @@ namespace Core.Services.Factory
                     if (_pool.Count > 0)
                     {
                         var o = _pool.Pop();
-                        GameObject.Destroy(o.gameObject);
+                        Object.Destroy(o.gameObject);
                     }
         }
 
@@ -105,7 +100,7 @@ namespace Core.Services.Factory
             if (_pool.Count + _activeElements <= _sizeLimit)
                 _pool.Push(obj);
             else
-                GameObject.Destroy(obj.gameObject);
+                Object.Destroy(obj.gameObject);
 
             _activeElements--;
         }
@@ -118,7 +113,7 @@ namespace Core.Services.Factory
             DestroyPool();
 
             if (_poolerTransform)
-                GameObject.Destroy(_poolerTransform.gameObject);
+                Object.Destroy(_poolerTransform.gameObject);
         }
 
         private T Get()
@@ -126,7 +121,6 @@ namespace Core.Services.Factory
             var obj = _pool.Pop();
             obj.gameObject.SetActive(true);
             _activeElements++;
-            ;
 
             return obj;
         }
@@ -155,9 +149,7 @@ namespace Core.Services.Factory
             foreach (var obj in _pool)
             {
                 if (obj)
-                {
                     Object.Destroy(obj.gameObject);
-                }
             }
         }
     }
