@@ -145,37 +145,37 @@ namespace Core.Services.Assets
         /// <param name="bundleRequest">     Bundle to request </param>
         private async Task<AssetBundle> GetBundleFromWebOrCacheAsync(BundleRequest bundleRequest)
         {
-            var www = new UnityWebRequest();
-            using (www)
+            var uwr = new UnityWebRequest();
+
+            Debug.Log($"AssetBundleLoader:  {_assetService.AssetCacheState}  | Requesting:  {bundleRequest.AssetName}  {bundleRequest.BundleName}".Colored(Colors.Aqua));
+            if (_assetService.CloudBuildManifest != null && _assetService.AssetCacheState == AssetCacheState.Cache && _assetService.AssetCacheStrategy == AssetCacheStrategy.UseUnityCloudManifestBuildVersion)
             {
-                Debug.Log($"AssetBundleLoader:  {_assetService.AssetCacheState}  | Requesting:  {bundleRequest.AssetName}  {bundleRequest.BundleName}".Colored(Colors.Aqua));
-                if (_assetService.CloudBuildManifest != null && _assetService.AssetCacheState == AssetCacheState.Cache && _assetService.AssetCacheStrategy == AssetCacheStrategy.UseUnityCloudManifestBuildVersion)
-                {
-                    //cache bundles by using Unity Cloud Build manifest
-                    uint buildNumber = 0;
-                    buildNumber = System.Convert.ToUInt32(_assetService.CloudBuildManifest.buildNumber);
-                    www = UnityWebRequestAssetBundle.GetAssetBundle(bundleRequest.AssetPath, buildNumber, 0);
-                }
-                else if (_assetService.CloudBuildManifest == null || _assetService.AssetCacheState == AssetCacheState.NoCache)
-                {
-                    if (_assetService.AssetCacheState == AssetCacheState.Cache)
-                        Debug.Log("AssetBundleLoader:  Caching is enabled, but Unity Cloud Build Manifest was missing, bundle was not cached.".Colored(Colors.Aqua));
-
-                    //No caching, just get the bundle
-                    www = UnityWebRequestAssetBundle.GetAssetBundle(bundleRequest.AssetPath);
-                }
-
-                //Wait until www is done.
-                await www.SendWebRequest();
-
-                //get bundle
-                var bundle = DownloadHandlerAssetBundle.GetContent(www);
-
-                if (www.isNetworkError)
-                    throw new System.Exception($"AssetBundleLoader:  {www.error}");
-
-                return bundle;
+                //cache bundles by using Unity Cloud Build manifest
+                uint buildNumber = 0;
+                buildNumber = System.Convert.ToUInt32(_assetService.CloudBuildManifest.buildNumber);
+                uwr = UnityWebRequestAssetBundle.GetAssetBundle(bundleRequest.AssetPath, buildNumber, 0);
             }
+            else if (_assetService.CloudBuildManifest == null || _assetService.AssetCacheState == AssetCacheState.NoCache)
+            {
+                if (_assetService.AssetCacheState == AssetCacheState.Cache)
+                    Debug.Log("AssetBundleLoader:  Caching is enabled, but Unity Cloud Build Manifest was missing, bundle was not cached.".Colored(Colors.Aqua));
+
+                //No caching, just get the bundle
+                uwr = UnityWebRequestAssetBundle.GetAssetBundle(bundleRequest.AssetPath);
+            }
+
+            //Wait until www is done.
+            await uwr.SendWebRequest();
+
+            //get bundle
+            var bundle = DownloadHandlerAssetBundle.GetContent(uwr);
+
+            if (uwr.isNetworkError)
+                throw new System.Exception($"AssetBundleLoader:  {uwr.error}");
+
+            uwr.Dispose();
+            
+            return bundle;
         }
 
         /// <summary>

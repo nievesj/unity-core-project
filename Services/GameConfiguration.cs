@@ -59,11 +59,11 @@ namespace Core.Services
 					Container.Bind<UIServiceConfiguration>().AsSingle().NonLazy();
 				}
 
-				if (service is UpdateServiceConfiguration)
-				{
-					Container.BindInterfacesAndSelfTo<UpdateService>().AsSingle().WithArguments(service).NonLazy();
-					Container.Bind<UpdateServiceConfiguration>().AsSingle().NonLazy();
-				}
+				// if (service is UpdateServiceConfiguration)
+				// {
+				// 	Container.BindInterfacesAndSelfTo<UpdateService>().AsSingle().WithArguments(service).NonLazy();
+				// 	Container.Bind<UpdateServiceConfiguration>().AsSingle().NonLazy();
+				// }
 
 				if (service is FactoryServiceConfiguration)
 				{
