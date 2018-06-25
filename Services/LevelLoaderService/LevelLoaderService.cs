@@ -1,12 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Core.Services.Assets;
 using Core.Services.Factory;
 using Core.Services.UI;
 using UniRx;
 using UnityEngine;
 using Zenject;
-using Object = UnityEngine.Object;
 
 namespace Core.Services.Levels
 {
@@ -21,7 +19,9 @@ namespace Core.Services.Levels
         [Inject]
         private FactoryService _factoryService;
 
+#pragma warning disable 0414    // suppress value not used warning
         private LevelLoaderServiceConfiguration _configuration;
+#pragma warning restore 0414    // restore value not used warning
 
         private Level _currentLevel;
 
@@ -57,7 +57,7 @@ namespace Core.Services.Levels
             var bundleRequest = new BundleRequest(AssetCategoryRoot.Levels, name, name, _assetService.Configuration);
             var level = await _assetService.GetAndLoadAsset<Level>(bundleRequest);
 
-            Resources.UnloadUnusedAssets();
+            await Resources.UnloadUnusedAssets();
             Debug.Log(("LevelLoaderService: Loaded level - " + level.name).Colored(Colors.LightBlue));
 
             _currentLevel = _factoryService.Instantiate<Level>(level);

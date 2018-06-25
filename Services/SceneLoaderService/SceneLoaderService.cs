@@ -11,7 +11,9 @@ namespace Core.Services.Scenes
 {
     public class SceneLoaderService : Service
     {
+#pragma warning disable 0414    // suppress value not used warning
         private SceneLoaderServiceConfiguration _configuration;
+#pragma warning restore 0414    // restore value not used warning
 
         [Inject]
         private AssetService _assetService;
@@ -54,7 +56,7 @@ namespace Core.Services.Scenes
                 Debug.Log(("SceneLoaderService: Loaded scene - " + scene).Colored(Colors.LightBlue));
 
                 await SceneManager.LoadSceneAsync(scene, mode);
-                Resources.UnloadUnusedAssets();
+                // await Resources.UnloadUnusedAssets();
                 //Scene loaded, return screen to normal.
                 _uiService.DarkenScreen(false).Subscribe();
                 Debug.Log(("SceneLoaderService: Opened scene - " + scene).Colored(Colors.LightBlue));
