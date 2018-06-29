@@ -20,15 +20,12 @@ namespace Core.Services.UI
 		protected AudioService audioService;
 
 		public UIElementTransitionOptions inTransition, outTransition;
+		
 		public RectTransform RTransform { get { return GetComponent<RectTransform>(); } }
 
-		protected Subject<UIElement> onOpened = new Subject<UIElement>();
-		public IObservable<UIElement> OnOpened { get { return onOpened; } }
-
-		protected Subject<UIElement> onClosed = new Subject<UIElement>();
-		public IObservable<UIElement> OnClosed { get { return onClosed; } }
-
-		protected override void Awake() { }
+		private Subject<UIElement> onOpened = new Subject<UIElement>();
+		
+		private Subject<UIElement> onClosed = new Subject<UIElement>();
 
 		/// <summary>
 		/// Triggers after the transition on Show ends. 
@@ -47,6 +44,16 @@ namespace Core.Services.UI
 
 			Show().Subscribe(OnWindowOpened);
 		}
+		
+		public IObservable<UIElement> OnOpened()
+		{
+			return onOpened;
+		}
+
+		public IObservable<UIElement> OnClosed()
+		{
+			return onClosed;
+		}
 
 		/// <summary>
 		/// Shows the UI Element and performs any transition 
@@ -55,7 +62,7 @@ namespace Core.Services.UI
 		public virtual IObservable<UIElement> Show()
 		{
 			return Observable.Create<UIElement>(
-				(IObserver<UIElement> observer) =>
+				observer =>
 				{
 					var subject = new Subject<UIElement>();
 
@@ -84,7 +91,7 @@ namespace Core.Services.UI
 		public virtual IObservable<UIElement> Hide(bool isClose = false)
 		{
 			return Observable.Create<UIElement>(
-				(IObserver<UIElement> observer) =>
+				observer =>
 				{
 					var subject = new Subject<UIElement>();
 
@@ -104,7 +111,10 @@ namespace Core.Services.UI
 					if (outTransition != null && !outTransition.transitionType.Equals(TransitionType.NotUsed))
 						return outTransition.PlayTransition(this, true).Subscribe(OnHide);
 					else
-						return subject.Subscribe(OnHide);
+					{
+						OnHide(this);
+						return Disposable.Empty;
+					}
 				});
 		}
 
@@ -115,7 +125,7 @@ namespace Core.Services.UI
 		public virtual IObservable<UIElement> Close()
 		{
 			return Observable.Create<UIElement>(
-				(IObserver<UIElement> observer) =>
+				observer =>
 				{
 					Action<UIElement> OnCLosed = window =>
 					{

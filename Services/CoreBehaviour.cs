@@ -20,7 +20,7 @@ namespace Core.Services
 
 		protected virtual void Start()
 		{
-			_uiService.OnGamePaused.Subscribe(OnGamePaused);
+			_uiService.OnGamePaused().Subscribe(OnGamePaused);
 		}
 
 		protected virtual void Awake() { }

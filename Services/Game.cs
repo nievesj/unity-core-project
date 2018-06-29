@@ -30,7 +30,7 @@ namespace Core.Services
 		/// <param name="unit"></param>
 		protected virtual void OnGameStart(Unit unit)
 		{
-			_UIService.OnGamePaused.Subscribe(OnGamePaused);
+			_UIService.OnGamePaused().Subscribe(OnGamePaused);
 			Debug.Log(("Game Started").Colored(Colors.Lime));
 		}
 	}
