@@ -17,9 +17,10 @@ namespace Core.Services.UI
 		[Inject]
 		protected AudioService audioService;
 
-		public UIElementTransitionOptions inTransition, outTransition;
+		[SerializeField]
+		protected UIElementTransitionOptions inTransition, outTransition;
 		
-		public RectTransform RTransform { get { return GetComponent<RectTransform>(); } }
+		public RectTransform RectTransform => transform as RectTransform;
 
 		private Subject<UIElement> onOpened = new Subject<UIElement>();
 		
@@ -28,7 +29,6 @@ namespace Core.Services.UI
 		/// <summary>
 		/// Triggers after the transition on Show ends. 
 		/// </summary>
-		/// <param name="observer"></param>
 		protected abstract void OnElementShow();
 
 		/// <summary>
@@ -40,7 +40,7 @@ namespace Core.Services.UI
 		{
 			base.Start();
 
-			Show().Subscribe(OnWindowOpened);
+			Show().Subscribe();
 		}
 		
 		public IObservable<UIElement> OnOpened()
@@ -71,6 +71,9 @@ namespace Core.Services.UI
 					{
 						observer.OnNext(this);
 						observer.OnCompleted();
+						
+						onOpened.OnNext(this);
+						onOpened.OnCompleted();
 
 						OnElementShow();
 					};
@@ -128,31 +131,12 @@ namespace Core.Services.UI
 						observer.OnNext(this);
 						observer.OnCompleted();
 
-						OnWindowClosed(this);
+						onClosed.OnNext(this);
+						onClosed.OnCompleted();
 					};
 
 					return Hide(true).Subscribe(OnCLosed);
 				});
-		}
-
-		/// <summary>
-		///Communicates to _uiService that the window is opened and active
-		/// </summary>
-		/// <param name="uiElement"></param>
-		protected virtual void OnWindowOpened(UIElement uiElement)
-		{
-			onOpened.OnNext(this);
-			onOpened.OnCompleted();
-		}
-
-		/// <summary>
-		/// Communicates to _uiService that the window is ready to be destroyed and the asset unloaded 
-		/// </summary>
-		/// <param name="uiElement"></param>
-		protected virtual void OnWindowClosed(UIElement uiElement)
-		{
-			onClosed.OnNext(this);
-			onClosed.OnCompleted();
 		}
 	}
 }

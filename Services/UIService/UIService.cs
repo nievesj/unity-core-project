@@ -79,16 +79,6 @@ namespace Core.Services.UI
             }
         }
         
-        public IObservable<UIElement> OnUIElementOpened()
-        {
-            return _onUIElementOpened;
-        }
-        
-        public IObservable<UIElement> OnUIElementClosed()
-        {
-            return _onUIElementClosed;
-        }
-        
         public IObservable<bool> OnGamePaused()
         {
             return _onGamePaused;
@@ -161,7 +151,19 @@ namespace Core.Services.UI
         /// <returns> bool </returns>
         public bool IsUIElementOpen(string window)
         {
-            return _activeUIElements.ContainsKey(window) ? true : false;
+            var win = GetOpenUIElement(window);
+            return win != null;
+        }
+
+        /// <summary>
+        /// Checks if a window is already open
+        /// </summary>
+        /// <param name="window"> Window name </param>
+        /// <returns> bool </returns>
+        public bool IsUIElementOpen<T>()where T: UIElement
+        {
+            var window = GetOpenUIElement<T>();
+            return window != null;
         }
 
         /// <summary>
@@ -173,7 +175,23 @@ namespace Core.Services.UI
         {
             return _activeUIElements.ContainsKey(window) ? _activeUIElements[window] : null;
         }
+        
+        /// <summary>
+        /// Returns the reference of an open window
+        /// </summary>
+        /// <param name="window"> Window name </param>
+        /// <returns> UIWindow </returns>
+        public UIElement GetOpenUIElement<T>() where T: UIElement
+        {
+            foreach (var value in _activeUIElements.Values)
+            {
+                if (value is T)
+                    return value as T;
+            }
 
+            return null;
+        }
+        
         public IObservable<UIElement> CloseUIElement(UIElement window)
         {
             return window.Close()

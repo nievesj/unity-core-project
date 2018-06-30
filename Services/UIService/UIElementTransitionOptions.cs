@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using UniRx;
 using UnityEngine;
 using DG.Tweening;
@@ -33,7 +34,7 @@ namespace Core.Services.UI
 
 			var start = Vector2.zero;
 			var end = Vector2.zero;
-			var rtrans = uiElement.RTransform;
+			var rtrans = uiElement.RectTransform;
 			_uiElement = uiElement;
 
 			switch (transitionType)
@@ -167,9 +168,9 @@ namespace Core.Services.UI
 				observer =>
 				{
 					var subject = new Subject<UIElement>();
-					var images = transform.GetComponents<Image>();
+					var images = transform.GetComponentsInChildren<Image>();
+					//TODO add Text too.
 					var completed = 0;
-
 					foreach (var image in images)
 					{
 						image.DOFade(start, 0);
