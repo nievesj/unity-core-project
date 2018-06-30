@@ -9,7 +9,7 @@ namespace Core.Services.Factory
         private FactoryServiceConfiguration _configuration;
 #pragma warning restore 0414    // restore value not used warning
 
-        private DiContainer _diContainer;
+        private readonly DiContainer _diContainer;
 
         public FactoryService(ServiceConfiguration config, DiContainer context)
         {

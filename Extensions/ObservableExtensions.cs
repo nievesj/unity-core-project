@@ -29,6 +29,11 @@ public static class ObservableExtensions
         }
     }
 
+    /// <summary>
+    /// Converts a Task to an Observable, runs on main thread.
+    /// </summary>
+    /// <param name="task"></param>
+    /// <returns></returns>
     public static IObservable<Unit> TaskToObservable(this Task task)
     {
         return Observable.Create<Unit>(
@@ -46,6 +51,12 @@ public static class ObservableExtensions
         );
     }
 
+    /// <summary>
+    /// Converts a Task<T/> to an Observable, runs on main thread.
+    /// </summary>
+    /// <param name="task"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     public static IObservable<T> TaskToObservable<T>(this Task<T> task) where T : UnityEngine.Object
     {
         return Observable.Create<T>(
