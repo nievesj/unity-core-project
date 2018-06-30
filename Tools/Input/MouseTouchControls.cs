@@ -225,7 +225,7 @@ namespace Core.Services.Input
 #if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
 			if (UnityEngine.Input.touchCount > 0)// && Input.GetTouch(0).phase == TouchPhase.Moved)
 			{
-				position = mainCamera.ScreenToWorldPoint(UnityEngine.Input.GetTouch(0).position);
+				position = MainCamera.ScreenToWorldPoint(UnityEngine.Input.GetTouch(0).position);
 			}
 #elif UNITY_WEBGL || UNITY_EDITOR || UNITY_STANDALONE || UNITY_FACEBOOK
 
@@ -269,7 +269,7 @@ namespace Core.Services.Input
         protected Vector3 ScreenToViewportPoint()
         {
 #if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
-			return mainCamera.ScreenToViewportPoint(UnityEngine.Input.GetTouch(0).position);
+			return MainCamera.ScreenToViewportPoint(UnityEngine.Input.GetTouch(0).position);
 #elif UNITY_WEBGL || UNITY_EDITOR || UNITY_STANDALONE || UNITY_FACEBOOK
             return MainCamera.ScreenToViewportPoint(UnityEngine.Input.mousePosition);
 #endif
@@ -283,7 +283,7 @@ namespace Core.Services.Input
         protected Ray ScreenPointToRay()
         {
 #if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
-			return mainCamera.ScreenPointToRay(UnityEngine.Input.GetTouch(0).position);
+			return MainCamera.ScreenPointToRay(UnityEngine.Input.GetTouch(0).position);
 #elif UNITY_WEBGL || UNITY_EDITOR || UNITY_STANDALONE || UNITY_FACEBOOK
             return MainCamera.ScreenPointToRay(UnityEngine.Input.mousePosition);
 #endif

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using Core.Services.Audio;
 using UniRx;
 using UnityEngine;
@@ -93,8 +91,6 @@ namespace Core.Services.UI
 			return Observable.Create<UIElement>(
 				observer =>
 				{
-					var subject = new Subject<UIElement>();
-
 					//if isClose wait until PlayClip AND PlayTransition are done before doing OnNext
 					//for this PlayClip needs to be an observable
 					if (outTransition.transitionSound)
