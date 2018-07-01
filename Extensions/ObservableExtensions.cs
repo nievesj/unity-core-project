@@ -39,13 +39,12 @@ public static class ObservableExtensions
         return Observable.Create<Unit>(
             (observer) =>
             {
-                Func<Task> runTask = async () =>
+                task.Run(_ =>
                 {
-                    await task;
                     observer.OnNext(new Unit());
                     observer.OnCompleted();
-                };
-                runTask();
+                });
+
                 return Disposable.Empty;
             }
         );
@@ -62,13 +61,12 @@ public static class ObservableExtensions
         return Observable.Create<T>(
             (observer) =>
             {
-                Func<Task> runTask = async () =>
+                task.Run(x =>
                 {
-                    var val = await task;
-                    observer.OnNext(val);
+                    observer.OnNext(x);
                     observer.OnCompleted();
-                };
-                runTask();
+                });
+
                 return Disposable.Empty;
             }
         );

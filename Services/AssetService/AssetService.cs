@@ -28,20 +28,21 @@ namespace Core.Services.Assets
         public AssetService(ServiceConfiguration config)
         {
             Configuration = config as AssetServiceConfiguration;
-            Func<Task> runTask = async () =>
+            LoadBuildManifestAsync();
+        }
+
+        private async Task LoadBuildManifestAsync()
+        { 
+            var cloudManifest = await UnityCloufBuildManifestLoader.LoadBuildManifest();
+            if (cloudManifest != null)
             {
-                var cloudManifest = await UnityCloufBuildManifestLoader.LoadBuildManifest();
-                if (cloudManifest != null)
-                {
-                    Debug.Log(("---- AssetService: Unity Cloud Build Manifest present. Build Version: " + cloudManifest.buildNumber).Colored(Colors.Aqua));
-                    _cloudBuildManifest = cloudManifest;
-                }
-                else
-                {
-                    Debug.Log("---- AssetService: Unity Cloud Build Manifest missing. This is ok. Ignoring.".Colored(Colors.Aqua));
-                }
-            };
-            runTask();
+                Debug.Log(("---- AssetService: Unity Cloud Build Manifest present. Build Version: " + cloudManifest.buildNumber).Colored(Colors.Aqua));
+                _cloudBuildManifest = cloudManifest;
+            }
+            else
+            {
+                Debug.Log("---- AssetService: Unity Cloud Build Manifest missing. This is ok. Ignoring.".Colored(Colors.Aqua));
+            }
         }
 
         /// <summary>
