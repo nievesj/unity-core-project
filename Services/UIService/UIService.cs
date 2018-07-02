@@ -101,8 +101,7 @@ namespace Core.Services.UI
         /// <returns> Observable </returns>
         public async Task<T> OpenUIElement<T>(string window) where T: UIElement
         {
-            var bundleNeeded = new BundleRequest(AssetCategoryRoot.Screens, window, window, _assetService.Configuration);
-            var screen = await _assetService.GetAndLoadAsset<UIElement>(bundleNeeded);
+            var screen = await _assetService.GetAndLoadAsset<UIElement>(AssetCategoryRoot.Screens, window);
             if (!_mainCanvas)
                 throw new System.Exception("UI Service: StartService - UICanvas is missing from the scene. Was is destroyed?.");
 

@@ -102,7 +102,8 @@ namespace Core.Services.Assets
         Scenes,
         Screens,
         Audio,
-        Prefabs
+        Prefabs,
+        Particles
     }
 
     /// <summary>

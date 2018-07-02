@@ -9,9 +9,9 @@ public static class UnityTaskExtensions
     /// <param name="task"></param>
     /// <param name="onComplete"></param>
     /// <typeparam name="T"></typeparam>
-     public static void Run<T>(this Task<T> task, Action<T> onComplete = null)
+     public static Task Run<T>(this Task<T> task, Action<T> onComplete = null)
      {
-         Task.Run(async () =>
+         return Task.Run(async () =>
          {
              await Awaiters.WaitForUpdate; //Wait for main thread
              var val = await task;
@@ -24,9 +24,9 @@ public static class UnityTaskExtensions
     /// </summary>
     /// <param name="task"></param>
     /// <param name="onComplete"></param>
-    public static void Run(this Task task, Action<object> onComplete = null)
+    public static Task Run(this Task task, Action<object> onComplete = null)
     {
-        Task.Run(async () =>
+        return Task.Run(async () =>
         {
             await Awaiters.WaitForUpdate; //Wait for main thread
             await task;
