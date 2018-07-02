@@ -5,40 +5,31 @@ using UnityEngine;
 public static class Awaiters
 {
     readonly static WaitForUpdate _waitForUpdate = new WaitForUpdate();
-    readonly static WaitForFixedUpdate _waitForFixedUpdate = new WaitForFixedUpdate();
-    readonly static WaitForEndOfFrame _waitForEndOfFrame = new WaitForEndOfFrame();
+    readonly static WaitForFixedUpdate WaitForWaitForFixedUpdate = new WaitForFixedUpdate();
+    readonly static WaitForEndOfFrame WaitForWaitForEndOfFrame = new WaitForEndOfFrame();
 
-    public static WaitForUpdate NextFrame
-    {
-        get { return _waitForUpdate; }
-    }
+    public static WaitForUpdate WaitForUpdate => _waitForUpdate;
 
-    public static WaitForFixedUpdate FixedUpdate
-    {
-        get { return _waitForFixedUpdate; }
-    }
+    public static WaitForFixedUpdate WaitForFixedUpdate => WaitForWaitForFixedUpdate;
 
-    public static WaitForEndOfFrame EndOfFrame
-    {
-        get { return _waitForEndOfFrame; }
-    }
+    public static WaitForEndOfFrame WaitForEndOfFrame => WaitForWaitForEndOfFrame;
 
-    public static WaitForSeconds Seconds(float seconds)
+    public static WaitForSeconds WaitForSeconds(float seconds)
     {
         return new WaitForSeconds(seconds);
     }
 
-    public static WaitForSecondsRealtime SecondsRealtime(float seconds)
+    public static WaitForSecondsRealtime WaitForSecondsRealtime(float seconds)
     {
         return new WaitForSecondsRealtime(seconds);
     }
 
-    public static WaitUntil Until(Func<bool> predicate)
+    public static WaitUntil WaitUntil(Func<bool> predicate)
     {
         return new WaitUntil(predicate);
     }
 
-    public static WaitWhile While(Func<bool> predicate)
+    public static WaitWhile WaitWhile(Func<bool> predicate)
     {
         return new WaitWhile(predicate);
     }
