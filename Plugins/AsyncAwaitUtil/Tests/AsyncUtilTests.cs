@@ -210,7 +210,7 @@ namespace UnityAsyncAwaitUtil
         async Task<byte[]> DownloadRawDataAsync(string url)
         {
             var request = UnityWebRequest.Get(url);
-            await request.SendWebRequest();
+            await request.Send();
             return request.downloadHandler.data;
         }
 
