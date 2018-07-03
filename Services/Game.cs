@@ -1,4 +1,5 @@
-﻿using Core.Services.UI;
+﻿using System;
+using Core.Services.UI;
 using UniRx;
 using UnityEngine;
 using Zenject;
@@ -14,13 +15,12 @@ namespace Core.Services
 		protected UIService _UIService;
 
 		[Inject]
-		private Subject<Unit> _onGameStart;
+		private IObservable<Unit> _onGameStart;
 
 		protected override void Awake()
 		{
 			//Make this object persistent
-			DontDestroyOnLoad(this.gameObject);
-
+			DontDestroyOnLoad(gameObject);
 			_onGameStart.Subscribe(OnGameStart);
 		}
 
@@ -28,7 +28,7 @@ namespace Core.Services
 		///Global signal emitted when the game starts.
 		/// </summary>
 		/// <param name="unit"></param>
-		protected virtual void OnGameStart(Unit unit)
+		protected virtual async void OnGameStart(Unit unit)
 		{
 			_UIService.OnGamePaused().Subscribe(OnGamePaused);
 			Debug.Log(("Game Started").Colored(Colors.Lime));
