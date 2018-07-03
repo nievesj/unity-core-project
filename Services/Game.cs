@@ -6,32 +6,29 @@ using Zenject;
 
 namespace Core.Services
 {
-	/// <summary>
-	/// Starting point for Core Framework.
-	/// </summary>
-	public abstract class Game : CoreBehaviour
-	{
-		[Inject]
-		protected UIService _UIService;
+    /// <summary>
+    /// Starting point for Core Framework.
+    /// </summary>
+    public abstract class Game : CoreBehaviour
+    {
+        [Inject]
+        private IObservable<Unit> _onGameStarted;
 
-		[Inject]
-		private IObservable<Unit> _onGameStarted;
+        protected override void Awake()
+        {
+            //Make this object persistent
+            DontDestroyOnLoad(gameObject);
+            _onGameStarted.Subscribe(OnGameStart);
+        }
 
-		protected override void Awake()
-		{
-			//Make this object persistent
-			DontDestroyOnLoad(gameObject);
-			_onGameStarted.Subscribe(OnGameStart);
-		}
-
-		/// <summary>
-		///Global signal emitted when the game starts.
-		/// </summary>
-		/// <param name="unit"></param>
-		protected virtual async void OnGameStart(Unit unit)
-		{
-			_UIService.OnGamePaused().Subscribe(OnGamePaused);
-			Debug.Log(("Game Started").Colored(Colors.Lime));
-		}
-	}
+        /// <summary>
+        /// Method triggered when the game starts.
+        /// </summary>
+        /// <param name="unit"></param>
+        protected virtual void OnGameStart(Unit unit)
+        {
+            _uiService.OnGamePaused().Subscribe(OnGamePaused);
+            Debug.Log("Game Started".Colored(Colors.Lime));
+        }
+    }
 }

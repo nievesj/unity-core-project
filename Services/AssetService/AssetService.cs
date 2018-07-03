@@ -31,7 +31,7 @@ namespace Core.Services.Assets
             LoadBuildManifestAsync();
         }
 
-        private async Task LoadBuildManifestAsync()
+        private async void LoadBuildManifestAsync()
         { 
             var cloudManifest = await UnityCloufBuildManifestLoader.LoadBuildManifest();
             if (cloudManifest != null)
