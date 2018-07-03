@@ -45,15 +45,9 @@ namespace Core.Services.Assets
             }
         }
 
-        /// <summary>
-        /// Gets and loads the required asset bundle
-        /// </summary>
-        /// <param name="bundleRequest"> Bundle to request </param>
-        /// <returns> Observable </returns>
-        [Obsolete("Deprecated. Use one of the other overloads.")]
-        public async Task<T> GetAndLoadAsset<T>(BundleRequest bundleRequest) where T : UnityEngine.Object
+        private async Task<T> GetAndLoadAsset<T>(BundleRequest bundleRequest, bool forceLoadFromStreamingAssets = false) where T : UnityEngine.Object
         {
-            return await _assetBundlebundleLoader.LoadAsset<T>(bundleRequest);
+            return await _assetBundlebundleLoader.LoadAsset<T>(bundleRequest, forceLoadFromStreamingAssets);
         }
 
         /// <summary>
@@ -61,13 +55,14 @@ namespace Core.Services.Assets
         /// </summary>
         /// <param name="assetCatRoot"></param>
         /// <param name="assetName">Bundle name and asset name are the same</param>
+        /// <param name="forceLoadFromStreamingAssets">Forces loading from StreamingAssets folder. Useful for when including assets with the build</param>
         /// <returns> Observable </returns>
-        public async Task<T> GetAndLoadAsset<T>(AssetCategoryRoot assetCatRoot, string assetName) where T : UnityEngine.Object
+        public async Task<T> GetAndLoadAsset<T>(AssetCategoryRoot assetCatRoot, string assetName, bool forceLoadFromStreamingAssets = false) where T : UnityEngine.Object
         {
             var bundleNeeded = new BundleRequest(assetCatRoot, 
                 assetName, assetName, Configuration);
 
-            return await _assetBundlebundleLoader.LoadAsset<T>(bundleNeeded);
+            return await GetAndLoadAsset<T>(bundleNeeded, forceLoadFromStreamingAssets);
         }
 
         /// <summary>
@@ -76,13 +71,14 @@ namespace Core.Services.Assets
         /// <param name="assetCatRoot"></param>
         /// <param name="bundleName"></param>
         /// <param name="assetName">Bundle name and asset name are the same</param>
+        /// <param name="forceLoadFromStreamingAssets">Forces loading from StreamingAssets folder. Useful for when including assets with the build</param>
         /// <returns> Observable </returns>
-        public async Task<T> GetAndLoadAsset<T>(AssetCategoryRoot assetCatRoot, string bundleName, string assetName) where T : UnityEngine.Object
+        public async Task<T> GetAndLoadAsset<T>(AssetCategoryRoot assetCatRoot, string bundleName, string assetName, bool forceLoadFromStreamingAssets = false) where T : UnityEngine.Object
         {
             var bundleNeeded = new BundleRequest(assetCatRoot, 
                 bundleName, assetName, Configuration);
 
-            return await _assetBundlebundleLoader.LoadAsset<T>(bundleNeeded);
+            return await GetAndLoadAsset<T>(bundleNeeded);
         }
 
         public async Task<UnityEngine.Object> GetScene(BundleRequest bundleRequest) 
@@ -95,9 +91,9 @@ namespace Core.Services.Assets
         /// </summary>
         /// <param name="name">Asset name </param>
         /// <param name="unloadAllDependencies"> Unload all dependencies? </param>
-        public void UnloadAsset(string name, bool unloadAllDependencies)
+        public async Task UnloadAsset(string name, bool unloadAllDependencies)
         {
-            _assetBundlebundleLoader.UnloadAssetBundle(name, unloadAllDependencies);
+            await _assetBundlebundleLoader.UnloadAssetBundle(name, unloadAllDependencies);
         }
 
         /// <summary>

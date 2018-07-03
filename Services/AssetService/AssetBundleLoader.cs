@@ -38,23 +38,24 @@ namespace Core.Services.Assets
         /// it from the asset database. Asset simulation is only available on editor.
         /// </summary>
         /// <param name="bundleRequest"> Bundle to request </param>
+        /// <param name="forceLoadFromStreamingAssets">Forces loading from StreamingAssets folder. Useful for when including assets with the build</param>
         /// <returns> Observable </returns>
-        internal async Task<T> LoadAsset<T>(BundleRequest bundleRequest) where T : Object
+        internal async Task<T> LoadAsset<T>(BundleRequest bundleRequest, bool forceLoadFromStreamingAssets) where T : Object
         {
 #if UNITY_EDITOR
             if (EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES)
                 return await SimulateAssetBundle<T>(bundleRequest);
 #endif
-            var bundle = await LoadBundle(bundleRequest);
+            var bundle = await LoadBundle(bundleRequest, forceLoadFromStreamingAssets);
             return await bundle.LoadAssetAsync<T>(bundleRequest.AssetName);
         }
 
-        internal async Task<LoadedBundle> LoadBundle(BundleRequest bundleRequest)
+        internal async Task<LoadedBundle> LoadBundle(BundleRequest bundleRequest, bool forceLoadFromStreamingAssets)
         {
             if (!_loadedBundles.ContainsKey(bundleRequest.BundleName))
             {
                 AssetBundle bundle;
-                if (_assetService.UseStreamingAssets)
+                if (_assetService.UseStreamingAssets || forceLoadFromStreamingAssets)
                     bundle = await GetBundleFromStreamingAssetsAsync(bundleRequest);
                 else
                     bundle = await GetBundleFromWebOrCacheAsync(bundleRequest);
@@ -65,18 +66,18 @@ namespace Core.Services.Assets
             return _loadedBundles[bundleRequest.BundleName];
         }
 
-        internal async Task<Object> LoadScene(BundleRequest bundleRequest)
+        internal async Task<Object> LoadScene(BundleRequest bundleRequest, bool forceLoadFromStreamingAssets = false)
         {
-            var bundle = await LoadBundle(bundleRequest);
+            var bundle = await LoadBundle(bundleRequest, forceLoadFromStreamingAssets);
             return bundle.Bundle.GetAllScenePaths().Length > 0 ? bundle.Bundle : null;
         }
 
         /// <summary>
         /// Unloads asset and removes it from memory. Only do this when the asset is no longer needed.
         /// </summary>
-        /// <param name="name">                  Asset name </param>
+        /// <param name="name"> Asset name </param>
         /// <param name="unloadAllDependencies"> Unload all dependencies? </param>
-        internal void UnloadAssetBundle(string name, bool unloadAllDependencies)
+        internal async Task UnloadAssetBundle(string name, bool unloadAllDependencies)
         {
             name = name.ToLower();
 
@@ -85,7 +86,7 @@ namespace Core.Services.Assets
                 _loadedBundles[name].Unload(unloadAllDependencies);
                 _loadedBundles.Remove(name);
 
-                Resources.UnloadUnusedAssets();
+                await Resources.UnloadUnusedAssets();
             }
         }
 

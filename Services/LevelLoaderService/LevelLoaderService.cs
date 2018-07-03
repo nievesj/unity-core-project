@@ -52,7 +52,7 @@ namespace Core.Services.Levels
         private async Task<Level> DoLoadLevel(string name)
         {
             if (_currentLevel)
-                UnloadLevel(_currentLevel);
+                await UnloadLevel(_currentLevel);
 
             var level = await _assetService.GetAndLoadAsset<Level>(AssetCategoryRoot.Levels, name);
 
@@ -73,16 +73,16 @@ namespace Core.Services.Levels
         /// </summary>
         /// <param name="level"> level name </param>
         /// <returns> Observable </returns>
-        public void UnloadLevel(Level level)
+        public async Task UnloadLevel(Level level)
         {
             if (!level)
                 return;
 
             Debug.Log(("LevelLoaderService: Unloading level  - " + _currentLevel.name).Colored(Colors.LightBlue));
             Object.Destroy(level.gameObject);
-            _assetService.UnloadAsset(level.name, true);
+            await _assetService.UnloadAsset(level.name, true);
 
-            Resources.UnloadUnusedAssets();
+            await Resources.UnloadUnusedAssets();
         }
     }
 }

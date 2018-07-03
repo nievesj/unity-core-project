@@ -76,7 +76,7 @@ namespace Core.Services.Scenes
 
             Debug.Log(("SceneLoaderService: Unloaded scene - " + scene).Colored(Colors.LightBlue));
 
-            _assetService.UnloadAsset(scene, true);
+            await _assetService.UnloadAsset(scene, true);
         }
     }
 }

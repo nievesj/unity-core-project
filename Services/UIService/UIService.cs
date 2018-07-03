@@ -108,7 +108,11 @@ namespace Core.Services.UI
             var obj = _factoryService.Instantiate<UIElement>(screen, DetermineRenderPriorityCanvas(screen));
 
             obj.name = screen.name;
-            obj.OnClosed().Subscribe(UIElementClosed);
+            obj.OnClosed().Subscribe(x =>
+            {
+                UIElementClosed(x).Run();
+            });
+            
             obj.OnOpened().Subscribe(UIElementOpened);
 
             if (!_activeUIElements.ContainsKey(obj.name))
@@ -191,18 +195,12 @@ namespace Core.Services.UI
             return null;
         }
         
-        public IObservable<UIElement> CloseUIElement(UIElement window)
-        {
-            return window.Close()
-                .Subscribe(UIElementClosed) as IObservable<UIElement>;
-        }
-
         public IObservable<UIElement> DarkenScreen(bool block)
         {
             return _uiScreenFader.DarkenScreen(block);
         }
 
-        private void UIElementClosed(UIElement window)
+        private async Task UIElementClosed(UIElement window)
         {
             Debug.Log(("UI Service: Closed window - " + window.name).Colored(Colors.LightBlue));
 
@@ -213,7 +211,7 @@ namespace Core.Services.UI
             _activeUIElements.Remove(window.name);
             _onUIElementClosed.OnNext(window);
 
-            _assetService.UnloadAsset(window.name, true);
+            await _assetService.UnloadAsset(window.name, true);
             UnityEngine.Object.Destroy(window.gameObject);
         }
 
