@@ -39,39 +39,32 @@ namespace Core.Services
 					Container.Bind<AssetServiceConfiguration>().AsSingle().NonLazy();
 					Container.Bind<AssetBundleLoader>().AsSingle().NonLazy();
 				}
-
-				if (service is LevelLoaderServiceConfiguration)
+				else if (service is LevelLoaderServiceConfiguration)
 				{
 					Container.BindInterfacesAndSelfTo<LevelLoaderService>().AsSingle().WithArguments(service).NonLazy();
 					Container.Bind<LevelLoaderServiceConfiguration>().AsSingle().NonLazy();
 				}
-
-				if (service is SceneLoaderServiceConfiguration)
+				else if (service is SceneLoaderServiceConfiguration)
 				{
 					Container.BindInterfacesAndSelfTo<SceneLoaderService>().AsSingle().WithArguments(service).NonLazy();
 					Container.Bind<SceneLoaderServiceConfiguration>().AsSingle().NonLazy();
 				}
-
-				if (service is UIServiceConfiguration)
+				else if (service is UIServiceConfiguration)
 				{
 					Container.BindInterfacesAndSelfTo<UIService>().AsSingle().WithArguments(service).NonLazy();
 					Container.Bind<UIServiceConfiguration>().AsSingle().NonLazy();
 				}
-
-				if (service is FactoryServiceConfiguration)
+				else if (service is FactoryServiceConfiguration)
 				{
 					Container.BindInterfacesAndSelfTo<FactoryService>().AsSingle().WithArguments(service, Container).NonLazy();
 					Container.Bind<FactoryServiceConfiguration>().AsSingle().NonLazy();
 				}
-
-				if (service is AudioServiceConfiguration)
+				else if (service is AudioServiceConfiguration)
 				{
 					Container.BindInterfacesAndSelfTo<AudioService>().AsSingle().WithArguments(service).NonLazy();
 					Container.Bind<AudioServiceConfiguration>().AsSingle().NonLazy();
 				}
-				
-				//TODO add IOS UNITY_IOS tag after testing
-				if (service is SocialServiceConfiguration)
+				else if (service is SocialServiceConfiguration)
 				{
 					Container.BindInterfacesAndSelfTo<SocialService>().AsSingle().WithArguments(service).NonLazy();
 					Container.Bind<SocialServiceConfiguration>().AsSingle().NonLazy();
