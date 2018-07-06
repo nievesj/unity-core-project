@@ -4,8 +4,8 @@ using Core.Services.Factory;
 using Core.Services.Levels;
 using Core.Services.Scenes;
 using Core.Services.UI;
-using Core.Services.UpdateManager;
 using System.Collections.Generic;
+using Core.Services.Social;
 using UnityEngine;
 using Zenject;
 
@@ -27,7 +27,6 @@ namespace Core.Services
 			if (disableLogging)
 				Debug.unityLogger.logEnabled = false;
 
-			//TODO: JMN I'm not convinced this is the BEST way to go about this, but it will work for now.
 			Debug.Log(("GameConfiguration: Starting Services").Colored(Colors.Lime));
 			foreach (var service in services)
 			{
@@ -59,12 +58,6 @@ namespace Core.Services
 					Container.Bind<UIServiceConfiguration>().AsSingle().NonLazy();
 				}
 
-				// if (service is UpdateServiceConfiguration)
-				// {
-				// 	Container.BindInterfacesAndSelfTo<UpdateService>().AsSingle().WithArguments(service).NonLazy();
-				// 	Container.Bind<UpdateServiceConfiguration>().AsSingle().NonLazy();
-				// }
-
 				if (service is FactoryServiceConfiguration)
 				{
 					Container.BindInterfacesAndSelfTo<FactoryService>().AsSingle().WithArguments(service, Container).NonLazy();
@@ -75,6 +68,13 @@ namespace Core.Services
 				{
 					Container.BindInterfacesAndSelfTo<AudioService>().AsSingle().WithArguments(service).NonLazy();
 					Container.Bind<AudioServiceConfiguration>().AsSingle().NonLazy();
+				}
+				
+				//TODO add IOS UNITY_IOS tag after testing
+				if (service is SocialServiceConfiguration)
+				{
+					Container.BindInterfacesAndSelfTo<SocialService>().AsSingle().WithArguments(service).NonLazy();
+					Container.Bind<SocialServiceConfiguration>().AsSingle().NonLazy();
 				}
 			}
 		}
