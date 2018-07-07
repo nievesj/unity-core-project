@@ -11,10 +11,13 @@ namespace Core.Services.Data
         string FileName { get; }
     }
 
+    /// <summary>
+    /// Service helps with serializing / deserializing data.
+    /// </summary>
     public class PersistentDataService : Service
     {
         private readonly PersistentDataServiceConfiguration _configuration;
-        private string DataFolder => $"{Application.persistentDataPath}/{_configuration.PersistentDataDirectoryName}";
+        private string _dataDirectory;
 
         public PersistentDataService(ServiceConfiguration config)
         {
@@ -24,38 +27,50 @@ namespace Core.Services.Data
         public override void Initialize()
         {
             base.Initialize();
+            
+            //Cache this as Application.persistentDataPath cannot be accessed from a thread.
+            _dataDirectory = $"{Application.persistentDataPath}/{_configuration.PersistentDataDirectoryName}";
 
-            if (!Directory.Exists(DataFolder))
-                Directory.CreateDirectory(DataFolder);
+            if (!Directory.Exists(_dataDirectory))
+                Directory.CreateDirectory(_dataDirectory);
         }
 
+        /// <summary>
+        /// Saves data into a file.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public async Task Save<T>(T data) where T : IStorable
         {
-            if (data is MonoBehaviour)
-            {
-                Debug.LogError($"Persistent Data Service: Monobehaviours cannot be serialized. Aborting.".Colored(Colors.LightPink));
-                return;
-            }
-            
-            var filename = data.FileName + _configuration.DataFileExtension;
-
-            try
-            {
-                using (var file = File.Open(DataFolder + "/" + filename, FileMode.Create))
+            await Task.Run(() => 
+            { 
+                if (data is MonoBehaviour)
                 {
-                    var bf = new BinaryFormatter();
-                    bf.Serialize(file, data);
-
-                    await file.FlushAsync();
-                    file.Close();
-
-                    Debug.Log($"Persistent Data Service: Saving to - {DataFolder + "/" + filename}".Colored(Colors.LightPink));
+                    Debug.LogError($"Persistent Data Service: Monobehaviours cannot be serialized. Aborting.".Colored(Colors.LightPink));
+                    return;
                 }
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"Persistent Data Service: error saving to - {DataFolder + "/" + filename}, {e.Message}");
-            }
+            
+                var filename = data.FileName + _configuration.DataFileExtension;
+
+                try
+                {
+                    using (var file = File.Open(_dataDirectory + "/" + filename, FileMode.Create))
+                    {
+                        var bf = new BinaryFormatter();
+                        bf.Serialize(file, data); //todo: need to find an async way of doing this
+
+                        file.Flush();
+                        file.Close();
+
+                        Debug.Log($"Persistent Data Service: Saving to - {_dataDirectory + "/" + filename}".Colored(Colors.LightPink));
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"Persistent Data Service: error saving to - {_dataDirectory + "/" + filename}, {e.Message}");
+                }
+            });
         }
 
         public async Task<T> Load<T>() where T : IStorable
@@ -63,41 +78,43 @@ namespace Core.Services.Data
             return await Load<T>(typeof(T).Name);
         }
 
+        /// <summary>
+        /// Loads serialized data into an object
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public async Task<T> Load<T>(string filename) where T : IStorable
         {
-            filename += _configuration.DataFileExtension;
-            
-            if (!File.Exists(DataFolder + "/" + filename))
-            {
-                Debug.LogError($"Persistent Data Service: File {DataFolder + "/" + filename} does not exists.");
-                return default(T);
-            }
-
-            try
-            {
-                using (var file = File.Open(DataFolder + "/" + filename, FileMode.Open))
+            return await Task.Run(() => 
+            { 
+                filename += _configuration.DataFileExtension;
+                if (!File.Exists(_dataDirectory + "/" + filename))
                 {
-                    var bf = new BinaryFormatter();
-                    var retult = new byte[file.Length];
-
-                    await file.ReadAsync(retult, 0, (int) file.Length);
-
-                    file.Position = 0;
-                     var data = (T) bf.Deserialize(file);
-
-                    file.Close();
-
-                    Debug.Log($"Persistent Data Service: Reading from - {DataFolder + "/" + filename}".Colored(Colors.LightPink));
-                    
-                    return data;
+                    Debug.LogError($"Persistent Data Service: File {_dataDirectory + "/" + filename} does not exists.");
+                    return default(T);
                 }
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"Persistent Data Service: Error - {e.Message}");
-            }
+
+                try
+                {
+                    using (var file = File.Open(_dataDirectory + "/" + filename, FileMode.Open))
+                    {
+                        var bf = new BinaryFormatter();
+                        var data = (T) bf.Deserialize(file); //todo: need to find an async way of doing this
+                        file.Close();
+
+                        Debug.Log($"Persistent Data Service: Reading from - {_dataDirectory + "/" + filename}".Colored(Colors.LightPink));
+                    
+                        return data;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"Persistent Data Service: Error - {e.Message}");
+                }
             
-            return default(T);
+                return default(T);
+            });
         }
     }
 }

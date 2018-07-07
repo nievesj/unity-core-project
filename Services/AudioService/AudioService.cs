@@ -8,6 +8,9 @@ using Zenject;
 
 namespace Core.Services.Audio
 {
+    /// <summary>
+    /// Service plays audio from a central place.
+    /// </summary>
     public class AudioService : Service
     {
         [Inject]
@@ -58,9 +61,7 @@ namespace Core.Services.Audio
             base.Initialize();
 
             if (_configuration.audioSourcePrefab)
-            {
                 _pooler = _factoryService.CreatePool<AudioSource>(_configuration.audioSourcePrefab, _configuration.poolAmount);
-            }
             else
                 Debug.LogError("AudioService : PlayClip - Failed to create pool. Configuration is missing the AudioSource prefab.");
         }
