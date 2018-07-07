@@ -10,13 +10,17 @@ namespace Core.Services.Assets
     /// </summary>
     public class LoadedBundle
     {
-        private AssetBundle _assetBundle;
-        private ManifestInfo _manifestInfo;
-        internal AssetBundle Bundle => _assetBundle;
+        private readonly GameObject _simulatedAsset;
+        internal AssetBundle Bundle { get; }
 
         public LoadedBundle(AssetBundle asset)
         {
-            _assetBundle = asset;
+            Bundle = asset;
+        }
+        
+        public LoadedBundle(GameObject asset)
+        {
+            _simulatedAsset = asset;
         }
 
         /// <summary>
@@ -25,8 +29,8 @@ namespace Core.Services.Assets
         /// <param name="unloadAll"></param>
         public void Unload(bool unloadAll = false)
         {
-            if (_assetBundle)
-                _assetBundle.Unload(unloadAll);
+            if (Bundle)
+                Bundle.Unload(unloadAll);
         }
 
         /// <summary>
@@ -36,9 +40,19 @@ namespace Core.Services.Assets
         /// <returns></returns>
         public async Task<T> LoadAssetAsync<T>(string name) where T : UnityEngine.Object
         {
+            
+#if UNITY_EDITOR
+            if (EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES)
+            {
+                Debug.Log(("LoadedBundle Simulated: Async loading asset: " + name).Colored(Colors.Yellow));
+                var comp = _simulatedAsset.GetComponent<T>();
+                await Task.Yield();
+                return comp;
+            }
+#endif
+            
             Debug.Log(("LoadedBundle: Async loading asset: " + name).Colored(Colors.Yellow));
-
-            return await GetAssetCompomnentAsync<T>(_assetBundle.LoadAssetAsync(name));
+            return await GetAssetComponentAsync<T>(Bundle.LoadAssetAsync(name));
         }
 
         /// <summary>
@@ -46,7 +60,7 @@ namespace Core.Services.Assets
         /// </summary>
         /// <param name="asyncOperation">   </param>
         /// <returns></returns>
-        private async Task<T> GetAssetCompomnentAsync<T>(AssetBundleRequest asyncOperation) where T : UnityEngine.Object
+        private async Task<T> GetAssetComponentAsync<T>(AssetBundleRequest asyncOperation) where T : UnityEngine.Object
         {
             await asyncOperation;
 
@@ -55,9 +69,7 @@ namespace Core.Services.Assets
 
             //Current use case returns the component, if this changes then deal with it downstream but for now this should be ok
             var go = asyncOperation.asset as GameObject;
-            var comp = go.GetComponent<T>();
-
-            return comp;
+            return go.GetComponent<T>();
         }
     }
 }

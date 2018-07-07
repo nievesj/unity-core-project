@@ -46,10 +46,10 @@ namespace Core.Services.Scenes
         /// <returns></returns>
         private async Task<UnityEngine.Object> GetScene(string scene, LoadSceneMode mode = LoadSceneMode.Single)
         {
-            if (_assetService.GetLoadedBundle<UnityEngine.Object>(scene))
+            if (_assetService.GetLoadedBundle(scene))
                 throw new Exception("Scene " + scene + " is already loaded and open. Opening the same scene twice is not supported.");
 
-            var sceneObject = await _assetService.GetScene(new BundleRequest(AssetCategoryRoot.Scenes, scene, scene, _assetService.Configuration));
+            var sceneObject = await _assetService.GetScene(new BundleRequest(AssetCategoryRoot.Scenes, scene, scene));
 
             if (sceneObject)
             {

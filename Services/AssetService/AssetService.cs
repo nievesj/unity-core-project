@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using Zenject;
@@ -45,7 +46,7 @@ namespace Core.Services.Assets
             }
         }
 
-        private async Task<T> GetAndLoadAsset<T>(BundleRequest bundleRequest, bool forceLoadFromStreamingAssets = false) where T : UnityEngine.Object
+        private async Task<T> LoadAsset<T>(BundleRequest bundleRequest, bool forceLoadFromStreamingAssets = false) where T : UnityEngine.Object
         {
             return await _assetBundlebundleLoader.LoadAsset<T>(bundleRequest, forceLoadFromStreamingAssets);
         }
@@ -57,12 +58,12 @@ namespace Core.Services.Assets
         /// <param name="assetName">Bundle name and asset name are the same</param>
         /// <param name="forceLoadFromStreamingAssets">Forces loading from StreamingAssets folder. Useful for when including assets with the build</param>
         /// <returns> Observable </returns>
-        public async Task<T> GetAndLoadAsset<T>(AssetCategoryRoot assetCatRoot, string assetName, bool forceLoadFromStreamingAssets = false) where T : UnityEngine.Object
+        public async Task<T> LoadAsset<T>(AssetCategoryRoot assetCatRoot, string assetName, bool forceLoadFromStreamingAssets = false) where T : UnityEngine.Object
         {
             var bundleNeeded = new BundleRequest(assetCatRoot, 
-                assetName, assetName, Configuration);
+                assetName, assetName);
 
-            return await GetAndLoadAsset<T>(bundleNeeded, forceLoadFromStreamingAssets);
+            return await LoadAsset<T>(bundleNeeded, forceLoadFromStreamingAssets);
         }
 
         /// <summary>
@@ -73,17 +74,53 @@ namespace Core.Services.Assets
         /// <param name="assetName">Bundle name and asset name are the same</param>
         /// <param name="forceLoadFromStreamingAssets">Forces loading from StreamingAssets folder. Useful for when including assets with the build</param>
         /// <returns> Observable </returns>
-        public async Task<T> GetAndLoadAsset<T>(AssetCategoryRoot assetCatRoot, string bundleName, string assetName, bool forceLoadFromStreamingAssets = false) where T : UnityEngine.Object
+        public async Task<T> LoadAsset<T>(AssetCategoryRoot assetCatRoot, string bundleName, string assetName, bool forceLoadFromStreamingAssets = false) where T : UnityEngine.Object
         {
             var bundleNeeded = new BundleRequest(assetCatRoot, 
-                bundleName, assetName, Configuration);
+                bundleName, assetName);
 
-            return await GetAndLoadAsset<T>(bundleNeeded);
+            return await LoadAsset<T>(bundleNeeded);
         }
 
         public async Task<UnityEngine.Object> GetScene(BundleRequest bundleRequest) 
         {
             return await _assetBundlebundleLoader.LoadScene(bundleRequest);
+        }
+
+        /// <summary>
+        /// Utility method to request multiple assets. 
+        /// </summary>
+        /// <param name="requests">Bundle requests</param>
+        /// <param name="progress">Reports loading progress percentage</param>
+        /// <param name="forceLoadFromStreamingAssets"></param>
+        /// <returns></returns>
+        public async Task<Dictionary<string, LoadedBundle>> LoadMultipleBundles(List<BundleRequest> requests, IProgress<int> progress, bool forceLoadFromStreamingAssets = false)
+        {
+            var total = requests.Count;
+            var bundles = new Dictionary<string, LoadedBundle>();
+            var percent = 0;
+
+            var process = await Task.Run(async () =>
+            {
+                var tempCount = 0;
+                foreach (var request in requests)
+                {
+                    await Awaiters.WaitForUpdate; //Wait for main thread
+
+                    var bundle = await _assetBundlebundleLoader.LoadBundle(request, forceLoadFromStreamingAssets);
+                    bundles.Add(request.BundleName, bundle);
+                    
+                    tempCount++;
+                    percent = tempCount * 100 / total;
+                    progress?.Report(percent);
+
+                    Debug.Log($"LoadMultipleAssets: {tempCount} of {total} | {percent}%".Colored(Colors.Aquamarine));
+                }
+
+                return tempCount;
+            });
+
+            return bundles;
         }
 
         /// <summary>
@@ -101,9 +138,9 @@ namespace Core.Services.Assets
         /// </summary>
         /// <param name="name"> Asset name </param>
         /// <returns> T </returns>
-        public T GetLoadedBundle<T>(string name) where T : UnityEngine.Object
+        public AssetBundle GetLoadedBundle(string name) 
         {
-            return _assetBundlebundleLoader.GetLoadedBundle<T>(name);
+            return _assetBundlebundleLoader.GetLoadedBundle(name);
         }
     }
 }

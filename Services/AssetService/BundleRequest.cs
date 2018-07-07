@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Core.Services.Assets
@@ -20,44 +21,21 @@ namespace Core.Services.Assets
     public class BundleRequest
     {
         //Directory where the bundle is located.
-        private AssetCategoryRoot _assetCategory;
-        private AssetServiceConfiguration _assetServiceConfiguration;
-        public AssetCategoryRoot AssetCategory => _assetCategory;
-        private string _bundleName;
-        public string BundleName => _bundleName;
+        public AssetCategoryRoot AssetCategory { get; }
+
+        public string BundleName { get; }
+        
+        public string AssetName { get; }
 
         //Manifest file associated to the bundle. This is needed in case the HASH number is requiered for caching the bundle
-        public string ManifestName => _bundleName + ".manifest";
+        [Obsolete("Deprecated. No longer needed.")]
+        public string ManifestName => BundleName + ".manifest";
 
-        private string assetName;
-        public string AssetName => assetName;
-
+        [Obsolete("Deprecated. No longer needed.")]
         public string ManifestAgeFile => Application.persistentDataPath + "/" + BundleName + "age.json";
+        
+        [Obsolete("Deprecated. No longer needed.")]
         public string CachedManifestFile => Application.persistentDataPath + "/" + ManifestName;
-
-        public string AssetPath
-        {
-            get
-            {
-                if (AssetCategory.Equals(AssetCategoryRoot.None))
-                    return _assetServiceConfiguration.PlatformAssetBundleURL + BundleName + "?r=" + UnityEngine.Random.value * 9999999; //this random value prevents caching on the web server
-                else
-                    return _assetServiceConfiguration.PlatformAssetBundleURL + AssetCategory.ToString().ToLower() + "/" + BundleName;
-            }
-        }
-
-        public string ManifestPath
-        {
-            get
-            {
-                Debug.Log(("AssetBundleLoader: Loading Manifest " + ManifestName).Colored(Colors.Aqua));
-
-                if (AssetCategory.Equals(AssetCategoryRoot.None))
-                    return _assetServiceConfiguration.PlatformAssetBundleURL + ManifestName + "?r=" + UnityEngine.Random.value * 9999999; //this random value prevents caching on the web server;
-                else
-                    return _assetServiceConfiguration.PlatformAssetBundleURL + AssetCategory.ToString().ToLower() + "/" + ManifestName;
-            }
-        }
 
         public string AssetPathFromLocalStreamingAssets
         {
@@ -81,12 +59,29 @@ namespace Core.Services.Assets
             }
         }
 
-        public BundleRequest(AssetCategoryRoot cat, string bundle, string asset, AssetServiceConfiguration config)
+        public BundleRequest(AssetCategoryRoot cat, string bundle, string asset)
         {
-            _assetCategory = cat;
-            _bundleName = bundle.ToLower();
-            assetName = asset.ToLower();
-            _assetServiceConfiguration = config;
+            AssetCategory = cat;
+            BundleName = bundle.ToLower();
+            AssetName = asset.ToLower();
+        }
+        
+        public string GetAssetPath(AssetServiceConfiguration config)
+        {
+            if (AssetCategory.Equals(AssetCategoryRoot.None))
+                return config.PlatformAssetBundleURL + BundleName + "?r=" + UnityEngine.Random.value * 9999999; //this random value prevents caching on the web server
+            else
+                return config.PlatformAssetBundleURL + AssetCategory.ToString().ToLower() + "/" + BundleName;
+        }
+
+        public string GetManifestPath(AssetServiceConfiguration config)
+        {
+            Debug.Log(("AssetBundleLoader: Loading Manifest " + ManifestName).Colored(Colors.Aqua));
+
+            if (AssetCategory.Equals(AssetCategoryRoot.None))
+                return config.PlatformAssetBundleURL + ManifestName + "?r=" + UnityEngine.Random.value * 9999999; //this random value prevents caching on the web server;
+            else
+                return config.PlatformAssetBundleURL + AssetCategory.ToString().ToLower() + "/" + ManifestName;
         }
     }
 
@@ -100,7 +95,7 @@ namespace Core.Services.Assets
         Services,
         Levels,
         Scenes,
-        Screens,
+        UI,
         Audio,
         Prefabs,
         Particles

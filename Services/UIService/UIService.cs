@@ -101,13 +101,18 @@ namespace Core.Services.UI
         /// <returns> Observable </returns>
         public async Task<T> OpenUIElement<T>(string window) where T: UIElement
         {
-            var screen = await _assetService.GetAndLoadAsset<UIElement>(AssetCategoryRoot.Screens, window);
+            var screen = await _assetService.LoadAsset<UIElement>(AssetCategoryRoot.UI, window);
             if (!_mainCanvas)
                 throw new System.Exception("UI Service: StartService - UICanvas is missing from the scene. Was is destroyed?.");
 
-            var obj = _factoryService.Instantiate<UIElement>(screen, DetermineRenderPriorityCanvas(screen));
+            return await OpenUIElement<T>(screen);
+        }
+        
+        public async Task<T> OpenUIElement<T>(UIElement window)  where T: UIElement
+        {
+            var obj = _factoryService.Instantiate<UIElement>(window, DetermineRenderPriorityCanvas(window));
+            obj.name = window.name;
 
-            obj.name = screen.name;
             obj.OnClosed().Subscribe(x =>
             {
                 UIElementClosed(x).Run();
@@ -122,8 +127,8 @@ namespace Core.Services.UI
             if (obj is UIDialog)
                 _onGamePaused.OnNext(true);
 
-            Debug.Log(($"UI Service: Loaded window - {screen.name}").Colored(Colors.LightBlue));
-
+            Debug.Log(($"UI Service: Loaded window - {obj.name}").Colored(Colors.LightBlue));
+            await Awaiters.WaitForEndOfFrame;
             return obj as T;
         }
 

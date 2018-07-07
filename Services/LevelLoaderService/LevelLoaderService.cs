@@ -54,7 +54,7 @@ namespace Core.Services.Levels
             if (_currentLevel)
                 await UnloadLevel(_currentLevel);
 
-            var level = await _assetService.GetAndLoadAsset<Level>(AssetCategoryRoot.Levels, name);
+            var level = await _assetService.LoadAsset<Level>(AssetCategoryRoot.Levels, name);
 
             await Resources.UnloadUnusedAssets();
             Debug.Log(("LevelLoaderService: Loaded level - " + level.name).Colored(Colors.LightBlue));
