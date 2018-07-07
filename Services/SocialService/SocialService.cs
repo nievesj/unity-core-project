@@ -9,7 +9,6 @@ namespace Core.Services.Social
 {
     public class SocialService : Service
     {
-        [SerializeField]
         private readonly SocialServiceConfiguration _configuration;
 
         public bool IsAuthenticated => UnityEngine.Social.localUser.authenticated;

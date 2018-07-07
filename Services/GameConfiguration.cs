@@ -5,6 +5,7 @@ using Core.Services.Levels;
 using Core.Services.Scenes;
 using Core.Services.UI;
 using System.Collections.Generic;
+using Core.Services.Data;
 using Core.Services.Social;
 using UnityEngine;
 using Zenject;
@@ -68,6 +69,11 @@ namespace Core.Services
 				{
 					Container.BindInterfacesAndSelfTo<SocialService>().AsSingle().WithArguments(service).NonLazy();
 					Container.Bind<SocialServiceConfiguration>().AsSingle().NonLazy();
+				}
+				else if (service is PersistentDataServiceConfiguration)
+				{
+					Container.BindInterfacesAndSelfTo<PersistentDataService>().AsSingle().WithArguments(service).NonLazy();
+					Container.Bind<PersistentDataServiceConfiguration>().AsSingle().NonLazy();
 				}
 			}
 		}
