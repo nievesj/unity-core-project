@@ -118,46 +118,6 @@ namespace Core.Services.Assets
             return null;
         }
 
-#if UNITY_EDITOR
-
-        /// <summary>
-        /// Method attemps to get an asset from the asset database.
-        /// </summary>
-        /// <param name="bundleRequest"> Bundle to request </param>
-        private async Task<T> SimulateAssetBundle<T>(BundleRequest bundleRequest) where T : Object
-        {
-            Debug.Log($"AssetBundleLoader: Simulated | Requesting: {bundleRequest.AssetName}  {bundleRequest.BundleName}".Colored(Colors.Aqua));
-
-            var assets = new List<T>();
-            //Get guid from the asset
-            var guids = AssetDatabase.FindAssets(bundleRequest.BundleName);
-
-            //This will give you a bunch of assets of the same name, we need to filter it further
-            foreach (var id in guids)
-            {
-                //Get path
-                var path = AssetDatabase.GUIDToAssetPath(id);
-                //Get actual asset on that path of the type we're looking for.
-                var asset = AssetDatabase.LoadAssetAtPath<T>(path);
-                //This assumes that assets of the same type are located in the same directory, thus, they should have unique names.
-                if (asset && asset.name.ToLower() == bundleRequest.BundleName.ToLower())
-                {
-                    //Stop loop when the first asset of T is found
-                    assets.Add(asset);
-                    break;
-                }
-
-                await new WaitForEndOfFrame();
-            }
-
-            //Show error if there are duplicate assets on different locations. This should be avoided...
-            if (assets.Count > 1)
-                Debug.LogError("Duplicate asset names. You have two assets of the same name in different locations. Try using unique names for your asset bundles.");
-
-            return assets.First();
-        }
-#endif
-
         /// <summary>
         /// Method attemps to get a bundle from the web/cloud
         /// </summary>
