@@ -8,8 +8,8 @@ using UnityEngine;
 /// </summary>
 public class ClearCacheMenuItem
 {
-	[MenuItem("_Core / Clear Asset Bundle Cache")]
-	private static void CreateRedBlueGameObject()
+	[MenuItem("Core Framework / Clear Asset Bundle Cache")]
+	private static void ClearAssetBundleCache()
 	{
 		//Get all cache paths... in Unity's unique way....
 		var cachePaths = new List<string>();
@@ -30,36 +30,36 @@ public class ClearCacheMenuItem
 		if (cachePaths.Count < 1)
 			Debug.Log(("Cache was empty.").Colored(Colors.Yellow));
 
-		//Delete any cached .manifest files
+		//Delete Application.persistentDataPath
 		Directory.Delete(Application.persistentDataPath, true);
 		Debug.Log(("Clearing persistent data: Directory " + Application.persistentDataPath + " deleted.").Colored(Colors.Yellow));
 	}
 
-	[MenuItem("_Core / Enable Simulate Asset Bundles")]
+	[MenuItem("Core Framework / Enable Simulate Asset Bundles")]
 	private static void GetEnableCachedInfo()
 	{
-		CreateRedBlueGameObject();
+		ClearAssetBundleCache();
 
 		EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES = true;
 		Debug.Log(("Enabled asset bundle simulation mode.").Colored(Colors.Yellow));
 	}
 
-	[MenuItem("_Core / Enable Simulate Asset Bundles", true)]
+	[MenuItem("Core Framework / Enable Simulate Asset Bundles", true)]
 	private static bool GetEnableCachedInfoVal()
 	{
 		return !EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES ? true : false;
 	}
 
-	[MenuItem("_Core / Disable Simulate Asset Bundles")]
+	[MenuItem("Core Framework / Disable Simulate Asset Bundles")]
 	private static void GetDisableCachedInfo()
 	{
-		CreateRedBlueGameObject();
+		ClearAssetBundleCache();
 
 		EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES = false;
 		Debug.Log(("Disabled asset bundle simulation mode.").Colored(Colors.Yellow));
 	}
 
-	[MenuItem("_Core / Disable Simulate Asset Bundles", true)]
+	[MenuItem("Core Framework / Disable Simulate Asset Bundles", true)]
 	private static bool GetDisableCachedInfoVal()
 	{
 		return EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES ? true : false;
