@@ -29,10 +29,14 @@ public class ClearCacheMenuItem
 
 		if (cachePaths.Count < 1)
 			Debug.Log(("Cache was empty.").Colored(Colors.Yellow));
+	}
 
+	[MenuItem("Core Framework / Delete Persistent Data Directory (Also deletes any saved data files)")]
+	private static void DeletePersistentData()
+	{
 		//Delete Application.persistentDataPath
 		Directory.Delete(Application.persistentDataPath, true);
-		Debug.Log(("Clearing persistent data: Directory " + Application.persistentDataPath + " deleted.").Colored(Colors.Yellow));
+		Debug.Log(("Deleting persistent data directory " + Application.persistentDataPath).Colored(Colors.Yellow));
 	}
 
 	[MenuItem("Core Framework / Enable Simulate Asset Bundles")]
