@@ -19,6 +19,8 @@ namespace Core.Services.UI
 
 		protected override void Awake()
 		{
+			base.Awake();
+			
 			if (showHideButton)
 				showHideButton.onClick.AddListener(OnShowHideButtonClick);
 		}

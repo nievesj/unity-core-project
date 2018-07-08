@@ -11,21 +11,17 @@ namespace Core.Services.UI
 	/// </summary>
 	public abstract class UIElement : CoreBehaviour
 	{
-		[Inject]
-		protected UIService uiService;
-
-		[Inject]
-		protected AudioService audioService;
+		public bool PauseGameWhenOpen = false;
+		public RectTransform RectTransform => transform as RectTransform;
 
 		[SerializeField]
 		protected UIElementTransitionOptions inTransition, outTransition;
 		
-		public RectTransform RectTransform => transform as RectTransform;
-
-		private Subject<UIElement> onOpened = new Subject<UIElement>();
+		private readonly Subject<UIElement> _onClosed = new Subject<UIElement>();
 		
-		private Subject<UIElement> onClosed = new Subject<UIElement>();
-
+		[Inject]
+		protected AudioService AudioService;
+		
 		/// <summary>
 		/// Triggers after the transition on Show ends. 
 		/// </summary>
@@ -36,6 +32,14 @@ namespace Core.Services.UI
 		/// </summary>
 		protected abstract void OnElementHide();
 
+		protected override void Awake()
+		{
+			base.Awake();
+			
+			if (PauseGameWhenOpen)
+				_signalBus.Fire(new OnGamePausedSignal(true));
+		}
+
 		protected override void Start()
 		{
 			base.Start();
@@ -43,14 +47,9 @@ namespace Core.Services.UI
 			Show().Subscribe();
 		}
 		
-		public IObservable<UIElement> OnOpened()
-		{
-			return onOpened;
-		}
-
 		public IObservable<UIElement> OnClosed()
 		{
-			return onClosed;
+			return _onClosed;
 		}
 
 		/// <summary>
@@ -65,15 +64,12 @@ namespace Core.Services.UI
 					var subject = new Subject<UIElement>();
 
 					if (inTransition.transitionSound)
-						audioService.PlayClip(inTransition.transitionSound);
+						AudioService.PlayClip(inTransition.transitionSound);
 
 					Action<UIElement> OnShow = uiElement =>
 					{
 						observer.OnNext(this);
 						observer.OnCompleted();
-						
-						onOpened.OnNext(this);
-						onOpened.OnCompleted();
 
 						OnElementShow();
 					};
@@ -97,7 +93,7 @@ namespace Core.Services.UI
 					//if isClose wait until PlayClip AND PlayTransition are done before doing OnNext
 					//for this PlayClip needs to be an observable
 					if (outTransition.transitionSound)
-						audioService.PlayClip(outTransition.transitionSound);
+						AudioService.PlayClip(outTransition.transitionSound);
 
 					Action<UIElement> OnHide = uiElement =>
 					{
@@ -131,12 +127,20 @@ namespace Core.Services.UI
 						observer.OnNext(this);
 						observer.OnCompleted();
 
-						onClosed.OnNext(this);
-						onClosed.OnCompleted();
+						_onClosed.OnNext(this);
+						_onClosed.OnCompleted();
 					};
 
 					return Hide(true).Subscribe(OnCLosed);
 				});
+		}
+
+		protected override void OnDestroy()
+		{
+			base.OnDestroy();
+			
+			if (PauseGameWhenOpen)
+				_signalBus.Fire(new OnGamePausedSignal(false));
 		}
 	}
 }

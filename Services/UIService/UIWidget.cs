@@ -14,8 +14,6 @@ namespace Core.Services.UI
 		protected bool isShowing = false;
 		protected bool isTransitioning = false;
 
-		protected override void Awake() {}
-
 		public void ShowHideWidget()
 		{
 			if (!isTransitioning)

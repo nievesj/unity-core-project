@@ -17,14 +17,29 @@ namespace Core.Services
 	{
 		[Inject]
 		protected UIService _uiService;
-
-		protected virtual void Start()
+		
+		[Inject]
+		protected SignalBus _signalBus;
+		
+		protected virtual void Awake()
 		{
-			_uiService.OnGamePaused().Subscribe(OnGamePaused);
+			////Example on how to subscribe to paused signal. Do not uncomment this as all elements
+			//// that inherit from CoreBehaviour will trigger it too
+			//_signalBus.Subscribe<OnGamePausedSignal>(OnGamePaused);
 		}
-
-		protected virtual void Awake() { }
-		protected virtual void OnGamePaused(bool isPaused) { }
-		protected virtual void OnDestroy() { }
+		
+		protected virtual void Start(){}
+			
+		// protected virtual void OnGamePaused(OnGamePausedSignal signal)
+		// {
+		// 	// Debug.Log($"CoreBehaviour: Game Paused Triggered {name} {signal.IsPaused}".Colored(Colors.LightSalmon));
+		// }
+		
+		protected virtual void OnDestroy()
+		{
+			////Example on how to unsubscribe to paused signal. Do not uncomment this as all elements
+			//// that inherit from CoreBehaviour will trigger it too
+			// _signalBus.TryUnsubscribe<OnGamePausedSignal>(OnGamePaused);
+		}
 	}
 }

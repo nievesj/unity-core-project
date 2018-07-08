@@ -16,7 +16,7 @@ namespace Core.Services
 	/// Game configuration. Contains the configuration of all the services to be started when the
 	/// game starts.
 	/// </summary>
-	[CreateAssetMenu(fileName = "Core Framework", menuName = "Installers/Core Framework Settings/Game Configuration")]
+	[CreateAssetMenu(fileName = "Game Configuration", menuName = "Installers/Core Framework Settings/Game Configuration")]
 	public class GameConfiguration : ScriptableObjectInstaller<GameConfiguration>
 	{
 		public bool disableLogging = false;
@@ -28,11 +28,14 @@ namespace Core.Services
 				Debug.unityLogger.logEnabled = false;
 			
 			//Initialize SignalBus
-			SignalBusInstaller.Install(Container);
+			SignalBusInstaller.Install(Container); //This allows SignalBus to be injected in any class instantiated here, or any of its children.
 			
-			//Add any relevant signals
-			Container.DeclareSignal<GameStartedSignal>();
+			//Add Game Started Signal
+			Container.DeclareSignal<OnGameStartedSignal>();
 			
+			//Add On Game Paused Signal
+			Container.DeclareSignal<OnGamePausedSignal>();
+
 			Debug.Log(("GameConfiguration: Starting Services").Colored(Colors.Lime));
 			foreach (var service in services)
 			{

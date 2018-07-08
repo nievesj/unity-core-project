@@ -5,7 +5,6 @@ using Core.Services.Assets;
 using Core.Services.Factory;
 using UniRx;
 using UnityEngine;
-using UnityEngine.UI;
 using Zenject;
 
 namespace Core.Services.UI
@@ -38,15 +37,6 @@ namespace Core.Services.UI
 
         private Dictionary<string, UIElement> _activeUIElements;
 
-        //Global signal emited when a window is opened. Hot observable.
-        private Subject<UIElement> _onUIElementOpened = new Subject<UIElement>();
-
-        //Global signal emited when a window is closed. Hot observable.
-        private Subject<UIElement> _onUIElementClosed = new Subject<UIElement>();
-
-        //Global signal emited when a game is paused. Hot observable.
-        private Subject<bool> _onGamePaused = new Subject<bool>();
-
         public UIService(ServiceConfiguration config)
         {
             _configuration = config as UIServiceConfiguration;
@@ -54,7 +44,7 @@ namespace Core.Services.UI
             _activeUIElements = new Dictionary<string, UIElement>();
             _renderPriorityCanvas = new Dictionary<UIElementType, RectTransform>();
         }
-        
+
         public override void Initialize()
         {
             base.Initialize();
@@ -62,10 +52,10 @@ namespace Core.Services.UI
             if (_configuration.mainCanvas)
             {
                 var canvas = _factoryService.Instantiate<UIContainer>(_configuration.mainCanvas);
-                
+
                 _mainCanvas = canvas.GetComponent<RectTransform>();
                 _uiScreenFader = canvas.GetComponentInChildren<UIScreenFader>();
-                
+
                 UnityEngine.Object.DontDestroyOnLoad(_mainCanvas);
 
                 var canvasElem = canvas.GetComponent<Canvas>();
@@ -77,11 +67,6 @@ namespace Core.Services.UI
                 _renderPriorityCanvas.Add(UIElementType.Panel, canvas.panelContainer);
                 _renderPriorityCanvas.Add(UIElementType.Widget, canvas.widgetContainer);
             }
-        }
-        
-        public IObservable<bool> OnGamePaused()
-        {
-            return _onGamePaused;
         }
 
         /// <summary>
@@ -99,7 +84,7 @@ namespace Core.Services.UI
         /// </summary>
         /// <param name="window"> Window name </param>
         /// <returns> Observable </returns>
-        public async Task<T> OpenUIElement<T>(string window) where T: UIElement
+        public async Task<T> OpenUIElement<T>(string window) where T : UIElement
         {
             var screen = await _assetService.LoadAsset<UIElement>(AssetCategoryRoot.UI, window);
             if (!_mainCanvas)
@@ -107,27 +92,18 @@ namespace Core.Services.UI
 
             return await OpenUIElement<T>(screen);
         }
-        
-        public async Task<T> OpenUIElement<T>(UIElement window)  where T: UIElement
+
+        public async Task<T> OpenUIElement<T>(UIElement window) where T : UIElement
         {
             var obj = _factoryService.Instantiate<UIElement>(window, DetermineRenderPriorityCanvas(window));
             obj.name = window.name;
 
-            obj.OnClosed().Subscribe(x =>
-            {
-                UIElementClosed(x).Run();
-            });
-            
-            obj.OnOpened().Subscribe(UIElementOpened);
+            obj.OnClosed().Subscribe(x => { UIElementClosed(x).Run(); });
 
             if (!_activeUIElements.ContainsKey(obj.name))
                 _activeUIElements.Add(obj.name, obj);
 
-            //Trigger OnGamePaused signal. It's up to the game to determine what happens. That's beyond the scope of the _uiService.
-            if (obj is UIDialog)
-                _onGamePaused.OnNext(true);
-
-            Debug.Log(($"UI Service: Loaded window - {obj.name}").Colored(Colors.LightBlue));
+            Debug.Log($"UI Service: Loaded window - {obj.name}".Colored(Colors.LightBlue));
             await Awaiters.WaitForEndOfFrame;
             return obj as T;
         }
@@ -168,7 +144,7 @@ namespace Core.Services.UI
         /// </summary>
         /// <param name="window"> Window name </param>
         /// <returns> bool </returns>
-        public bool IsUIElementOpen<T>()where T: UIElement
+        public bool IsUIElementOpen<T>() where T : UIElement
         {
             var window = GetOpenUIElement<T>();
             return window != null;
@@ -183,13 +159,13 @@ namespace Core.Services.UI
         {
             return _activeUIElements.ContainsKey(window) ? _activeUIElements[window] : null;
         }
-        
+
         /// <summary>
         /// Returns the reference of an open window
         /// </summary>
         /// <param name="window"> Window name </param>
         /// <returns> UIWindow </returns>
-        public UIElement GetOpenUIElement<T>() where T: UIElement
+        public UIElement GetOpenUIElement<T>() where T : UIElement
         {
             foreach (var value in _activeUIElements.Values)
             {
@@ -199,7 +175,7 @@ namespace Core.Services.UI
 
             return null;
         }
-        
+
         public IObservable<UIElement> DarkenScreen(bool block)
         {
             return _uiScreenFader.DarkenScreen(block);
@@ -209,20 +185,10 @@ namespace Core.Services.UI
         {
             Debug.Log(("UI Service: Closed window - " + window.name).Colored(Colors.LightBlue));
 
-            //Trigger OnGamePaused signal. Is up to the game to determine what happens. That's beyond the scope of the _uiService.
-            if (window is UIDialog)
-                _onGamePaused.OnNext(false);
-
             _activeUIElements.Remove(window.name);
-            _onUIElementClosed.OnNext(window);
 
             await _assetService.UnloadAsset(window.name, true);
             UnityEngine.Object.Destroy(window.gameObject);
-        }
-
-        private void UIElementOpened(UIElement window)
-        {
-            _onUIElementOpened.OnNext(window);
         }
     }
 }

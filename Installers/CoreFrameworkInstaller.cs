@@ -1,11 +1,19 @@
-using System;
-using UniRx;
 using Zenject;
 
 namespace Core.Services
 {
-    public class GameStartedSignal{}
-    
+    public class OnGameStartedSignal { }
+
+    public class OnGamePausedSignal
+    {
+        public bool IsPaused { get; }
+
+        public OnGamePausedSignal(bool isPaused)
+        {
+            IsPaused = isPaused;
+        }
+    }
+
     /// <summary>
     /// Entry point for the game.
     /// </summary>
@@ -21,7 +29,7 @@ namespace Core.Services
 
         public override void Start()
         {
-            _signalBus.Fire<GameStartedSignal>();
+            _signalBus.Fire<OnGameStartedSignal>();
         }
     }
 }

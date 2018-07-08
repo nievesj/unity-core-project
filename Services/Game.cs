@@ -17,8 +17,10 @@ namespace Core.Services
         protected override void Awake()
         {
             //Make this object persistent
-            DontDestroyOnLoad(gameObject);            
-            _signalBus.Subscribe<GameStartedSignal>(OnGameStart);
+            DontDestroyOnLoad(gameObject);  
+            
+            //Start listening to GameStartedSignal
+            _signalBus.Subscribe<OnGameStartedSignal>(OnGameStart);
         }
 
         /// <summary>
@@ -27,14 +29,13 @@ namespace Core.Services
         /// <param name="unit"></param>
         protected virtual void OnGameStart()
         {
-            _uiService.OnGamePaused().Subscribe(OnGamePaused);
             Debug.Log("Game Started".Colored(Colors.Lime));
         }
-
+        
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            _signalBus.Unsubscribe<GameStartedSignal>(OnGameStart);
+            _signalBus.Unsubscribe<OnGameStartedSignal>(OnGameStart);
         }
     }
 }
