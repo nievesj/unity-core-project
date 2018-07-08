@@ -1,15 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+#if !NOT_UNITY3D
+using UnityEngine;
+#endif
 using ModestTree;
 
 namespace Zenject
 {
-    public class FactoryFromBinder<TContract> : FactoryFromBinderBase<TContract>
+    public class FactoryFromBinder<TContract> : FactoryFromBinderBase
     {
         public FactoryFromBinder(
-            BindInfo bindInfo, FactoryBindInfo factoryBindInfo)
-            : base(bindInfo, factoryBindInfo)
+            DiContainer container, BindInfo bindInfo, FactoryBindInfo factoryBindInfo)
+            : base(container, typeof(TContract), bindInfo, factoryBindInfo)
         {
         }
 
@@ -21,8 +24,14 @@ namespace Zenject
         public ConditionCopyNonLazyBinder FromResolveGetter<TObj>(
             object subIdentifier, Func<TObj, TContract> method)
         {
+            return FromResolveGetter<TObj>(subIdentifier, method, InjectSources.Any);
+        }
+
+        public ConditionCopyNonLazyBinder FromResolveGetter<TObj>(
+            object subIdentifier, Func<TObj, TContract> method, InjectSources source)
+        {
             FactoryBindInfo.ProviderFunc =
-                (container) => new GetterProvider<TObj, TContract>(subIdentifier, method, container);
+                (container) => new GetterProvider<TObj, TContract>(subIdentifier, method, container, source, false);
 
             return this;
         }
@@ -35,37 +44,24 @@ namespace Zenject
             return this;
         }
 
-        public ConditionCopyNonLazyBinder FromInstance(object instance)
-        {
-            BindingUtil.AssertInstanceDerivesFromOrEqual(instance, AllParentTypes);
-
-            ProviderFunc =
-                (container) => new InstanceProvider(ContractType, instance, container);
-
-            return this;
-        }
-
+        // Shortcut for FromIFactory and also for backwards compatibility
         public ArgConditionCopyNonLazyBinder FromFactory<TSubFactory>()
             where TSubFactory : IFactory<TContract>
         {
+            return FromIFactory(x => x.To<TSubFactory>().AsCached());
+        }
+
+        public ArgConditionCopyNonLazyBinder FromIFactory(
+            Action<ConcreteBinderGeneric<IFactory<TContract>>> factoryBindGenerator)
+        {
+            Guid factoryId;
+            factoryBindGenerator(
+                CreateIFactoryBinder<IFactory<TContract>>(out factoryId));
+
             ProviderFunc =
-                (container) => new FactoryProvider<TContract, TSubFactory>(
-                    container, BindInfo.Arguments);
+                (container) => { return new IFactoryProvider<TContract>(container, factoryId); };
 
             return new ArgConditionCopyNonLazyBinder(BindInfo);
-        }
-
-        public ConditionCopyNonLazyBinder FromIFactoryResolve()
-        {
-            return FromIFactoryResolve(null);
-        }
-
-        public ConditionCopyNonLazyBinder FromIFactoryResolve(object subIdentifier)
-        {
-            ProviderFunc =
-                (container) => new IFactoryResolveProvider<TContract>(container, subIdentifier);
-
-            return new ConditionCopyNonLazyBinder(BindInfo);
         }
 
         public FactorySubContainerBinder<TContract> FromSubContainerResolve()
@@ -76,38 +72,63 @@ namespace Zenject
         public FactorySubContainerBinder<TContract> FromSubContainerResolve(object subIdentifier)
         {
             return new FactorySubContainerBinder<TContract>(
-                BindInfo, FactoryBindInfo, subIdentifier);
+                BindContainer, BindInfo, FactoryBindInfo, subIdentifier);
+        }
+
+        public ArgConditionCopyNonLazyBinder FromPoolableMemoryPool<TContractAgain>(
+            Action<MemoryPoolInitialSizeMaxSizeBinder<TContractAgain>> poolBindGenerator)
+            // Unfortunately we have to pass the same contract in again to satisfy the generic
+            // constraints below
+            where TContractAgain : IPoolable<IMemoryPool>
+        {
+            return FromPoolableMemoryPool<TContractAgain, PoolableMemoryPool<IMemoryPool, TContractAgain>>(poolBindGenerator);
+        }
+
+        public ArgConditionCopyNonLazyBinder FromPoolableMemoryPool<TContractAgain, TMemoryPool>(
+            Action<MemoryPoolInitialSizeMaxSizeBinder<TContractAgain>> poolBindGenerator)
+            // Unfortunately we have to pass the same contract in again to satisfy the generic
+            // constraints below
+            where TContractAgain : IPoolable<IMemoryPool>
+            where TMemoryPool : MemoryPool<IMemoryPool, TContractAgain>
+        {
+            Assert.IsEqual(typeof(TContractAgain), typeof(TContract));
+
+            // Use a random ID so that our provider is the only one that can find it and so it doesn't
+            // conflict with anything else
+            var poolId = Guid.NewGuid();
+
+            // Important to use NoFlush otherwise the binding will be finalized early
+            var binder = BindContainer.BindMemoryPoolCustomInterfaceNoFlush<TContractAgain, TMemoryPool, TMemoryPool>().WithId(poolId);
+
+            // Always make it non lazy by default in case the user sets an InitialSize
+            binder.NonLazy();
+
+            poolBindGenerator(binder);
+
+            ProviderFunc =
+                (container) => { return new PoolableMemoryPoolProvider<TContractAgain, TMemoryPool>(container, poolId); };
+
+            return new ArgConditionCopyNonLazyBinder(BindInfo);
         }
 
 #if !NOT_UNITY3D
 
-        public ConditionCopyNonLazyBinder FromComponentInHierarchy()
+        public ConditionCopyNonLazyBinder FromComponentInHierarchy(
+            bool includeInactive = true)
         {
             BindingUtil.AssertIsInterfaceOrComponent(ContractType);
 
-            return FromMethod((container) =>
+            return FromMethod(_ =>
                 {
-                    var matches = container.Resolve<Context>().GetRootGameObjects()
-                        .SelectMany(x => x.GetComponentsInChildren<TContract>()).ToList();
+                    var res = BindContainer.Resolve<Context>().GetRootGameObjects()
+                        .Select(x => x.GetComponentInChildren<TContract>(includeInactive))
+                        .Where(x => x != null).FirstOrDefault();
 
-                    Assert.That(!matches.IsEmpty(),
-                        "Found zero matches when looking up type '{0}' using FromComponentInHierarchy for factory", ContractType);
+                    Assert.IsNotNull(res,
+                        "Could not find component '{0}' through FromComponentInHierarchy factory binding", typeof(TContract));
 
-                    Assert.That(matches.Count() == 1,
-                        "Found multiple matches when looking up type '{0}' using FromComponentInHierarchy for factory.  Only expected to find one!", ContractType);
-
-                    return matches.Single();
+                    return res;
                 });
-        }
-
-        public ConditionCopyNonLazyBinder FromResource(string resourcePath)
-        {
-            BindingUtil.AssertDerivesFromUnityObject(ContractType);
-
-            ProviderFunc =
-                (container) => new ResourceProvider(resourcePath, ContractType);
-
-            return this;
         }
 #endif
     }
