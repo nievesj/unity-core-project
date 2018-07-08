@@ -54,7 +54,7 @@ namespace Core.Services.UI
             _activeUIElements = new Dictionary<string, UIElement>();
             _renderPriorityCanvas = new Dictionary<UIElementType, RectTransform>();
         }
-
+        
         public override void Initialize()
         {
             base.Initialize();

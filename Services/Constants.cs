@@ -1,6 +1,6 @@
 ﻿namespace Core
 {
-	public class Constants
+	public static class Constants
 	{
 		//Service locator GameObject name
 		public const string ServiceLocator = "ServiceLocator";

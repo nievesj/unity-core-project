@@ -4,24 +4,24 @@ using Zenject;
 
 namespace Core.Services
 {
+    public class GameStartedSignal{}
+    
     /// <summary>
     /// Entry point for the game.
     /// </summary>
     public class CoreFrameworkInstaller : MonoInstaller<CoreFrameworkInstaller>
     {
-        private readonly Subject<Unit> _onGameStart = new Subject<Unit>();
-        private IObservable<Unit> OnGameStarted => _onGameStart;
+        [Inject]
+        private SignalBus _signalBus;
 
         public override void InstallBindings()
         {
-            Container.BindInstance(OnGameStarted).AsSingle();
+            // Container.BindInstance(OnGameStarted).AsSingle();
         }
 
         public override void Start()
         {
-            //Start game
-            _onGameStart.OnNext(new Unit());
-            _onGameStart.OnCompleted();
+            _signalBus.Fire<GameStartedSignal>();
         }
     }
 }

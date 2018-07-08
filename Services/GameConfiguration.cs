@@ -20,14 +20,19 @@ namespace Core.Services
 	public class GameConfiguration : ScriptableObjectInstaller<GameConfiguration>
 	{
 		public bool disableLogging = false;
-
 		public List<ServiceConfiguration> services = new List<ServiceConfiguration>();
 
 		public override void InstallBindings()
 		{
 			if (disableLogging)
 				Debug.unityLogger.logEnabled = false;
-
+			
+			//Initialize SignalBus
+			SignalBusInstaller.Install(Container);
+			
+			//Add any relevant signals
+			Container.DeclareSignal<GameStartedSignal>();
+			
 			Debug.Log(("GameConfiguration: Starting Services").Colored(Colors.Lime));
 			foreach (var service in services)
 			{
