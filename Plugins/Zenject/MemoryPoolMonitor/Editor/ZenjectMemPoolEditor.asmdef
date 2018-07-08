@@ -1,0 +1,13 @@
+{
+    "name": "ZenjectMemPoolEditor",
+    "references": [
+        "Zenject",
+        "Zenject.Editor"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
