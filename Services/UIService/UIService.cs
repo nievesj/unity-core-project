@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Core.Services.Assets;
 using Core.Services.Factory;
@@ -73,28 +74,40 @@ namespace Core.Services.UI
         /// Opens a window
         /// </summary>
         /// <param name="window"> Window name </param>
+        /// <param name="forceLoadFromStreamingAssets"></param>
+        /// <param name="progress"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns> Observable </returns>
-        public async Task<UIElement> OpenUIElement(string window)
+        public async Task<UIElement> OpenUIElement(string window, bool forceLoadFromStreamingAssets = false,
+            IProgress<float> progress = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await OpenUIElement<UIElement>(window);
+            return await OpenUIElement<UIElement>(window, forceLoadFromStreamingAssets, progress, cancellationToken);
         }
 
         /// <summary>
         /// Opens a window
         /// </summary>
         /// <param name="window"> Window name </param>
+        /// <param name="progress"></param>
+        /// <param name="cancellationToken"></param>
+        /// <param name="forceLoadFromStreamingAssets"></param>
         /// <returns> Observable </returns>
-        public async Task<T> OpenUIElement<T>(string window) where T : UIElement
+        public async Task<T> OpenUIElement<T>(string window, bool forceLoadFromStreamingAssets = false, IProgress<float> progress = null,
+            CancellationToken cancellationToken = default(CancellationToken)) where T : UIElement
         {
-            var screen = await _assetService.LoadAsset<UIElement>(AssetCategoryRoot.UI, window);
+            var screen = await _assetService.LoadAsset<UIElement>(AssetCategoryRoot.UI, window, forceLoadFromStreamingAssets, progress, cancellationToken);
             if (!_mainCanvas)
                 throw new System.Exception("UI Service: StartService - UICanvas is missing from the scene. Was is destroyed?.");
 
-            return await OpenUIElement<T>(screen);
+            return await OpenUIElement<T>(screen, progress, cancellationToken);
         }
 
-        public async Task<T> OpenUIElement<T>(UIElement window) where T : UIElement
+        public async Task<T> OpenUIElement<T>(UIElement window, IProgress<float> progress = null,
+            CancellationToken cancellationToken = default(CancellationToken)) where T : UIElement
         {
+            if(cancellationToken.IsCancellationRequested)
+                return null;
+                        
             var obj = _factoryService.Instantiate<UIElement>(window, DetermineRenderPriorityCanvas(window));
             obj.name = window.name;
 

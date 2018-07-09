@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 using Zenject;
+using Object = UnityEngine.Object;
 #if UNITY_EDITOR
 using UnityEditor;
 
@@ -39,18 +41,21 @@ namespace Core.Services.Assets
         /// </summary>
         /// <param name="bundleRequest"> Bundle to request </param>
         /// <param name="forceLoadFromStreamingAssets">Forces loading from StreamingAssets folder. Useful for when including assets with the build</param>
+        /// <param name="progress"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns> Observable </returns>
-        internal async Task<T> LoadAsset<T>(BundleRequest bundleRequest, bool forceLoadFromStreamingAssets) where T : Object
+        internal async Task<T> LoadAsset<T>(BundleRequest bundleRequest, bool forceLoadFromStreamingAssets, 
+            IProgress<float> progress = null, CancellationToken cancellationToken = default(CancellationToken)) where T : Object
         {
-            var bundle = await LoadBundle(bundleRequest, forceLoadFromStreamingAssets);
-            return await bundle.LoadAssetAsync<T>(bundleRequest.AssetName);
+            var bundle = await LoadBundle(bundleRequest, forceLoadFromStreamingAssets, progress, cancellationToken);
+            return await bundle.LoadAssetAsync<T>(bundleRequest.AssetName, progress, cancellationToken);
         }
 
-        internal async Task<LoadedBundle> LoadBundle(BundleRequest bundleRequest, bool forceLoadFromStreamingAssets)
+        internal async Task<LoadedBundle> LoadBundle(BundleRequest bundleRequest, bool forceLoadFromStreamingAssets, 
+            IProgress<float> progress = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (!_loadedBundles.ContainsKey(bundleRequest.BundleName))
-            {
-                
+            {      
 #if UNITY_EDITOR
                 if (EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES)
                 {
@@ -76,9 +81,9 @@ namespace Core.Services.Assets
                 
                 AssetBundle bundle;
                 if (_assetService.UseStreamingAssets || forceLoadFromStreamingAssets)
-                    bundle = await GetBundleFromStreamingAssetsAsync(bundleRequest);
+                    bundle = await GetBundleFromStreamingAssetsAsync(bundleRequest, progress, cancellationToken);
                 else
-                    bundle = await GetBundleFromWebOrCacheAsync(bundleRequest);
+                    bundle = await GetBundleFromWebOrCacheAsync(bundleRequest, progress, cancellationToken);
 
                 _loadedBundles.Add(bundleRequest.BundleName, new LoadedBundle(bundle));
             }
@@ -86,9 +91,10 @@ namespace Core.Services.Assets
             return _loadedBundles[bundleRequest.BundleName];
         }
 
-        internal async Task<Object> LoadScene(BundleRequest bundleRequest, bool forceLoadFromStreamingAssets = false)
+        internal async Task<Object> LoadScene(BundleRequest bundleRequest, bool forceLoadFromStreamingAssets = false,
+            IProgress<float> progress = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var bundle = await LoadBundle(bundleRequest, forceLoadFromStreamingAssets);
+            var bundle = await LoadBundle(bundleRequest, forceLoadFromStreamingAssets, progress, cancellationToken);
             return bundle.Bundle.GetAllScenePaths().Length > 0 ? bundle.Bundle : null;
         }
 
@@ -105,7 +111,7 @@ namespace Core.Services.Assets
             {
                 _loadedBundles[name].Unload(unloadAllDependencies);
                 _loadedBundles.Remove(name);
-
+               
                 await Resources.UnloadUnusedAssets();
             }
         }
@@ -122,7 +128,10 @@ namespace Core.Services.Assets
         /// Method attemps to get a bundle from the web/cloud
         /// </summary>
         /// <param name="bundleRequest">     Bundle to request </param>
-        private async Task<AssetBundle> GetBundleFromWebOrCacheAsync(BundleRequest bundleRequest)
+        /// <param name="progress"></param>
+        /// <param name="cancellationToken"></param>
+        private async Task<AssetBundle> GetBundleFromWebOrCacheAsync(BundleRequest bundleRequest, 
+            IProgress<float> progress, CancellationToken cancellationToken)
         {
             var uwr = new UnityWebRequest();
 
@@ -144,8 +153,17 @@ namespace Core.Services.Assets
             }
 
             //Wait until www is done.
-            await uwr.SendWebRequest();
-
+            var asyncOperation = uwr.SendWebRequest();
+            while (!asyncOperation.isDone)
+            {
+                if(cancellationToken.IsCancellationRequested)
+                    return null;
+                
+                await Task.Yield();
+                progress?.Report(asyncOperation.progress * 100f);
+                Debug.Log($"GetBundleFromWebOrCacheAsync Progress: {asyncOperation.progress * 100f}%".Colored(Colors.LightSalmon));
+            }
+            
             //get bundle
             var bundle = DownloadHandlerAssetBundle.GetContent(uwr);
 
@@ -161,12 +179,26 @@ namespace Core.Services.Assets
         /// Gets bundle from streaming assets directory
         /// </summary>
         /// <param name="bundleRequest"> Bundle to request </param>
-        private async Task<AssetBundle> GetBundleFromStreamingAssetsAsync(BundleRequest bundleRequest)
+        /// <param name="progress"></param>
+        /// <param name="cancellationToken"></param>
+        private async Task<AssetBundle> GetBundleFromStreamingAssetsAsync(BundleRequest bundleRequest, 
+            IProgress<float> progress, CancellationToken cancellationToken)
         {
             Debug.Log($"AssetBundleLoader: Using StreamingAssets -  Requesting: {bundleRequest.AssetCategory}  {bundleRequest.BundleName}".Colored(Colors.Aqua));
             var path = Path.Combine(Application.streamingAssetsPath, bundleRequest.AssetPathFromLocalStreamingAssets);
+
+            var asyncOperation = AssetBundle.LoadFromFileAsync(path);
+            while (!asyncOperation.isDone)
+            {
+                if(cancellationToken.IsCancellationRequested)
+                    return null;
+                
+                await Task.Yield();
+                progress?.Report(asyncOperation.progress * 100f);
+                Debug.Log($"GetBundleFromStreamingAssetsAsync Progress: {asyncOperation.progress * 100f}%".Colored(Colors.LightSalmon));
+            }
            
-            return await AssetBundle.LoadFromFileAsync(path);
+            return asyncOperation.assetBundle;
         }
     }
 }
