@@ -13,13 +13,14 @@ namespace Core.Services.UI
     /// <summary>
     /// Used to determine the parent of the UI Element
     /// </summary>
-    public enum UIElementType
+    public enum UIType
     {
+        Panel,
         Dialog,
         Widget,
-        Panel
+        ScreenBlocker
     }
-
+    
     public class UIService : Service
     {
         [Inject]
@@ -32,9 +33,9 @@ namespace Core.Services.UI
 
         private RectTransform _mainCanvas;
 
-        private UIScreenFader _uiScreenFader;
+        private UIScreenBlocker _uiScreenBlocker;
 
-        private Dictionary<UIElementType, RectTransform> _renderPriorityCanvas;
+        private Dictionary<UIType, RectTransform> _renderPriorityCanvas;
 
         private Dictionary<string, UIElement> _activeUIElements;
 
@@ -43,7 +44,7 @@ namespace Core.Services.UI
             _configuration = config as UIServiceConfiguration;
 
             _activeUIElements = new Dictionary<string, UIElement>();
-            _renderPriorityCanvas = new Dictionary<UIElementType, RectTransform>();
+            _renderPriorityCanvas = new Dictionary<UIType, RectTransform>();
         }
 
         public override void Initialize()
@@ -52,11 +53,11 @@ namespace Core.Services.UI
 
             if (_configuration.mainCanvas)
             {
-                var canvas = _factoryService.Instantiate<UIContainer>(_configuration.mainCanvas);
+                var canvas = _factoryService.Instantiate(_configuration.mainCanvas);
 
                 _mainCanvas = canvas.GetComponent<RectTransform>();
-                _uiScreenFader = canvas.GetComponentInChildren<UIScreenFader>();
-
+                _uiScreenBlocker = _factoryService.Instantiate(_configuration.UIScreenBlocker,_mainCanvas.transform);
+                
                 UnityEngine.Object.DontDestroyOnLoad(_mainCanvas);
 
                 var canvasElem = canvas.GetComponent<Canvas>();
@@ -64,9 +65,9 @@ namespace Core.Services.UI
                 if (canvasElem.renderMode == RenderMode.ScreenSpaceCamera)
                     canvasElem.worldCamera = Camera.main;
 
-                _renderPriorityCanvas.Add(UIElementType.Dialog, canvas.dialogContainer);
-                _renderPriorityCanvas.Add(UIElementType.Panel, canvas.panelContainer);
-                _renderPriorityCanvas.Add(UIElementType.Widget, canvas.widgetContainer);
+                _renderPriorityCanvas.Add(UIType.Dialog, canvas.dialogContainer);
+                _renderPriorityCanvas.Add(UIType.Panel, canvas.panelContainer);
+                _renderPriorityCanvas.Add(UIType.Widget, canvas.widgetContainer);
             }
         }
 
@@ -78,10 +79,10 @@ namespace Core.Services.UI
         /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <returns> Observable </returns>
-        public async Task<UIElement> OpenUIElement(string window, bool forceLoadFromStreamingAssets = false,
+        public async Task<UIElement> OpenUI(string window, bool forceLoadFromStreamingAssets = false,
             IProgress<float> progress = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await OpenUIElement<UIElement>(window, forceLoadFromStreamingAssets, progress, cancellationToken);
+            return await OpenUI<UIElement>(window, forceLoadFromStreamingAssets, progress, cancellationToken);
         }
 
         /// <summary>
@@ -92,23 +93,23 @@ namespace Core.Services.UI
         /// <param name="cancellationToken"></param>
         /// <param name="forceLoadFromStreamingAssets"></param>
         /// <returns> Observable </returns>
-        public async Task<T> OpenUIElement<T>(string window, bool forceLoadFromStreamingAssets = false, IProgress<float> progress = null,
+        public async Task<T> OpenUI<T>(string window, bool forceLoadFromStreamingAssets = false, IProgress<float> progress = null,
             CancellationToken cancellationToken = default(CancellationToken)) where T : UIElement
         {
             var screen = await _assetService.LoadAsset<UIElement>(AssetCategoryRoot.UI, window, forceLoadFromStreamingAssets, progress, cancellationToken);
             if (!_mainCanvas)
                 throw new System.Exception("UI Service: StartService - UICanvas is missing from the scene. Was is destroyed?.");
 
-            return await OpenUIElement<T>(screen, progress, cancellationToken);
+            return await OpenUI<T>(screen, progress, cancellationToken);
         }
 
-        public async Task<T> OpenUIElement<T>(UIElement window, IProgress<float> progress = null,
+        public async Task<T> OpenUI<T>(UIElement window, IProgress<float> progress = null,
             CancellationToken cancellationToken = default(CancellationToken)) where T : UIElement
         {
             if(cancellationToken.IsCancellationRequested)
                 return null;
                         
-            var obj = _factoryService.Instantiate<UIElement>(window, DetermineRenderPriorityCanvas(window));
+            var obj = _factoryService.Instantiate(window, DetermineRenderPriorityCanvas(window.UIType));
             obj.name = window.name;
 
             obj.OnClosed().Subscribe(x => { UIElementClosed(x).Run(); });
@@ -129,16 +130,22 @@ namespace Core.Services.UI
         /// </summary>
         /// <param name="element"></param>
         /// <returns></returns>
-        private RectTransform DetermineRenderPriorityCanvas(UIElement element)
+        private RectTransform DetermineRenderPriorityCanvas(UIType uiType)
         {
-            if (element is UIDialog)
-                return _renderPriorityCanvas[UIElementType.Dialog];
-            else if (element is UIPanel)
-                return _renderPriorityCanvas[UIElementType.Panel];
-            else if (element is UIWidget)
-                return _renderPriorityCanvas[UIElementType.Widget];
-            else
-                return _mainCanvas;
+            switch (uiType)
+            {
+                case UIType.Panel:
+                    return _renderPriorityCanvas[UIType.Panel];
+                    break;
+                case UIType.Dialog:
+                    return _renderPriorityCanvas[UIType.Dialog];
+                    break;
+                case UIType.Widget:
+                    return _renderPriorityCanvas[UIType.Widget];
+                    break;
+                default:
+                    return _mainCanvas;
+            }
         }
 
         /// <summary>
@@ -189,9 +196,9 @@ namespace Core.Services.UI
             return null;
         }
 
-        public IObservable<UIElement> DarkenScreen(bool block)
+        public async Task BlockScreen(bool block)
         {
-            return _uiScreenFader.DarkenScreen(block);
+            await _uiScreenBlocker.BlockScreen(block);
         }
 
         private async Task UIElementClosed(UIElement window)

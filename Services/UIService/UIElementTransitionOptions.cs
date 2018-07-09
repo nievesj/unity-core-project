@@ -1,193 +1,168 @@
-﻿using System;
-using System.Linq;
-using UniRx;
-using UnityEngine;
+﻿using System.Threading.Tasks;
 using DG.Tweening;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Core.Services.UI
 {
-	public enum TransitionType
-	{
-		NotUsed,
-		Scale,
-		Left,
-		Right,
-		Top,
-		Bottom,
-		Fade
-	}
+    public enum TransitionType
+    {
+        NotUsed,
+        Scale,
+        Left,
+        Right,
+        Top,
+        Bottom,
+        Fade
+    }
 
-	[System.Serializable]
-	public class UIElementTransitionOptions
-	{
-		public TransitionType transitionType;
-		public Ease tweenType;
-		public float transitionTime = 0.5f;
-		public AudioClip transitionSound;
+    [System.Serializable]
+    public class UIElementTransitionOptions
+    {
+        public TransitionType transitionType;
+        public Ease tweenType;
+        public float transitionTime = 0.5f;
+        public AudioClip transitionSound;
 
-		private UIElement _uiElement;
+        private bool _transitionCompleted = false;
 
-		public IObservable<UIElement> PlayTransition(UIElement uiElement, bool isOutTransition = false)
-		{
-			IObservable<UIElement> ret = null;
+        public async Task PlayTransition(UIElement uiElement, bool isOutTransition = false)
+        {
+            var start = Vector2.zero;
+            var end = Vector2.zero;
+            var rtrans = uiElement.RectTransform;
+            _transitionCompleted = false;
 
-			var start = Vector2.zero;
-			var end = Vector2.zero;
-			var rtrans = uiElement.RectTransform;
-			_uiElement = uiElement;
+            switch (transitionType)
+            {
+                case TransitionType.Scale:
+                    start = Vector2.zero;
+                    end = new Vector2(1, 1);
 
-			switch (transitionType)
-			{
-				case TransitionType.Scale:
-					start = Vector2.zero;
-					end = new Vector2(1, 1);
+                    if (isOutTransition)
+                    {
+                        start = end;
+                        end = Vector2.zero;
+                    }
 
-					if (isOutTransition)
-					{
-						start = end;
-						end = Vector2.zero;
-					}
+                    await Scale(rtrans, start, end);
+                    break;
 
-					ret = Scale(rtrans, start, end);
-					break;
+                case TransitionType.Left:
+                    start = rtrans.anchoredPosition;
+                    start.x -= rtrans.rect.width;
+                    end = rtrans.anchoredPosition;
 
-				case TransitionType.Left:
-					start = rtrans.anchoredPosition;
-					start.x -= rtrans.rect.width;
-					end = rtrans.anchoredPosition;
+                    if (isOutTransition)
+                    {
+                        start = end;
+                        end = rtrans.anchoredPosition;
+                        end.x -= rtrans.rect.width;
+                    }
 
-					if (isOutTransition)
-					{
-						start = end;
-						end = rtrans.anchoredPosition;
-						end.x -= rtrans.rect.width;
-					}
+                    await Move(rtrans, start, end);
+                    break;
+                case TransitionType.Right:
+                    start = rtrans.anchoredPosition;
+                    start.x += rtrans.rect.width;
+                    end = rtrans.anchoredPosition;
 
-					ret = Move(rtrans, start, end);
-					break;
-				case TransitionType.Right:
-					start = rtrans.anchoredPosition;
-					start.x += rtrans.rect.width;
-					end = rtrans.anchoredPosition;
+                    if (isOutTransition)
+                    {
+                        start = end;
+                        end = rtrans.anchoredPosition;
+                        end.x += rtrans.rect.width;
+                    }
 
-					if (isOutTransition)
-					{
-						start = end;
-						end = rtrans.anchoredPosition;
-						end.x += rtrans.rect.width;
-					}
+                    await Move(rtrans, start, end);
+                    break;
+                case TransitionType.Top:
+                    start = rtrans.anchoredPosition;
+                    start.y += Screen.height / 2;
+                    end = rtrans.anchoredPosition;
 
-					ret = Move(rtrans, start, end);
-					break;
-				case TransitionType.Top:
-					start = rtrans.anchoredPosition;
-					start.y += Screen.height / 2;
-					end = rtrans.anchoredPosition;
+                    if (isOutTransition)
+                    {
+                        start = end;
+                        end = rtrans.anchoredPosition;
+                        end.y += Screen.height / 2;
+                    }
 
-					if (isOutTransition)
-					{
-						start = end;
-						end = rtrans.anchoredPosition;
-						end.y += Screen.height / 2;
-					}
+                    await Move(rtrans, start, end);
+                    break;
+                case TransitionType.Bottom:
+                    start = rtrans.anchoredPosition;
+                    start.y -= Screen.height / 2;
+                    end = rtrans.anchoredPosition;
 
-					ret = Move(rtrans, start, end);
-					break;
-				case TransitionType.Bottom:
-					start = rtrans.anchoredPosition;
-					start.y -= Screen.height / 2;
-					end = rtrans.anchoredPosition;
+                    if (isOutTransition)
+                    {
+                        start = end;
+                        end = rtrans.anchoredPosition;
+                        end.y -= Screen.height / 2;
+                    }
 
-					if (isOutTransition)
-					{
-						start = end;
-						end = rtrans.anchoredPosition;
-						end.y -= Screen.height / 2;
-					}
+                    await Move(rtrans, start, end);
+                    break;
+                case TransitionType.Fade:
+                    float fstart = 0;
+                    float fend = 1;
 
-					ret = Move(rtrans, start, end);
-					break;
-				case TransitionType.Fade:
-					float fstart = 0;
-					float fend = 1;
+                    if (isOutTransition)
+                    {
+                        fstart = 1;
+                        fend = 0;
+                    }
 
-					if (isOutTransition)
-					{
-						fstart = 1;
-						fend = 0;
-					}
+                    await Fade(rtrans, fstart, fend);
+                    break;
+            }
+        }
 
-					ret = Fade(rtrans, fstart, fend);
-					break;
-			}
-			return ret;
-		}
+        private async Task Scale(RectTransform transform, Vector2 start, Vector2 end)
+        {
+            transform.DOScale(start, 0);
+            transform.DOScale(end, transitionTime)
+                .SetEase(tweenType)
+                .OnComplete(() => { _transitionCompleted = true; });
 
-		IObservable<UIElement> Scale(RectTransform transform, Vector2 start, Vector2 end)
-		{
-			return Observable.Create<UIElement>(
-				observer =>
-				{
-					var subject = new Subject<UIElement>();
+            while (!_transitionCompleted)
+                await Task.Yield();
+        }
 
-					transform.DOScale(start, 0);
-					transform.DOScale(end, transitionTime).SetEase(tweenType)
-						.OnComplete(() =>
-						{
-							observer.OnNext(_uiElement);
-							observer.OnCompleted();
-						});
+        private async Task Move(RectTransform transform, Vector2 start, Vector2 end)
+        {
+            transform.DOAnchorPos(start, 0);
+            transform.DOAnchorPos(end, transitionTime)
+                .SetEase(tweenType)
+                .OnComplete(() => { _transitionCompleted = true; });
 
-					return subject;
-				});
-		}
+            while (!_transitionCompleted)
+                await Task.Yield();
+        }
 
-		IObservable<UIElement> Move(RectTransform transform, Vector2 start, Vector2 end)
-		{
-			return Observable.Create<UIElement>(
-				observer =>
-				{
-					var subject = new Subject<UIElement>();
+        private async Task Fade(RectTransform transform, float start, float end)
+        {
+            var images = transform.GetComponentsInChildren<Image>();
+            var completed = 0;
 
-					transform.DOAnchorPos(start, 0);
-					transform.DOAnchorPos(end, transitionTime).SetEase(tweenType)
-						.OnComplete(() =>
-					{
-						observer.OnNext(_uiElement);
-						observer.OnCompleted();
-					});
+            foreach (var image in images)
+            {
+                image.DOFade(start, 0);
+                image.DOFade(end, transitionTime)
+                    .SetEase(tweenType)
+                    .OnComplete(() =>
+                    {
+                        completed++;
+                        if (completed >= images.Length)
+                        {
+                            _transitionCompleted = true;
+                        }
+                    });
+            }
 
-					return subject;
-				});
-		}
-
-		IObservable<UIElement> Fade(RectTransform transform, float start, float end)
-		{
-			return Observable.Create<UIElement>(
-				observer =>
-				{
-					var subject = new Subject<UIElement>();
-					var images = transform.GetComponentsInChildren<Image>();
-					//TODO add Text too.
-					var completed = 0;
-					foreach (var image in images)
-					{
-						image.DOFade(start, 0);
-						image.DOFade(image.color.a, transitionTime).SetEase(tweenType)
-							.OnComplete(() =>
-							{
-								completed++;
-								if (completed >= images.Length)
-								{
-									observer.OnNext(_uiElement);
-									observer.OnCompleted();
-								}
-							});
-					}
-
-					return subject;
-				});
-		}
-	}
+            while (!_transitionCompleted)
+                await Task.Yield();
+        }
+    }
 }

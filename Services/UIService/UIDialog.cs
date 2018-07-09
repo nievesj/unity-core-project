@@ -16,6 +16,7 @@ namespace Core.Services.UI
         protected override void Awake()
         {
             base.Awake();
+            _UiType = UIType.Dialog;
 
             if (closeButton)
                 closeButton.onClick.AddListener(OnCloseButtonClicked);
@@ -23,7 +24,7 @@ namespace Core.Services.UI
 
         public void OnCloseButtonClicked()
         {
-            Close().Subscribe();
+            Close().Run();
         }
 
         protected override void OnElementShow() { }

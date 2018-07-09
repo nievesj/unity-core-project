@@ -40,7 +40,7 @@ namespace Core.Services.Scenes
             bool forceLoadFromStreamingAssets = false, IProgress<float> progress = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            _uiService.DarkenScreen(true).Subscribe();
+            await _uiService.BlockScreen(true);
             return await GetScene(scene, mode, forceLoadFromStreamingAssets, progress, cancellationToken);
         }
 
@@ -70,7 +70,7 @@ namespace Core.Services.Scenes
                 await SceneManager.LoadSceneAsync(scene, mode);
                 // await Resources.UnloadUnusedAssets();
                 //Scene loaded, return screen to normal.
-                _uiService.DarkenScreen(false).Subscribe();
+                await _uiService.BlockScreen(false);
                 Debug.Log(("SceneLoaderService: Opened scene - " + scene).Colored(Colors.LightBlue));
             }
 

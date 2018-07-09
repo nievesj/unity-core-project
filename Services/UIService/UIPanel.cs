@@ -20,6 +20,8 @@ namespace Core.Services.UI
 		protected override void Awake()
 		{
 			base.Awake();
+
+			_UiType = UIType.Panel;
 			
 			if (showHideButton)
 				showHideButton.onClick.AddListener(OnShowHideButtonClick);
@@ -32,9 +34,9 @@ namespace Core.Services.UI
 				isTransitioning = true;
 
 				if (isShowing)
-					Hide().Subscribe();
+					Hide().Run();
 				else
-					Show().Subscribe();
+					Show().Run();
 			}
 		}
 
@@ -52,7 +54,7 @@ namespace Core.Services.UI
 
 		protected override void OnDestroy()
 		{
-			Close().Subscribe();
+			Close().Run();
 		}
 	}
 }

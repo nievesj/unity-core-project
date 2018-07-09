@@ -1,12 +1,12 @@
 fileFormatVersion: 2
 guid: 5dd1b87ad5d4e45afaf8d1e31328fa48
-timeCreated: 1518552556
-licenseType: Pro
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
   - mainCanvas: {fileID: 114804601797109894, guid: 5a6199aa129124325a80df3ab914de1f,
+      type: 2}
+  - UIScreenBlocker: {fileID: 114145407182181236, guid: 417c726cea51b442d9632acfce34bcfb,
       type: 2}
   executionOrder: 0
   icon: {instanceID: 0}

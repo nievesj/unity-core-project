@@ -14,6 +14,12 @@ namespace Core.Services.UI
 		protected bool isShowing = false;
 		protected bool isTransitioning = false;
 
+		protected override void Awake()
+		{
+			base.Awake();
+			_UiType = UIType.Widget;
+		}
+
 		public void ShowHideWidget()
 		{
 			if (!isTransitioning)
@@ -21,9 +27,9 @@ namespace Core.Services.UI
 				isTransitioning = true;
 
 				if (isShowing)
-					Hide().Subscribe();
+					Hide().Run();
 				else
-					Show().Subscribe();
+					Show().Run();
 			}
 		}
 

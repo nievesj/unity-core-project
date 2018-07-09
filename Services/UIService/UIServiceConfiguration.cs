@@ -4,6 +4,8 @@
 	{
 		public UIContainer mainCanvas;
 
+		public UIScreenBlocker UIScreenBlocker;
+
 		public override Service ServiceClass { get { return new UIService(this); } }
 	}
 }

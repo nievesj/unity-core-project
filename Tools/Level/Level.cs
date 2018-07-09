@@ -30,9 +30,6 @@ namespace Core.Services.Levels
 		[Inject]
 		protected AudioService _audioService;
 
-		[Inject]
-		protected AssetService _assetService;
-
 		protected override void Awake()
 		{
 			base.Awake();
@@ -54,16 +51,12 @@ namespace Core.Services.Levels
 				_audioService.PlayMusic(_backgroundMusic);
 		}
 
-		public virtual void Unload()
-		{
-			if (_audioService != null && _backgroundMusic != null && _backgroundMusic.Clip != null)
-				_audioService.StopClip(_backgroundMusic);
-		}
-
 		protected override void OnDestroy()
 		{
 			base.OnDestroy();
-			Unload();
+			
+			if (_audioService != null && _backgroundMusic != null && _backgroundMusic.Clip != null)
+				_audioService.StopClip(_backgroundMusic);
 		}
 	}
 }
