@@ -133,7 +133,7 @@ namespace Core.Services.Assets
                 }
 
                 return tempCount;
-            });
+            }, cancellationToken);
 
             return bundles;
         }

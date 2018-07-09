@@ -7,9 +7,9 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Zenject;
 using Object = UnityEngine.Object;
+
 #if UNITY_EDITOR
 using UnityEditor;
-
 #endif
 
 namespace Core.Services.Assets
@@ -65,6 +65,9 @@ namespace Core.Services.Assets
                     var theone = string.Empty;
                     foreach (var path in paths)
                     {
+                        if(cancellationToken.IsCancellationRequested)
+                            return null;
+                        
                         if (path.ToLower().Contains(bundleRequest.AssetName))
                         {
                             theone = path;
@@ -118,10 +121,7 @@ namespace Core.Services.Assets
 
         internal AssetBundle GetLoadedBundle(string name)
         {
-            if (_loadedBundles.ContainsKey(name.ToLower()))
-                return _loadedBundles[name.ToLower()].Bundle;
-
-            return null;
+            return _loadedBundles.ContainsKey(name.ToLower()) ? _loadedBundles[name.ToLower()].Bundle : null;
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace Core.Services.Assets
             {
                 //cache bundles by using Unity Cloud Build manifest
                 uint buildNumber = 0;
-                buildNumber = System.Convert.ToUInt32(_assetService.CloudBuildManifest.buildNumber);
+                buildNumber = Convert.ToUInt32(_assetService.CloudBuildManifest.buildNumber);
                 uwr = UnityWebRequestAssetBundle.GetAssetBundle(bundleRequest.GetAssetPath(_assetService.Configuration), buildNumber, 0);
             }
             else if (_assetService.CloudBuildManifest == null || _assetService.AssetCacheState == AssetCacheState.NoCache)
@@ -152,7 +152,7 @@ namespace Core.Services.Assets
                 uwr = UnityWebRequestAssetBundle.GetAssetBundle(bundleRequest.GetAssetPath(_assetService.Configuration));
             }
 
-            //Wait until www is done.
+            //Wait until uwr is done.
             var asyncOperation = uwr.SendWebRequest();
             while (!asyncOperation.isDone)
             {
@@ -160,8 +160,8 @@ namespace Core.Services.Assets
                     return null;
                 
                 await Task.Yield();
-                progress?.Report(asyncOperation.progress * 100f);
-                Debug.Log($"GetBundleFromWebOrCacheAsync Progress: {asyncOperation.progress * 100f}%".Colored(Colors.LightSalmon));
+                progress?.Report(asyncOperation.progress);
+                Debug.Log($"GetBundleFromWebOrCacheAsync {bundleRequest.BundleName} progress: {asyncOperation.progress * 100f}%".Colored(Colors.LightSalmon));
             }
             
             //get bundle
@@ -194,8 +194,8 @@ namespace Core.Services.Assets
                     return null;
                 
                 await Task.Yield();
-                progress?.Report(asyncOperation.progress * 100f);
-                Debug.Log($"GetBundleFromStreamingAssetsAsync Progress: {asyncOperation.progress * 100f}%".Colored(Colors.LightSalmon));
+                progress?.Report(asyncOperation.progress);
+                Debug.Log($"GetBundleFromStreamingAssetsAsync {bundleRequest.BundleName} progress: {asyncOperation.progress * 100f}%".Colored(Colors.LightSalmon));
             }
            
             return asyncOperation.assetBundle;

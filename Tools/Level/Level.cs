@@ -20,23 +20,18 @@ namespace Core.Services.Levels
 	/// </summary>
 	public abstract class Level : CoreBehaviour
 	{
-		public AudioPlayer backgroundMusic;
+		public LevelState LevelState => _levelState;
 
-		[Inject]
-		protected LevelLoaderService _levelService;
+		[SerializeField]
+		protected AudioPlayer _backgroundMusic;
 
+		protected LevelState _levelState;
+		
 		[Inject]
 		protected AudioService _audioService;
 
 		[Inject]
-		protected UIService uiService;
-
-		[Inject]
 		protected AssetService _assetService;
-
-		protected LevelState _levelState;
-
-		public LevelState State { get { return _levelState; } }
 
 		protected override void Awake()
 		{
@@ -55,20 +50,20 @@ namespace Core.Services.Levels
 			_levelState = LevelState.Started;
 			_levelState = LevelState.InProgress;
 
-			if (_audioService != null && backgroundMusic != null && backgroundMusic.Clip != null)
-				_audioService.PlayMusic(backgroundMusic);
+			if (_audioService != null && _backgroundMusic != null && _backgroundMusic.Clip != null)
+				_audioService.PlayMusic(_backgroundMusic);
 		}
 
 		public virtual void Unload()
 		{
-			if (_audioService != null && backgroundMusic != null && backgroundMusic.Clip != null)
-				_audioService.StopClip(backgroundMusic);
+			if (_audioService != null && _backgroundMusic != null && _backgroundMusic.Clip != null)
+				_audioService.StopClip(_backgroundMusic);
 		}
 
 		protected override void OnDestroy()
 		{
-			if (_audioService != null && backgroundMusic != null && backgroundMusic.Clip != null)
-				_audioService.StopClip(backgroundMusic);
+			base.OnDestroy();
+			Unload();
 		}
 	}
 }

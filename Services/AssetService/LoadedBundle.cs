@@ -47,14 +47,14 @@ namespace Core.Services.Assets
 #if UNITY_EDITOR
             if (EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES)
             {
-                Debug.Log(("LoadedBundle Simulated: Async loading asset: " + name).Colored(Colors.Yellow));
+                Debug.Log(("LoadAssetAsync Simulated: loading asset: " + name).Colored(Colors.Yellow));
                 var comp = _simulatedAsset.GetComponent<T>();
                 await Task.Yield();
                 return comp;
             }
 #endif
             
-            Debug.Log(("LoadedBundle: Async loading asset: " + name).Colored(Colors.Yellow));
+            Debug.Log(("LoadAssetAsync: loading asset: " + name).Colored(Colors.Yellow));
             return await GetAssetComponentAsync<T>(Bundle.LoadAssetAsync(name),progress,cancellationToken);
         }
 
@@ -74,8 +74,9 @@ namespace Core.Services.Assets
                     return null;
                 
                 await Task.Yield();
-                progress?.Report(asyncOperation.progress * 100f);
-                Debug.Log($"GetAssetComponentAsync Progress: {asyncOperation.progress * 100f}%".Colored(Colors.LightSalmon));
+                //Supressing this so it doesnt step over GetBundleFromStreamingAssetsAsync or GetBundleFromWebOrCacheAsync
+                //progress?.Report(asyncOperation.progress);
+                Debug.Log($"GetAssetComponentAsync {Bundle.name} progress: {asyncOperation.progress * 100f}%".Colored(Colors.LightSalmon));
             }
 
             if (!asyncOperation.asset)

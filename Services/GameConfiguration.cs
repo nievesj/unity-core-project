@@ -48,11 +48,6 @@ namespace Core.Services
 					Container.Bind<AssetServiceConfiguration>().AsSingle().NonLazy();
 					Container.Bind<AssetBundleLoader>().AsSingle().NonLazy();
 				}
-				else if (service is LevelLoaderServiceConfiguration)
-				{
-					Container.BindInterfacesAndSelfTo<LevelLoaderService>().AsSingle().WithArguments(service).NonLazy();
-					Container.Bind<LevelLoaderServiceConfiguration>().AsSingle().NonLazy();
-				}
 				else if (service is SceneLoaderServiceConfiguration)
 				{
 					Container.BindInterfacesAndSelfTo<SceneLoaderService>().AsSingle().WithArguments(service).NonLazy();
