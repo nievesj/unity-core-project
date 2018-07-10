@@ -27,16 +27,6 @@ namespace Core.Services.Assets
         
         public string AssetName { get; }
 
-        //Manifest file associated to the bundle. This is needed in case the HASH number is requiered for caching the bundle
-        [Obsolete("Deprecated. No longer needed.")]
-        public string ManifestName => BundleName + ".manifest";
-
-        [Obsolete("Deprecated. No longer needed.")]
-        public string ManifestAgeFile => Application.persistentDataPath + "/" + BundleName + "age.json";
-        
-        [Obsolete("Deprecated. No longer needed.")]
-        public string CachedManifestFile => Application.persistentDataPath + "/" + ManifestName;
-
         public string AssetPathFromLocalStreamingAssets
         {
             get
@@ -45,17 +35,6 @@ namespace Core.Services.Assets
                     return BundleName;
                 else
                     return AssetCategory.ToString().ToLower() + "/" + BundleName;
-            }
-        }
-
-        public string AssetPathFromLocalStreamingAssetsManifest
-        {
-            get
-            {
-                if (AssetCategory.Equals(AssetCategoryRoot.None))
-                    return ManifestName;
-                else
-                    return AssetCategory.ToString().ToLower() + "/" + ManifestName;
             }
         }
 
@@ -72,16 +51,6 @@ namespace Core.Services.Assets
                 return config.PlatformAssetBundleURL + BundleName + "?r=" + UnityEngine.Random.value * 9999999; //this random value prevents caching on the web server
             else
                 return config.PlatformAssetBundleURL + AssetCategory.ToString().ToLower() + "/" + BundleName;
-        }
-
-        public string GetManifestPath(AssetServiceConfiguration config)
-        {
-            Debug.Log(("AssetBundleLoader: Loading Manifest " + ManifestName).Colored(Colors.Aqua));
-
-            if (AssetCategory.Equals(AssetCategoryRoot.None))
-                return config.PlatformAssetBundleURL + ManifestName + "?r=" + UnityEngine.Random.value * 9999999; //this random value prevents caching on the web server;
-            else
-                return config.PlatformAssetBundleURL + AssetCategory.ToString().ToLower() + "/" + ManifestName;
         }
     }
 
@@ -143,15 +112,5 @@ namespace Core.Services.Assets
     {
         Cache,
         NoCache
-    }
-
-    /// <summary>
-    /// Used to determine if the caching is going to be performed with the Unity Cloud Manifest file
-    /// by using the build version as the control or by using .manifest files and the HASH number
-    /// </summary>
-    public enum AssetCacheStrategy
-    {
-        CopyBundleManifestFileLocally,
-        UseUnityCloudManifestBuildVersion
     }
 }

@@ -16,8 +16,6 @@ namespace Core.Services.Assets
 
         public AssetCacheState AssetCacheState => Configuration.UseCache ? AssetCacheState.Cache : AssetCacheState.NoCache;
 
-        public AssetCacheStrategy AssetCacheStrategy => AssetCacheStrategy.UseUnityCloudManifestBuildVersion;
-
         private UnityCloudBuildManifest _cloudBuildManifest;
 
         public UnityCloudBuildManifest CloudBuildManifest => _cloudBuildManifest;

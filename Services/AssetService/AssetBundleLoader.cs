@@ -136,7 +136,7 @@ namespace Core.Services.Assets
             var uwr = new UnityWebRequest();
 
             Debug.Log($"AssetBundleLoader:  {_assetService.AssetCacheState}  | Requesting:  {bundleRequest.AssetName}  {bundleRequest.BundleName}".Colored(Colors.Aqua));
-            if (_assetService.CloudBuildManifest != null && _assetService.AssetCacheState == AssetCacheState.Cache && _assetService.AssetCacheStrategy == AssetCacheStrategy.UseUnityCloudManifestBuildVersion)
+            if (_assetService.CloudBuildManifest != null && _assetService.AssetCacheState == AssetCacheState.Cache)
             {
                 //cache bundles by using Unity Cloud Build manifest
                 uint buildNumber = 0;
