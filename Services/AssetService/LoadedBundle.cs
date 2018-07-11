@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
+using UniRx.Async;
 using UnityEngine;
 
 namespace Core.Services.Assets
@@ -49,7 +50,7 @@ namespace Core.Services.Assets
             {
                 Debug.Log(("LoadAssetAsync Simulated: loading asset: " + name).Colored(Colors.Yellow));
                 var comp = _simulatedAsset.GetComponent<T>();
-                await Task.Yield();
+                await UniTask.Yield(cancellationToken: cancellationToken);
                 return comp;
             }
 #endif
@@ -73,7 +74,7 @@ namespace Core.Services.Assets
                 if(cancellationToken.IsCancellationRequested)
                     return null;
                 
-                await Task.Yield();
+                await UniTask.Yield(cancellationToken: cancellationToken);
                 //Supressing this so it doesnt step over GetBundleFromStreamingAssetsAsync or GetBundleFromWebOrCacheAsync
                 //progress?.Report(asyncOperation.progress);
                 Debug.Log($"GetAssetComponentAsync {Bundle.name} progress: {asyncOperation.progress * 100f}%".Colored(Colors.LightSalmon));

@@ -38,7 +38,7 @@ namespace Zenject
             return _subInstantiator.GetPrefab();
         }
 
-        public GameObject Instantiate(List<TypeValuePair> args, out Action injectAction)
+        public IEnumerator<GameObject> Instantiate(List<TypeValuePair> args)
         {
             // We can't really support arguments if we are using the cached value since
             // the arguments might change when called after the first time
@@ -46,12 +46,24 @@ namespace Zenject
 
             if (_gameObject != null)
             {
-                injectAction = null;
-                return _gameObject;
+                yield return _gameObject;
+                yield break;
             }
 
-            _gameObject = _subInstantiator.Instantiate(new List<TypeValuePair>(), out injectAction);
-            return _gameObject;
+            var runner = _subInstantiator.Instantiate(new List<TypeValuePair>());
+
+            // First get instance
+            bool hasMore = runner.MoveNext();
+
+            _gameObject = runner.Current;
+
+            yield return _gameObject;
+
+            // Now do injection
+            while (hasMore)
+            {
+                hasMore = runner.MoveNext();
+            }
         }
     }
 }

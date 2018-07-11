@@ -7,8 +7,8 @@ namespace Zenject
         : FactorySubContainerBinderBase<TContract>
     {
         public FactorySubContainerBinder(
-            DiContainer bindContainer, BindInfo bindInfo, FactoryBindInfo factoryBindInfo, object subIdentifier)
-            : base(bindContainer, bindInfo, factoryBindInfo, subIdentifier)
+            BindInfo bindInfo, FactoryBindInfo factoryBindInfo, object subIdentifier)
+            : base(bindInfo, factoryBindInfo, subIdentifier)
         {
         }
 
@@ -18,7 +18,7 @@ namespace Zenject
                 (container) => new SubContainerDependencyProvider(
                     ContractType, SubIdentifier,
                     new SubContainerCreatorByMethod(
-                        container, installerMethod), false);
+                        container, installerMethod));
 
             return new ConditionCopyNonLazyBinder(BindInfo);
         }
@@ -38,7 +38,7 @@ namespace Zenject
                     new SubContainerCreatorByNewPrefabMethod(
                         container,
                         new PrefabProvider(prefab),
-                        gameObjectInfo, installerMethod), false);
+                        gameObjectInfo, installerMethod));
 
             return new NameTransformConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
         }
@@ -56,18 +56,12 @@ namespace Zenject
                     new SubContainerCreatorByNewPrefabMethod(
                         container,
                         new PrefabProviderResource(resourcePath),
-                        gameObjectInfo, installerMethod), false);
+                        gameObjectInfo, installerMethod));
 
             return new NameTransformConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
         }
 
-        [System.Obsolete("ByNewPrefab has been renamed to ByNewContextPrefab to avoid confusion with ByNewPrefabInstaller and ByNewPrefabMethod")]
         public NameTransformConditionCopyNonLazyBinder ByNewPrefab(UnityEngine.Object prefab)
-        {
-            return ByNewContextPrefab(prefab);
-        }
-
-        public NameTransformConditionCopyNonLazyBinder ByNewContextPrefab(UnityEngine.Object prefab)
         {
             BindingUtil.AssertIsValidPrefab(prefab);
 
@@ -79,7 +73,7 @@ namespace Zenject
                     new SubContainerCreatorByNewPrefab(
                         container,
                         new PrefabProvider(prefab),
-                        gameObjectInfo), false);
+                        gameObjectInfo));
 
             return new NameTransformConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
         }
@@ -96,7 +90,7 @@ namespace Zenject
                     new SubContainerCreatorByNewPrefab(
                         container,
                         new PrefabProviderResource(resourcePath),
-                        gameObjectInfo), false);
+                        gameObjectInfo));
 
             return new NameTransformConditionCopyNonLazyBinder(BindInfo, gameObjectInfo);
         }

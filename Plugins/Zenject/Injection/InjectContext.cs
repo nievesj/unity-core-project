@@ -6,39 +6,12 @@ using ModestTree;
 
 namespace Zenject
 {
-    public class InjectContext : IDisposable
+    public class InjectContext
     {
-        public static readonly StaticMemoryPool<DiContainer, Type, InjectContext> Pool =
-            new StaticMemoryPool<DiContainer, Type, InjectContext>(OnSpawned, OnDespawned);
-
-        readonly BindingId _bindingId = new BindingId();
-
-        Type _objectType;
-        InjectContext _parentContext;
-        object _objectInstance;
-        string _memberName;
-        bool _optional;
-        InjectSources _sourceType;
-        object _fallBackValue;
-        object _concreteIdentifier;
-        DiContainer _container;
-
         public InjectContext()
         {
-            SetDefaults();
-        }
-
-        static void OnSpawned(DiContainer container, Type memberType, InjectContext that)
-        {
-            Assert.IsNull(that._container);
-
-            that._container = container;
-            that._bindingId.Type = memberType;
-        }
-
-        static void OnDespawned(InjectContext that)
-        {
-            that.SetDefaults();
+            SourceType = InjectSources.Any;
+            MemberName = "";
         }
 
         public InjectContext(DiContainer container, Type memberType)
@@ -60,36 +33,12 @@ namespace Zenject
             Optional = optional;
         }
 
-        public void Dispose()
-        {
-            Pool.Despawn(this);
-        }
-
-        void SetDefaults()
-        {
-            _objectType = null;
-            _parentContext = null;
-            _objectInstance = null;
-            _memberName = "";
-            _bindingId.Identifier = null;
-            _bindingId.Type = null;
-            _optional = false;
-            _sourceType = InjectSources.Any;
-            _fallBackValue = null;
-            _container = null;
-        }
-
-        public BindingId BindingId
-        {
-            get { return _bindingId; }
-        }
-
         // The type of the object which is having its members injected
         // NOTE: This is null for root calls to Resolve<> or Instantiate<>
         public Type ObjectType
         {
-            get { return _objectType; }
-            set { _objectType = value; }
+            get;
+            set;
         }
 
         // Parent context that triggered the creation of ObjectType
@@ -98,16 +47,16 @@ namespace Zenject
         // since the ObjectType could be a derived type from ParentContext.MemberType
         public InjectContext ParentContext
         {
-            get { return _parentContext; }
-            set { _parentContext = value; }
+            get;
+            set;
         }
 
         // The instance which is having its members injected
         // Note that this is null when injecting into the constructor
         public object ObjectInstance
         {
-            get { return _objectInstance; }
-            set { _objectInstance = value; }
+            get;
+            set;
         }
 
         // Identifier - most of the time this is null
@@ -119,57 +68,66 @@ namespace Zenject
         //          public Foo([Inject(Id = "foo") Foo foo)
         public object Identifier
         {
-            get { return _bindingId.Identifier; }
-            set { _bindingId.Identifier = value; }
+            get;
+            set;
+        }
+
+        // ConcreteIdentifier - most of the time this is null
+        // It will match 'foo' in this example:
+        //      ... In an installer somewhere:
+        //          Container.Bind<Foo>().ToSingle("foo");
+        //          Container.Bind<ITickable>().ToSingle<Foo>("foo");
+        //      ...
+        // This allows you to create When() conditionals like this:
+        //      ...
+        //          Container.BindInstance("some text").When(c => c.ConcreteIdentifier == "foo");
+        public object ConcreteIdentifier
+        {
+            get;
+            set;
         }
 
         // The constructor parameter name, or field name, or property name
         public string MemberName
         {
-            get { return _memberName; }
-            set { _memberName = value; }
+            get;
+            set;
         }
 
         // The type of the constructor parameter, field or property
         public Type MemberType
         {
-            get { return _bindingId.Type; }
-            set { _bindingId.Type = value; }
+            get;
+            set;
         }
 
         // When optional, null is a valid value to be returned
         public bool Optional
         {
-            get { return _optional; }
-            set { _optional = value; }
+            get;
+            set;
         }
 
         // When set to true, this will only look up dependencies in the local container and will not
         // search in parent containers
         public InjectSources SourceType
         {
-            get { return _sourceType; }
-            set { _sourceType = value; }
-        }
-
-        public object ConcreteIdentifier
-        {
-            get { return _concreteIdentifier; }
-            set { _concreteIdentifier = value; }
+            get;
+            set;
         }
 
         // When optional, this is used to provide the value
         public object FallBackValue
         {
-            get { return _fallBackValue; }
-            set { _fallBackValue = value; }
+            get;
+            set;
         }
 
         // The container used for this injection
         public DiContainer Container
         {
-            get { return _container; }
-            set { _container = value; }
+            get;
+            set;
         }
 
         public IEnumerable<InjectContext> ParentContexts
@@ -220,6 +178,11 @@ namespace Zenject
             }
         }
 
+        public BindingId GetBindingId()
+        {
+            return new BindingId(MemberType, Identifier);
+        }
+
         public InjectContext CreateSubContext(Type memberType)
         {
             return CreateSubContext(memberType, null);
@@ -254,9 +217,9 @@ namespace Zenject
 
             clone.ObjectType = this.ObjectType;
             clone.ParentContext = this.ParentContext;
-            clone.ConcreteIdentifier = this.ConcreteIdentifier;
             clone.ObjectInstance = this.ObjectInstance;
             clone.Identifier = this.Identifier;
+            clone.ConcreteIdentifier = this.ConcreteIdentifier;
             clone.MemberType = this.MemberType;
             clone.MemberName = this.MemberName;
             clone.Optional = this.Optional;
@@ -279,7 +242,7 @@ namespace Zenject
                     continue;
                 }
 
-                result.AppendLine(context.ObjectType.PrettyName());
+                result.AppendLine(context.ObjectType.Name());
             }
 
             return result.ToString();

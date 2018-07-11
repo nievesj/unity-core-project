@@ -14,11 +14,6 @@ namespace Zenject
 {
     public class SceneContext : RunnableContext
     {
-        public event Action PreInstall = null;
-        public event Action PostInstall = null;
-        public event Action PreResolve = null;
-        public event Action PostResolve = null;
-
         public static Action<DiContainer> ExtraBindingsInstallMethod;
         public static Action<DiContainer> ExtraBindingsLateInstallMethod;
 
@@ -32,6 +27,10 @@ namespace Zenject
         [Tooltip("Optional contract names for this SceneContext, allowing contexts in subsequently loaded scenes to depend on it and be parented to it, and also for previously loaded decorators to be included")]
         [SerializeField]
         List<string> _contractNames = new List<string>();
+
+        [Tooltip("Note: This field is deprecated!  It will be removed in future versions.")]
+        [SerializeField]
+        string _parentContractName;
 
         [Tooltip("Optional contract names of SceneContexts in previously loaded scenes that this context depends on and to which it should be parented")]
         [SerializeField]
@@ -47,16 +46,6 @@ namespace Zenject
         public override DiContainer Container
         {
             get { return _container; }
-        }
-
-        public bool HasResolved
-        {
-            get { return _hasResolved; }
-        }
-
-        public bool HasInstalled
-        {
-            get { return _hasInstalled; }
         }
 
         public bool IsValidating
@@ -86,11 +75,18 @@ namespace Zenject
             get
             {
                 var result = new List<string>();
+
+                if (!string.IsNullOrEmpty(_parentContractName))
+                {
+                    result.Add(_parentContractName);
+                }
+
                 result.AddRange(_parentContractNames);
                 return result;
             }
             set
             {
+                _parentContractName = null;
                 _parentContractNames = value.ToList();
             }
         }
@@ -101,8 +97,19 @@ namespace Zenject
             set { _parentNewObjectsUnderRoot = value; }
         }
 
+        void CheckParentContractName()
+        {
+            if (!string.IsNullOrEmpty(_parentContractName))
+            {
+                Debug.LogWarning(
+                    "Field 'Parent Contract Name' is now deprecated! Please migrate to using the collection 'Parent Contract Names' instead on scene context '{0}'".Fmt(this.name));
+            }
+        }
+
         public void Awake()
         {
+            CheckParentContractName();
+
             Initialize();
         }
 
@@ -111,8 +118,11 @@ namespace Zenject
         {
             Assert.That(IsValidating);
 
+            CheckParentContractName();
             Install();
             Resolve();
+
+            _container.ValidateValidatables();
         }
 #endif
 
@@ -123,18 +133,8 @@ namespace Zenject
 
             Assert.That(!IsValidating);
 
-#if UNITY_EDITOR
-            using (ProfileBlock.Start("SceneContext.Install"))
-#endif
-            {
-                Install();
-            }
-#if UNITY_EDITOR
-            using (ProfileBlock.Start("SceneContext.Resolve"))
-#endif
-            {
-                Resolve();
-            }
+            Install();
+            Resolve();
         }
 
         public override IEnumerable<GameObject> GetRootGameObjects()
@@ -217,12 +217,6 @@ namespace Zenject
 
             _container = new DiContainer(parents, parents.First().IsValidating);
 
-            // Do this after creating DiContainer in case it's needed by the pre install logic
-            if (PreInstall != null)
-            {
-                PreInstall();
-            }
-
             Assert.That(_decoratorContexts.IsEmpty());
             _decoratorContexts.AddRange(LookupDecoratorContexts());
 
@@ -263,30 +257,16 @@ namespace Zenject
             {
                 _container.IsInstalling = false;
             }
-
-            if (PostInstall != null)
-            {
-                PostInstall();
-            }
         }
 
         public void Resolve()
         {
-            if (PreResolve != null)
-            {
-                PreResolve();
-            }
-
             Assert.That(_hasInstalled);
             Assert.That(!_hasResolved);
             _hasResolved = true;
 
-            _container.ResolveRoots();
-
-            if (PostResolve != null)
-            {
-                PostResolve();
-            }
+            _container.ResolveDependencyRoots();
+            _container.FlushInjectQueue();
         }
 
         void InstallBindings(List<MonoBehaviour> injectableMonoBehaviours)
@@ -340,10 +320,7 @@ namespace Zenject
 
         protected override void GetInjectableMonoBehaviours(List<MonoBehaviour> monoBehaviours)
         {
-            var scene = this.gameObject.scene;
-
-            ZenUtilInternal.AddStateMachineBehaviourAutoInjectersInScene(scene);
-            ZenUtilInternal.GetInjectableMonoBehavioursInScene(scene, monoBehaviours);
+            ZenUtilInternal.GetInjectableMonoBehaviours(this.gameObject.scene, monoBehaviours);
         }
 
         // These methods can be used for cases where you need to create the SceneContext entirely in code

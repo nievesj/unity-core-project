@@ -2,9 +2,9 @@ namespace Zenject
 {
     public class NullBindingFinalizer : IBindingFinalizer
     {
-        public BindingInheritanceMethods BindingInheritanceMethod
+        public bool CopyIntoAllSubContainers
         {
-            get { return BindingInheritanceMethods.None; }
+            get { return false; }
         }
 
         public void FinalizeBinding(DiContainer container)

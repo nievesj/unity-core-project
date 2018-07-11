@@ -10,28 +10,16 @@ namespace Zenject
         readonly ISubContainerCreator _subContainerCreator;
         readonly Type _dependencyType;
         readonly object _identifier;
-        readonly bool _resolveAll;
 
         // if concreteType is null we use the contract type from inject context
         public SubContainerDependencyProvider(
             Type dependencyType,
             object identifier,
-            ISubContainerCreator subContainerCreator, bool resolveAll)
+            ISubContainerCreator subContainerCreator)
         {
             _subContainerCreator = subContainerCreator;
             _dependencyType = dependencyType;
             _identifier = identifier;
-            _resolveAll = resolveAll;
-        }
-
-        public bool IsCached
-        {
-            get { return false; }
-        }
-
-        public bool TypeVariesBasedOnMemberType
-        {
-            get { return false; }
         }
 
         public Type GetInstanceType(InjectContext context)
@@ -52,8 +40,7 @@ namespace Zenject
             return subContext;
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public IEnumerator<List<object>> GetAllInstancesWithInjectSplit(InjectContext context, List<TypeValuePair> args)
         {
             Assert.IsNotNull(context);
 
@@ -61,17 +48,7 @@ namespace Zenject
 
             var subContext = CreateSubContext(context, subContainer);
 
-            injectAction = null;
-
-            if (_resolveAll)
-            {
-                return subContainer.ResolveAll(subContext).Cast<object>().ToList();
-            }
-
-            return new List<object>()
-            {
-                subContainer.Resolve(subContext),
-            };
+            yield return subContainer.ResolveAll(subContext).Cast<object>().ToList();
         }
     }
 }

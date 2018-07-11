@@ -18,31 +18,21 @@ namespace Zenject
             _container = container;
         }
 
-        public bool IsCached
-        {
-            get { return true; }
-        }
-
-        public bool TypeVariesBasedOnMemberType
-        {
-            get { return false; }
-        }
-
         public Type GetInstanceType(InjectContext context)
         {
             return _instanceType;
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public IEnumerator<List<object>> GetAllInstancesWithInjectSplit(InjectContext context, List<TypeValuePair> args)
         {
             Assert.IsEmpty(args);
             Assert.IsNotNull(context);
 
             Assert.That(_instanceType.DerivesFromOrEqual(context.MemberType));
 
-            injectAction = () => _container.LazyInject(_instance);
-            return new List<object>() { _instance };
+            yield return new List<object>() { _instance };
+
+            _container.LazyInject(_instance);
         }
     }
 }

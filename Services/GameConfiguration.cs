@@ -1,7 +1,6 @@
 ﻿using Core.Services.Assets;
 using Core.Services.Audio;
 using Core.Services.Factory;
-using Core.Services.Levels;
 using Core.Services.Scenes;
 using Core.Services.UI;
 using System.Collections.Generic;
@@ -28,13 +27,13 @@ namespace Core.Services
 				Debug.unityLogger.logEnabled = false;
 			
 			//Initialize SignalBus
-			SignalBusInstaller.Install(Container); //This allows SignalBus to be injected in any class instantiated here, or any of its children.
+			// SignalBusInstaller.Install(Container); //This allows SignalBus to be injected in any class instantiated here, or any of its children.
 			
 			//Add Game Started Signal
-			Container.DeclareSignal<OnGameStartedSignal>();
+			// Container.DeclareSignal<OnGameStartedSignal>();
 			
 			//Add On Game Paused Signal
-			Container.DeclareSignal<OnGamePausedSignal>();
+			// Container.DeclareSignal<OnGamePausedSignal>();
 
 			Debug.Log(("GameConfiguration: Starting Services").Colored(Colors.Lime));
 			foreach (var service in services)

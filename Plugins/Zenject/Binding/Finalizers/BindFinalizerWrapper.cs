@@ -4,41 +4,24 @@ namespace Zenject
 {
     public class BindFinalizerWrapper : IBindingFinalizer
     {
-        readonly string _missingFinalizerMessage;
-
-        public BindFinalizerWrapper(string missingFinalizerMessage)
-        {
-            _missingFinalizerMessage = missingFinalizerMessage;
-        }
+        IBindingFinalizer _subFinalizer;
 
         public IBindingFinalizer SubFinalizer
         {
-            get; set;
+            set { _subFinalizer = value; }
         }
 
-        public BindingInheritanceMethods BindingInheritanceMethod
+        public bool CopyIntoAllSubContainers
         {
-            get
-            {
-                AssertHasFinalizer();
-                return SubFinalizer.BindingInheritanceMethod;
-            }
-        }
-
-        void AssertHasFinalizer()
-        {
-            if (SubFinalizer == null)
-            {
-                throw Assert.CreateException(
-                    "Unfinished binding!  Some required information was left unspecified.  {0}",
-                    _missingFinalizerMessage == null ? "" : _missingFinalizerMessage);
-            }
+            get { return _subFinalizer.CopyIntoAllSubContainers; }
         }
 
         public void FinalizeBinding(DiContainer container)
         {
-            AssertHasFinalizer();
-            SubFinalizer.FinalizeBinding(container);
+            Assert.IsNotNull(_subFinalizer,
+                "Unfinished binding! Finalizer was not given.");
+
+            _subFinalizer.FinalizeBinding(container);
         }
     }
 }

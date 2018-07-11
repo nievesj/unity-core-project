@@ -16,8 +16,8 @@ namespace Core.Services
         [Inject]
         protected UIService _uiService;
 
-        [Inject]
-        protected SignalBus _signalBus;
+        // [Inject]
+        // protected SignalBus _signalBus;
 
         protected virtual void Awake()
         {

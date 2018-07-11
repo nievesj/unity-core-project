@@ -119,13 +119,11 @@ namespace Zenject
             {
                 Assert.IsNotNull(installerPrefab, "Found null prefab in Context");
 
-                // We'd like to do this but this is actually a valid case sometimes
-                // (eg. loading an asset bundle with a scene containing a scene context when inside unity editor)
-//#if UNITY_EDITOR
-                //Assert.That(PrefabUtility.GetPrefabType(installerPrefab.gameObject) == PrefabType.Prefab,
-                    //"Found non-prefab with name '{0}' in the InstallerPrefabs property of Context '{1}'.  You should use the property 'Installer' for this instead",
-                    //installerPrefab.name, this.name);
-//#endif
+#if UNITY_EDITOR
+                Assert.That(PrefabUtility.GetPrefabType(installerPrefab.gameObject) == PrefabType.Prefab,
+                    "Found non-prefab with name '{0}' in the InstallerPrefabs property of Context '{1}'.  You should use the property 'Installer' for this instead",
+                    installerPrefab.name, this.name);
+#endif
                 Assert.That(installerPrefab.GetComponent<MonoInstaller>() != null,
                     "Expected to find component with type 'MonoInstaller' on given installer prefab '{0}'", installerPrefab.name);
             }
@@ -205,9 +203,9 @@ namespace Zenject
                     continue;
                 }
 
-                if (binding.Context == null || (binding.UseSceneContext && this is SceneContext))
+                if (binding.Context == null)
                 {
-                    binding.Context = this;
+                    InstallZenjectBinding(binding);
                 }
             }
 
@@ -221,17 +219,6 @@ namespace Zenject
                 if (binding == null)
                 {
                     continue;
-                }
-
-                // This is necessary for cases where the ZenjectBinding is inside a GameObjectContext
-                // since it won't be caught in the other loop above
-                if (this is SceneContext)
-                {
-                    if (binding.Context == null && binding.UseSceneContext
-                        && binding.gameObject.scene == this.gameObject.scene)
-                    {
-                        binding.Context = this;
-                    }
                 }
 
                 if (binding.Context == this)
@@ -287,7 +274,7 @@ namespace Zenject
                     }
                     case ZenjectBinding.BindTypes.AllInterfaces:
                     {
-                        Container.Bind(componentType.Interfaces()).WithId(identifier).FromInstance(component);
+                        Container.Bind(componentType.Interfaces().ToArray()).WithId(identifier).FromInstance(component);
                         break;
                     }
                     case ZenjectBinding.BindTypes.AllInterfacesAndSelf:

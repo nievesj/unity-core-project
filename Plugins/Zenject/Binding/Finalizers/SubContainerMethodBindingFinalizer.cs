@@ -8,15 +8,13 @@ namespace Zenject
     {
         readonly object _subIdentifier;
         readonly Action<DiContainer> _installMethod;
-        readonly bool _resolveAll;
 
         public SubContainerMethodBindingFinalizer(
-            BindInfo bindInfo, Action<DiContainer> installMethod, object subIdentifier, bool resolveAll)
+            BindInfo bindInfo, Action<DiContainer> installMethod, object subIdentifier)
             : base(bindInfo)
         {
             _subIdentifier = subIdentifier;
             _installMethod = installMethod;
-            _resolveAll = resolveAll;
         }
 
         protected override void OnFinalizeBinding(DiContainer container)
@@ -34,10 +32,21 @@ namespace Zenject
 
         void FinalizeBindingConcrete(DiContainer container, List<Type> concreteTypes)
         {
-            var scope = GetScope();
-
-            switch (scope)
+            switch (GetScope())
             {
+                case ScopeTypes.Singleton:
+                {
+                    RegisterProvidersForAllContractsPerConcreteType(
+                        container,
+                        concreteTypes,
+                        (_, concreteType) =>
+                            container.SingletonProviderCreator.CreateProviderForSubContainerMethod(
+                                concreteType,
+                                BindInfo.ConcreteIdentifier,
+                                _installMethod,
+                                _subIdentifier));
+                    break;
+                }
                 case ScopeTypes.Transient:
                 {
                     // Note: each contract/concrete pair gets its own container here
@@ -46,10 +55,10 @@ namespace Zenject
                         concreteTypes,
                         (contractType, concreteType) => new SubContainerDependencyProvider(
                             concreteType, _subIdentifier,
-                            new SubContainerCreatorByMethod(container, _installMethod), _resolveAll));
+                            new SubContainerCreatorByMethod(container, _installMethod)));
                     break;
                 }
-                case ScopeTypes.Singleton:
+                case ScopeTypes.Cached:
                 {
                     var creator = new SubContainerCreatorCached(
                         new SubContainerCreatorByMethod(container, _installMethod));
@@ -59,7 +68,7 @@ namespace Zenject
                         container,
                         concreteTypes,
                         (_, concreteType) => new SubContainerDependencyProvider(
-                            concreteType, _subIdentifier, creator, _resolveAll));
+                            concreteType, _subIdentifier, creator));
                     break;
                 }
                 default:
@@ -71,10 +80,19 @@ namespace Zenject
 
         void FinalizeBindingSelf(DiContainer container)
         {
-            var scope = GetScope();
-
-            switch (scope)
+            switch (GetScope())
             {
+                case ScopeTypes.Singleton:
+                {
+                    RegisterProviderPerContract(
+                        container,
+                        (_, contractType) => container.SingletonProviderCreator.CreateProviderForSubContainerMethod(
+                            contractType,
+                            BindInfo.ConcreteIdentifier,
+                            _installMethod,
+                            _subIdentifier));
+                    break;
+                }
                 case ScopeTypes.Transient:
                 {
                     RegisterProviderPerContract(
@@ -82,10 +100,10 @@ namespace Zenject
                         (_, contractType) => new SubContainerDependencyProvider(
                             contractType, _subIdentifier,
                             new SubContainerCreatorByMethod(
-                                container, _installMethod), _resolveAll));
+                                container, _installMethod)));
                     break;
                 }
-                case ScopeTypes.Singleton:
+                case ScopeTypes.Cached:
                 {
                     var containerCreator = new SubContainerCreatorCached(
                         new SubContainerCreatorByMethod(container, _installMethod));
@@ -94,7 +112,7 @@ namespace Zenject
                         container,
                         (_, contractType) =>
                             new SubContainerDependencyProvider(
-                                contractType, _subIdentifier, containerCreator, _resolveAll));
+                                contractType, _subIdentifier, containerCreator));
                     break;
                 }
                 default:

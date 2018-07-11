@@ -1,4 +1,3 @@
-using System;
 using ModestTree;
 
 namespace Zenject
@@ -10,16 +9,23 @@ namespace Zenject
         {
         }
 
-        public NonLazyBinder AsCached()
+        public NonLazyBinder AsSingle()
         {
+            return AsSingle(null);
+        }
+
+        public NonLazyBinder AsSingle(object concreteIdentifier)
+        {
+            Assert.IsNull(BindInfo.ConcreteIdentifier);
+
             BindInfo.Scope = ScopeTypes.Singleton;
+            BindInfo.ConcreteIdentifier = concreteIdentifier;
             return this;
         }
 
-        public NonLazyBinder AsSingle()
+        public NonLazyBinder AsCached()
         {
-            BindInfo.Scope = ScopeTypes.Singleton;
-            BindInfo.MarkAsUniqueSingleton = true;
+            BindInfo.Scope = ScopeTypes.Cached;
             return this;
         }
 
@@ -31,4 +37,5 @@ namespace Zenject
         }
     }
 }
+
 

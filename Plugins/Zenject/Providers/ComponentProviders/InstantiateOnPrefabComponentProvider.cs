@@ -21,31 +21,31 @@ namespace Zenject
             _componentType = componentType;
         }
 
-        public bool IsCached
-        {
-            get { return false; }
-        }
-
-        public bool TypeVariesBasedOnMemberType
-        {
-            get { return false; }
-        }
-
         public Type GetInstanceType(InjectContext context)
         {
             return _componentType;
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public IEnumerator<List<object>> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args)
         {
             Assert.IsNotNull(context);
 
-            var gameObject = _prefabInstantiator.Instantiate(args, out injectAction);
+            var gameObjectRunner = _prefabInstantiator.Instantiate(args);
 
+            // First get instance
+            bool hasMore = gameObjectRunner.MoveNext();
+
+            var gameObject = gameObjectRunner.Current;
             var component = gameObject.AddComponent(_componentType);
 
-            return new List<object>() { component };
+            yield return new List<object>() { component };
+
+            // Now do injection
+            while (hasMore)
+            {
+                hasMore = gameObjectRunner.MoveNext();
+            }
         }
     }
 }

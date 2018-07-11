@@ -5,29 +5,13 @@ namespace Zenject
     [System.Diagnostics.DebuggerStepThrough]
     public class BindingId : IEquatable<BindingId>
     {
-        Type _type;
-        object _identifier;
-
-        public BindingId()
-        {
-        }
+        public readonly Type Type;
+        public readonly object Identifier;
 
         public BindingId(Type type, object identifier)
         {
-            _type = type;
-            _identifier = identifier;
-        }
-
-        public Type Type
-        {
-            get { return _type; }
-            set { _type = value; }
-        }
-
-        public object Identifier
-        {
-            get { return _identifier; }
-            set { _identifier = value; }
+            Type = type;
+            Identifier = identifier;
         }
 
         public override int GetHashCode()
@@ -35,8 +19,8 @@ namespace Zenject
             unchecked // Overflow is fine, just wrap
             {
                 int hash = 17;
-                hash = hash * 29 + _type.GetHashCode();
-                hash = hash * 29 + (_identifier == null ? 0 : _identifier.GetHashCode());
+                hash = hash * 29 + this.Type.GetHashCode();
+                hash = hash * 29 + (this.Identifier == null ? 0 : this.Identifier.GetHashCode());
                 return hash;
             }
         }

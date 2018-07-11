@@ -36,7 +36,16 @@ namespace Zenject
                 _installerType, args.Concat(_extraArgs).ToList());
             installer.InstallBindings();
 
-            subContainer.ResolveRoots();
+            subContainer.ResolveDependencyRoots();
+            subContainer.FlushInjectQueue();
+
+            if (subContainer.IsValidating)
+            {
+                // The root-level Container has its ValidateValidatables method
+                // called explicitly - however, this is not so for sub-containers
+                // so call it here instead
+                subContainer.ValidateValidatables();
+            }
 
             return subContainer;
         }

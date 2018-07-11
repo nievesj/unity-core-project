@@ -4,15 +4,15 @@ using ModestTree;
 
 namespace Zenject
 {
-    public class FactoryToChoiceIdBinder<TContract> : FactoryArgumentsToChoiceBinder<TContract>
+    public class FactoryToChoiceIdBinder<TContract> : FactoryToChoiceBinder<TContract>
     {
         public FactoryToChoiceIdBinder(
-            DiContainer container, BindInfo bindInfo, FactoryBindInfo factoryBindInfo)
-            : base(container, bindInfo, factoryBindInfo)
+            BindInfo bindInfo, FactoryBindInfo factoryBindInfo)
+            : base(bindInfo, factoryBindInfo)
         {
         }
 
-        public FactoryArgumentsToChoiceBinder<TContract> WithId(object identifier)
+        public FactoryToChoiceBinder<TContract> WithId(object identifier)
         {
             BindInfo.Identifier = identifier;
             return this;

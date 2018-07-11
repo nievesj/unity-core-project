@@ -50,7 +50,7 @@ namespace Zenject
             return _prefabProvider.GetPrefab();
         }
 
-        public GameObject Instantiate(List<TypeValuePair> args, out Action injectAction)
+        public IEnumerator<GameObject> Instantiate(List<TypeValuePair> args)
         {
             var context = new InjectContext(_container, _argumentTarget, null);
             bool shouldMakeActive;
@@ -58,41 +58,38 @@ namespace Zenject
                 GetPrefab(), _gameObjectBindInfo, context, out shouldMakeActive);
             Assert.IsNotNull(gameObject);
 
-            injectAction = () =>
+            // Return it before inject so we can do circular dependencies
+            yield return gameObject;
+
+            var allArgs = _extraArguments.Concat(args).ToList();
+
+            if (_argumentTarget == null)
             {
-                var allArgs = _extraArguments.Concat(args).ToList();
+                Assert.That(allArgs.IsEmpty(),
+                    "Unexpected arguments provided to prefab instantiator.  Arguments are not allowed if binding multiple components in the same binding");
+            }
 
-                if (_argumentTarget == null)
+            if (_argumentTarget == null || allArgs.IsEmpty())
+            {
+                _container.InjectGameObject(gameObject);
+            }
+            else
+            {
+                var injectArgs = new InjectArgs()
                 {
-                    Assert.That(
-                        allArgs.IsEmpty(),
-                        "Unexpected arguments provided to prefab instantiator.  Arguments are not allowed if binding multiple components in the same binding");
-                }
+                    ExtraArgs = allArgs,
+                    Context = context,
+                    ConcreteIdentifier = null,
+                };
 
-                if (_argumentTarget == null || allArgs.IsEmpty())
-                {
-                    _container.InjectGameObject(gameObject);
-                }
-                else
-                {
-                    var injectArgs = new InjectArgs()
-                    {
-                        ExtraArgs = allArgs,
-                        Context = context,
-                        ConcreteIdentifier = null
-                    };
+                _container.InjectGameObjectForComponentExplicit(
+                    gameObject, _argumentTarget, injectArgs);
+            }
 
-                    _container.InjectGameObjectForComponentExplicit(
-                        gameObject, _argumentTarget, injectArgs);
-                }
-
-                if (shouldMakeActive)
-                {
-                    gameObject.SetActive(true);
-                }
-            };
-
-            return gameObject;
+            if (shouldMakeActive)
+            {
+                gameObject.SetActive(true);
+            }
         }
     }
 }

@@ -17,37 +17,25 @@ namespace Zenject
             _method = method;
         }
 
-        public bool IsCached
-        {
-            get { return false; }
-        }
-
-        public bool TypeVariesBasedOnMemberType
-        {
-            get { return false; }
-        }
-
         public Type GetInstanceType(InjectContext context)
         {
             return typeof(TReturn);
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public IEnumerator<List<object>> GetAllInstancesWithInjectSplit(InjectContext context, List<TypeValuePair> args)
         {
             Assert.IsEmpty(args);
             Assert.IsNotNull(context);
 
             Assert.That(typeof(TReturn).DerivesFromOrEqual(context.MemberType));
 
-            injectAction = null;
-            if (_container.IsValidating && !TypeAnalyzer.ShouldAllowDuringValidation(context.MemberType))
+            if (_container.IsValidating && !DiContainer.CanCreateOrInjectDuringValidation(context.MemberType))
             {
-                return new List<object>() { new ValidationMarker(typeof(TReturn)) };
+                yield return new List<object>() { new ValidationMarker(typeof(TReturn)) };
             }
             else
             {
-                return new List<object>() { _method(context) };
+                yield return new List<object>() { _method(context) };
             }
         }
     }

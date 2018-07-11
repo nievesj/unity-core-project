@@ -9,12 +9,12 @@ namespace Zenject
     {
         readonly DiContainer _container;
         readonly Type _concreteType;
-        readonly List<TypeValuePair> _extraArguments;
         readonly object _concreteIdentifier;
+        readonly List<TypeValuePair> _extraArguments;
 
         public TransientProvider(
             Type concreteType, DiContainer container,
-            List<TypeValuePair> extraArguments, string bindingContext, object concreteIdentifier)
+            List<TypeValuePair> extraArguments, object concreteIdentifier, string bindingContext)
         {
             Assert.That(!concreteType.IsAbstract(),
                 "Expected non-abstract type for given binding but instead found type '{0}'{1}",
@@ -22,27 +22,29 @@ namespace Zenject
 
             _container = container;
             _concreteType = concreteType;
-            _extraArguments = extraArguments ?? new List<TypeValuePair>();
             _concreteIdentifier = concreteIdentifier;
+            _extraArguments = extraArguments;
         }
 
-        public bool IsCached
+        public TransientProvider(
+            Type concreteType, DiContainer container,
+            List<TypeValuePair> extraArguments)
+            : this(concreteType, container, extraArguments, null, null)
         {
-            get { return false; }
         }
 
-        public bool TypeVariesBasedOnMemberType
+        public TransientProvider(
+            Type concreteType, DiContainer container)
+            : this(concreteType, container, new List<TypeValuePair>())
         {
-            get { return _concreteType.IsOpenGenericType(); }
         }
 
         public Type GetInstanceType(InjectContext context)
         {
-            return GetTypeToCreate(context.MemberType);
+            return _concreteType;
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public IEnumerator<List<object>> GetAllInstancesWithInjectSplit(InjectContext context, List<TypeValuePair> args)
         {
             Assert.IsNotNull(context);
 
@@ -60,8 +62,10 @@ namespace Zenject
             var instance = _container.InstantiateExplicit(
                 instanceType, autoInject, injectArgs);
 
-            injectAction = () => _container.InjectExplicit(instance, instanceType, injectArgs);
-            return new List<object>() { instance };
+            // Return before property/field/method injection to allow circular dependencies
+            yield return new List<object>() { instance };
+
+            _container.InjectExplicit(instance, instanceType, injectArgs);
         }
 
         Type GetTypeToCreate(Type contractType)

@@ -46,8 +46,8 @@ namespace Core.Services.UI
         {
             base.Awake();
 
-            if (PauseGameWhenOpen)
-                _signalBus.Fire(new OnGamePausedSignal(true));
+            // if (PauseGameWhenOpen)
+            //     _signalBus.Fire(new OnGamePausedSignal(true));
         }
 
         protected override void Start()
@@ -110,8 +110,8 @@ namespace Core.Services.UI
         {
             base.OnDestroy();
 
-            if (PauseGameWhenOpen)
-                _signalBus.Fire(new OnGamePausedSignal(false));
+            // if (PauseGameWhenOpen)
+                // _signalBus.Fire(new OnGamePausedSignal(false));
         }
     }
 }

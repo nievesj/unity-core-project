@@ -2,18 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace ModestTree
 {
     public static class TypeExtensions
     {
-        static readonly Dictionary<Type, string> _prettyNameCache = new Dictionary<Type, string>();
-        static readonly Dictionary<Type, bool> _isClosedGenericType = new Dictionary<Type, bool>();
-        static readonly Dictionary<Type, bool> _isOpenGenericType = new Dictionary<Type, bool>();
-        static readonly Dictionary<Type, bool> _isValueType = new Dictionary<Type, bool>();
-        static readonly Dictionary<Type, Type[]> _interfaces = new Dictionary<Type, Type[]>();
-
         public static bool DerivesFrom<T>(this Type a)
         {
             return DerivesFrom(a, typeof(T));
@@ -43,7 +36,7 @@ namespace ModestTree
         // TODO: Is it possible to do this on WSA?
         public static bool IsAssignableToGenericType(Type givenType, Type genericType)
         {
-            var interfaceTypes = givenType.Interfaces();
+            var interfaceTypes = givenType.GetInterfaces();
 
             foreach (var it in interfaceTypes)
             {
@@ -80,17 +73,11 @@ namespace ModestTree
 
         public static bool IsValueType(this Type type)
         {
-            bool result;
-            if (!_isValueType.TryGetValue(type, out result))
-            {
 #if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
-                result = type.GetTypeInfo().IsValueType;
+            return type.GetTypeInfo().IsValueType;
 #else
-                result = type.IsValueType;
+            return type.IsValueType;
 #endif
-                _isValueType[type] = result;
-            }
-            return result;
         }
 
         public static MethodInfo[] DeclaredInstanceMethods(this Type type)
@@ -207,17 +194,11 @@ namespace ModestTree
 
         public static Type[] Interfaces(this Type type)
         {
-            Type[] result;
-            if (!_interfaces.TryGetValue(type, out result))
-            {
 #if UNITY_WSA && ENABLE_DOTNET && !UNITY_EDITOR
-                result = type.GetTypeInfo().ImplementedInterfaces.ToArray();
+            return type.GetTypeInfo().ImplementedInterfaces.ToArray();
 #else
-                result = type.GetInterfaces();
+            return type.GetInterfaces();
 #endif
-                _interfaces.Add(type, result);
-            }
-            return result;
         }
 
         public static ConstructorInfo[] Constructors(this Type type)
@@ -273,24 +254,12 @@ namespace ModestTree
 
         public static bool IsClosedGenericType(this Type type)
         {
-            bool result;
-            if (!_isClosedGenericType.TryGetValue(type, out result))
-            {
-                result = type.IsGenericType() && type != type.GetGenericTypeDefinition();
-                _isClosedGenericType[type] = result;
-            }
-            return result;
+            return type.IsGenericType() && type != type.GetGenericTypeDefinition();
         }
 
         public static bool IsOpenGenericType(this Type type)
         {
-            bool result;
-            if (!_isOpenGenericType.TryGetValue(type, out result))
-            {
-                result = type.IsGenericType() && type == type.GetGenericTypeDefinition();
-                _isOpenGenericType[type] = result;
-            }
-            return result;
+            return type.IsGenericType() && type == type.GetGenericTypeDefinition();
         }
 
         // Returns all instance fields, including private and public and also those in base classes
@@ -344,76 +313,14 @@ namespace ModestTree
             }
         }
 
-        public static string PrettyName(this Type type)
+        public static string Name(this Type type)
         {
-            string prettyName;
-
-            if (!_prettyNameCache.TryGetValue(type, out prettyName))
-            {
-                prettyName = PrettyNameInternal(type);
-                _prettyNameCache.Add(type, prettyName);
-            }
-
-            return prettyName;
-        }
-
-        static string PrettyNameInternal(Type type)
-        {
-            var sb = new StringBuilder();
-
-            if (type.IsNested)
-            {
-                sb.Append(type.DeclaringType.PrettyName());
-                sb.Append(".");
-            }
-
             if (type.IsArray)
             {
-                sb.Append(type.GetElementType().PrettyName());
-                sb.Append("[]");
-            }
-            else
-            {
-                var name = GetCSharpTypeName(type.Name);
-
-                if (type.IsGenericType())
-                {
-                    var quoteIndex = name.IndexOf('`');
-
-                    if (quoteIndex != -1)
-                    {
-                        sb.Append(name.Substring(0, name.IndexOf('`')));
-                    }
-                    else
-                    {
-                        sb.Append(name);
-                    }
-
-                    sb.Append("<");
-
-                    if (type.IsGenericTypeDefinition())
-                    {
-                        var numArgs = type.GenericArguments().Count();
-
-                        if (numArgs > 0)
-                        {
-                            sb.Append(new String(',', numArgs - 1));
-                        }
-                    }
-                    else
-                    {
-                        sb.Append(string.Join(", ", type.GenericArguments().Select(t => t.PrettyName()).ToArray()));
-                    }
-
-                    sb.Append(">");
-                }
-                else
-                {
-                    sb.Append(name);
-                }
+                return string.Format("{0}[]", type.GetElementType().Name());
             }
 
-            return sb.ToString();
+            return (type.DeclaringType == null ? "" : type.DeclaringType.Name() + ".") + GetCSharpTypeName(type.Name);
         }
 
         static string GetCSharpTypeName(string typeName)
@@ -476,12 +383,8 @@ namespace ModestTree
         public static IEnumerable<Attribute> AllAttributes(
             this MemberInfo provider, params Type[] attributeTypes)
         {
-            Attribute[] allAttributes;
-#if NETFX_CORE
-            allAttributes = provider.GetCustomAttributes<Attribute>(true).ToArray();
-#else
-            allAttributes = System.Attribute.GetCustomAttributes(provider, typeof(Attribute), true);
-#endif
+            var allAttributes = System.Attribute.GetCustomAttributes(provider, typeof(Attribute), true);
+
             if (attributeTypes.Length == 0)
             {
                 return allAttributes;
@@ -514,12 +417,8 @@ namespace ModestTree
         public static IEnumerable<Attribute> AllAttributes(
             this ParameterInfo provider, params Type[] attributeTypes)
         {
-            Attribute[] allAttributes;
-#if NETFX_CORE
-            allAttributes = provider.GetCustomAttributes<Attribute>(true).ToArray();
-#else
-            allAttributes = System.Attribute.GetCustomAttributes(provider, typeof(Attribute), true);
-#endif
+            var allAttributes = System.Attribute.GetCustomAttributes(provider, typeof(Attribute), true);
+
             if (attributeTypes.Length == 0)
             {
                 return allAttributes;

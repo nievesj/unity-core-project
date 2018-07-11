@@ -23,7 +23,7 @@ namespace Zenject
             get;
         }
 
-        GameObject Instantiate(List<TypeValuePair> args, out Action injectAction);
+        IEnumerator<GameObject> Instantiate(List<TypeValuePair> args);
 
         UnityEngine.Object GetPrefab();
     }

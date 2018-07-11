@@ -27,7 +27,16 @@ namespace Zenject
 
             _installMethod(subContainer);
 
-            subContainer.ResolveRoots();
+            subContainer.ResolveDependencyRoots();
+            subContainer.FlushInjectQueue();
+
+            if (subContainer.IsValidating)
+            {
+                // The root-level Container has its ValidateValidatables method
+                // called explicitly - however, this is not so for sub-containers
+                // so call it here instead
+                subContainer.ValidateValidatables();
+            }
 
             return subContainer;
         }
@@ -57,7 +66,16 @@ namespace Zenject
 
             _installMethod(subContainer, (TParam1)args[0].Value);
 
-            subContainer.ResolveRoots();
+            subContainer.ResolveDependencyRoots();
+            subContainer.FlushInjectQueue();
+
+            if (subContainer.IsValidating)
+            {
+                // The root-level Container has its ValidateValidatables method
+                // called explicitly - however, this is not so for sub-containers
+                // so call it here instead
+                subContainer.ValidateValidatables();
+            }
 
             return subContainer;
         }
@@ -91,7 +109,16 @@ namespace Zenject
                 (TParam1)args[0].Value,
                 (TParam2)args[1].Value);
 
-            subContainer.ResolveRoots();
+            subContainer.ResolveDependencyRoots();
+            subContainer.FlushInjectQueue();
+
+            if (subContainer.IsValidating)
+            {
+                // The root-level Container has its ValidateValidatables method
+                // called explicitly - however, this is not so for sub-containers
+                // so call it here instead
+                subContainer.ValidateValidatables();
+            }
 
             return subContainer;
         }
@@ -127,7 +154,16 @@ namespace Zenject
                 (TParam2)args[1].Value,
                 (TParam3)args[2].Value);
 
-            subContainer.ResolveRoots();
+            subContainer.ResolveDependencyRoots();
+            subContainer.FlushInjectQueue();
+
+            if (subContainer.IsValidating)
+            {
+                // The root-level Container has its ValidateValidatables method
+                // called explicitly - however, this is not so for sub-containers
+                // so call it here instead
+                subContainer.ValidateValidatables();
+            }
 
             return subContainer;
         }
@@ -137,19 +173,12 @@ namespace Zenject
 
     public class SubContainerCreatorByMethod<TParam1, TParam2, TParam3, TParam4> : ISubContainerCreator
     {
-        readonly
-#if !NET_4_6
-            ModestTree.Util.
-#endif
-            Action<DiContainer, TParam1, TParam2, TParam3, TParam4> _installMethod;
+        readonly ModestTree.Util.Action<DiContainer, TParam1, TParam2, TParam3, TParam4> _installMethod;
         readonly DiContainer _container;
 
         public SubContainerCreatorByMethod(
             DiContainer container,
-#if !NET_4_6
-            ModestTree.Util.
-#endif
-            Action<DiContainer, TParam1, TParam2, TParam3, TParam4> installMethod)
+            ModestTree.Util.Action<DiContainer, TParam1, TParam2, TParam3, TParam4> installMethod)
         {
             _installMethod = installMethod;
             _container = container;
@@ -172,7 +201,16 @@ namespace Zenject
                 (TParam3)args[2].Value,
                 (TParam4)args[3].Value);
 
-            subContainer.ResolveRoots();
+            subContainer.ResolveDependencyRoots();
+            subContainer.FlushInjectQueue();
+
+            if (subContainer.IsValidating)
+            {
+                // The root-level Container has its ValidateValidatables method
+                // called explicitly - however, this is not so for sub-containers
+                // so call it here instead
+                subContainer.ValidateValidatables();
+            }
 
             return subContainer;
         }
@@ -182,19 +220,12 @@ namespace Zenject
 
     public class SubContainerCreatorByMethod<TParam1, TParam2, TParam3, TParam4, TParam5> : ISubContainerCreator
     {
-        readonly
-#if !NET_4_6
-            ModestTree.Util.
-#endif
-            Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5> _installMethod;
+        readonly ModestTree.Util.Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5> _installMethod;
         readonly DiContainer _container;
 
         public SubContainerCreatorByMethod(
             DiContainer container,
-#if !NET_4_6
-            ModestTree.Util.
-#endif
-            Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5> installMethod)
+            ModestTree.Util.Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5> installMethod)
         {
             _installMethod = installMethod;
             _container = container;
@@ -219,114 +250,16 @@ namespace Zenject
                 (TParam4)args[3].Value,
                 (TParam5)args[4].Value);
 
-            subContainer.ResolveRoots();
+            subContainer.ResolveDependencyRoots();
+            subContainer.FlushInjectQueue();
 
-            return subContainer;
-        }
-    }
-
-    // Six parameters
-
-    public class SubContainerCreatorByMethod<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6> : ISubContainerCreator
-    {
-        readonly
-#if !NET_4_6
-            ModestTree.Util.
-#endif
-            Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6> _installMethod;
-        readonly DiContainer _container;
-
-        public SubContainerCreatorByMethod(
-            DiContainer container,
-#if !NET_4_6
-            ModestTree.Util.
-#endif
-            Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6> installMethod)
-        {
-            _installMethod = installMethod;
-            _container = container;
-        }
-
-        public DiContainer CreateSubContainer(List<TypeValuePair> args, InjectContext context)
-        {
-            Assert.IsEqual(args.Count, 5);
-            Assert.That(args[0].Type.DerivesFromOrEqual<TParam1>());
-            Assert.That(args[1].Type.DerivesFromOrEqual<TParam2>());
-            Assert.That(args[2].Type.DerivesFromOrEqual<TParam3>());
-            Assert.That(args[3].Type.DerivesFromOrEqual<TParam4>());
-            Assert.That(args[4].Type.DerivesFromOrEqual<TParam5>());
-            Assert.That(args[5].Type.DerivesFromOrEqual<TParam6>());
-
-            var subContainer = _container.CreateSubContainer();
-
-            _installMethod(
-                subContainer,
-                (TParam1)args[0].Value,
-                (TParam2)args[1].Value,
-                (TParam3)args[2].Value,
-                (TParam4)args[3].Value,
-                (TParam5)args[4].Value,
-                (TParam6)args[5].Value);
-
-            subContainer.ResolveRoots();
-
-            return subContainer;
-        }
-    }
-
-    // 10 parameters
-
-    public class SubContainerCreatorByMethod<TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10> : ISubContainerCreator
-    {
-        readonly
-#if !NET_4_6
-            ModestTree.Util.
-#endif
-            Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10> _installMethod;
-        readonly DiContainer _container;
-
-        public SubContainerCreatorByMethod(
-            DiContainer container,
-#if !NET_4_6
-            ModestTree.Util.
-#endif
-            Action<DiContainer, TParam1, TParam2, TParam3, TParam4, TParam5, TParam6, TParam7, TParam8, TParam9, TParam10> installMethod)
-        {
-            _installMethod = installMethod;
-            _container = container;
-        }
-
-        public DiContainer CreateSubContainer(List<TypeValuePair> args, InjectContext context)
-        {
-            Assert.IsEqual(args.Count, 10);
-
-            Assert.That(args[0].Type.DerivesFromOrEqual<TParam1>());
-            Assert.That(args[1].Type.DerivesFromOrEqual<TParam2>());
-            Assert.That(args[2].Type.DerivesFromOrEqual<TParam3>());
-            Assert.That(args[3].Type.DerivesFromOrEqual<TParam4>());
-            Assert.That(args[4].Type.DerivesFromOrEqual<TParam5>());
-            Assert.That(args[5].Type.DerivesFromOrEqual<TParam6>());
-            Assert.That(args[6].Type.DerivesFromOrEqual<TParam7>());
-            Assert.That(args[7].Type.DerivesFromOrEqual<TParam8>());
-            Assert.That(args[8].Type.DerivesFromOrEqual<TParam9>());
-            Assert.That(args[9].Type.DerivesFromOrEqual<TParam10>());
-
-            var subContainer = _container.CreateSubContainer();
-
-            _installMethod(
-                subContainer,
-                (TParam1)args[0].Value,
-                (TParam2)args[1].Value,
-                (TParam3)args[2].Value,
-                (TParam4)args[3].Value,
-                (TParam5)args[4].Value,
-                (TParam6)args[5].Value,
-                (TParam7)args[6].Value,
-                (TParam8)args[7].Value,
-                (TParam9)args[8].Value,
-                (TParam10)args[9].Value);
-
-            subContainer.ResolveRoots();
+            if (subContainer.IsValidating)
+            {
+                // The root-level Container has its ValidateValidatables method
+                // called explicitly - however, this is not so for sub-containers
+                // so call it here instead
+                subContainer.ValidateValidatables();
+            }
 
             return subContainer;
         }

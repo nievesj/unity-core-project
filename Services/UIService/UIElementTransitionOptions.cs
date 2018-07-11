@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using DG.Tweening;
+using UniRx.Async;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -127,7 +128,7 @@ namespace Core.Services.UI
                 .OnComplete(() => { _transitionCompleted = true; });
 
             while (!_transitionCompleted)
-                await Task.Yield();
+                await UniTask.Yield();
         }
 
         private async Task Move(RectTransform transform, Vector2 start, Vector2 end)
@@ -138,7 +139,7 @@ namespace Core.Services.UI
                 .OnComplete(() => { _transitionCompleted = true; });
 
             while (!_transitionCompleted)
-                await Task.Yield();
+                await UniTask.Yield();
         }
 
         private async Task Fade(RectTransform transform, float start, float end)
@@ -162,7 +163,7 @@ namespace Core.Services.UI
             }
 
             while (!_transitionCompleted)
-                await Task.Yield();
+                await UniTask.Yield();
         }
     }
 }

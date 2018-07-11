@@ -1,6 +1,4 @@
-﻿#if !ODIN_INSPECTOR
-
-using UnityEditor;
+﻿using UnityEditor;
 
 namespace Zenject
 {
@@ -24,5 +22,3 @@ namespace Zenject
     }
 }
 
-
-#endif

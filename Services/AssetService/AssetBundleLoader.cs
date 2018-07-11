@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using UniRx.Async;
 using UnityEngine;
 using UnityEngine.Networking;
 using Zenject;
@@ -159,7 +160,7 @@ namespace Core.Services.Assets
                 if(cancellationToken.IsCancellationRequested)
                     return null;
                 
-                await Task.Yield();
+                await UniTask.Yield(cancellationToken: cancellationToken);
                 progress?.Report(asyncOperation.progress);
                 Debug.Log($"GetBundleFromWebOrCacheAsync {bundleRequest.BundleName} progress: {asyncOperation.progress * 100f}%".Colored(Colors.LightSalmon));
             }
@@ -193,7 +194,7 @@ namespace Core.Services.Assets
                 if(cancellationToken.IsCancellationRequested)
                     return null;
                 
-                await Task.Yield();
+                await UniTask.Yield(cancellationToken: cancellationToken);
                 progress?.Report(asyncOperation.progress);
                 Debug.Log($"GetBundleFromStreamingAssetsAsync {bundleRequest.BundleName} progress: {asyncOperation.progress * 100f}%".Colored(Colors.LightSalmon));
             }

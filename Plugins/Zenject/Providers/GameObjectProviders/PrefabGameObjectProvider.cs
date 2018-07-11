@@ -16,27 +16,28 @@ namespace Zenject
             _prefabCreator = prefabCreator;
         }
 
-        public bool IsCached
-        {
-            get { return false; }
-        }
-
-        public bool TypeVariesBasedOnMemberType
-        {
-            get { return false; }
-        }
-
         public Type GetInstanceType(InjectContext context)
         {
             return typeof(GameObject);
         }
 
-        public List<object> GetAllInstancesWithInjectSplit(
-            InjectContext context, List<TypeValuePair> args, out Action injectAction)
+        public IEnumerator<List<object>> GetAllInstancesWithInjectSplit(
+            InjectContext context, List<TypeValuePair> args)
         {
-            var instance = _prefabCreator.Instantiate(args, out injectAction);
+            var runner = _prefabCreator.Instantiate(args);
 
-            return new List<object>() { instance };
+            // First get instance
+            bool hasMore = runner.MoveNext();
+
+            var instance = runner.Current;
+
+            yield return new List<object>() { instance };
+
+            // Now do injection
+            while (hasMore)
+            {
+                hasMore = runner.MoveNext();
+            }
         }
     }
 }

@@ -11,28 +11,14 @@ namespace Zenject
     {
         static DiContainer _container;
 
-        // Useful sometimes to call from play mode tests
-        public static void Clear()
+        static StaticContext()
         {
-            _container = null;
-        }
-
-        public static bool HasContainer
-        {
-            get { return _container != null; }
+            _container = new DiContainer();
         }
 
         public static DiContainer Container
         {
-            get
-            {
-                if (_container == null)
-                {
-                    _container = new DiContainer();
-                }
-
-                return _container;
-            }
+            get { return _container; }
         }
     }
 }
