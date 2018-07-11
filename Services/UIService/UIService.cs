@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Core.Services.Assets;
 using Core.Services.Factory;
 using UniRx;
+using UniRx.Async;
 using UnityEngine;
 using Zenject;
 
@@ -118,7 +119,7 @@ namespace Core.Services.UI
                 _activeUIElements.Add(obj.name, obj);
 
             Debug.Log($"UI Service: Loaded window - {obj.name}".Colored(Colors.LightBlue));
-            await Awaiters.WaitForEndOfFrame;
+            await UniTask.Yield(cancellationToken: cancellationToken);
             return obj as T;
         }
 

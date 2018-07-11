@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Core.Services.Assets;
 using Core.Services.UI;
 using UniRx;
+using UniRx.Async;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;

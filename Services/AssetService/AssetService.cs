@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using UniRx.Async;
 using UnityEngine;
 using Zenject;
 
@@ -117,8 +118,8 @@ namespace Core.Services.Assets
                 {
                     if(cancellationToken.IsCancellationRequested)
                         return 0;
-                    
-                    await Awaiters.WaitForUpdate; //Wait for main thread
+
+                    await UniTask.Yield(cancellationToken: cancellationToken);
 
                     var bundle = await _assetBundlebundleLoader.LoadBundle(request, forceLoadFromStreamingAssets, cancellationToken: cancellationToken);
                     bundles.Add(request.BundleName, bundle);
