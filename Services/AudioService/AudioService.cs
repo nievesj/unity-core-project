@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Core.Services.Factory;
 using UniRx;
+using UniRx.Async;
 using UnityEngine;
 using UnityEngine.Audio;
 using Zenject;
@@ -148,7 +149,6 @@ namespace Core.Services.Audio
             ap.Player = null;
         }
 
-        //TODO: stop using IEnumerator, replace with Async/Task
         private IEnumerator FadeMusicIn(AudioClip clip, AudioMixerGroup mixerGroup = null)
         {
             var volume = 0f;
@@ -159,8 +159,8 @@ namespace Core.Services.Audio
 
             MainThreadDispatcher.StartCoroutine(FadeMusicOut());
             //wait a tiny bit
-            yield return new WaitForEndOfFrame();
-
+            yield return UniTask.Yield();
+            
             audioPlayer.Player.clip = clip;
             audioPlayer.Player.loop = true;
             audioPlayer.Player.volume = 0;
@@ -176,7 +176,6 @@ namespace Core.Services.Audio
             }
         }
 
-        //TODO: stop using IEnumerator, replace with Async/Task
         private IEnumerator FadeMusicOut()
         {
             var volume = _volume;
@@ -202,7 +201,6 @@ namespace Core.Services.Audio
             }
         }
 
-        //TODO: stop using IEnumerator, replace with Async/Task
         private IEnumerator WaitUntilDonePlaying(AudioPlayer ap)
         {
             CustomYieldInstruction wait = new WaitUntil(() => ap.Player.clip.loadState == AudioDataLoadState.Loaded);
