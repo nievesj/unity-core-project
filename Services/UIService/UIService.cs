@@ -39,6 +39,8 @@ namespace Core.Services.UI
         private Dictionary<UIType, RectTransform> _renderPriorityCanvas;
 
         private Dictionary<string, UIElement> _activeUIElements;
+        
+        private Subject<bool> _onGamePaused = new Subject<bool>();
 
         public UIService(ServiceConfiguration config)
         {
@@ -117,6 +119,9 @@ namespace Core.Services.UI
 
             if (!_activeUIElements.ContainsKey(obj.name))
                 _activeUIElements.Add(obj.name, obj);
+            
+            if(obj.PauseGameWhenOpen)
+                PauseResume(true);
 
             Debug.Log($"UI Service: Loaded window - {obj.name}".Colored(Colors.LightBlue));
             await UniTask.Yield(cancellationToken: cancellationToken);
@@ -202,6 +207,16 @@ namespace Core.Services.UI
             await _uiScreenBlocker.BlockScreen(block);
         }
 
+        public IObservable<bool> OnGamePaused(bool isPaused)
+        {
+            return _onGamePaused;
+        }
+
+        public void PauseResume(bool isPause)
+        {
+            _onGamePaused.OnNext(isPause);
+        }
+
         private async Task UIElementClosed(UIElement window)
         {
             Debug.Log(("UI Service: Closed window - " + window.name).Colored(Colors.LightBlue));
@@ -209,6 +224,10 @@ namespace Core.Services.UI
             _activeUIElements.Remove(window.name);
 
             await _assetService.UnloadAsset(window.name, true);
+
+            if (window.PauseGameWhenOpen)
+                PauseResume(false);
+            
             UnityEngine.Object.Destroy(window.gameObject);
         }
     }

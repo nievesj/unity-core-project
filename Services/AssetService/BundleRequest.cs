@@ -1,6 +1,3 @@
-using System;
-using UnityEngine;
-
 namespace Core.Services.Assets
 {
     public struct AssetOptions
@@ -24,7 +21,7 @@ namespace Core.Services.Assets
         public AssetCategoryRoot AssetCategory { get; }
 
         public string BundleName { get; }
-        
+
         public string AssetName { get; }
 
         public string AssetPathFromLocalStreamingAssets
@@ -44,7 +41,7 @@ namespace Core.Services.Assets
             BundleName = bundle.ToLower();
             AssetName = asset.ToLower();
         }
-        
+
         public string GetAssetPath(AssetServiceConfiguration config)
         {
             if (AssetCategory.Equals(AssetCategoryRoot.None))

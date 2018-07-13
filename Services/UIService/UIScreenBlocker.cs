@@ -1,7 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using DG.Tweening;
-using UniRx;
 using UnityEngine.UI;
 
 namespace Core.Services.UI
@@ -22,8 +20,8 @@ namespace Core.Services.UI
         protected override void Start()
         {
             base.Start();
-            
-            _image.DOFade(1, 0);
+
+            _image.DOFade(0, 0);
             _image.raycastTarget = false;
         }
 

@@ -11,15 +11,15 @@ namespace Core.Services.UI
     public class UIDialog : UIElement
     {
         [SerializeField]
-        private Button closeButton;
+        protected Button _closeButton;
 
         protected override void Awake()
         {
             base.Awake();
             _UiType = UIType.Dialog;
 
-            if (closeButton)
-                closeButton.onClick.AddListener(OnCloseButtonClicked);
+            if (_closeButton)
+                _closeButton.onClick.AddListener(OnCloseButtonClicked);
         }
 
         public void OnCloseButtonClicked()

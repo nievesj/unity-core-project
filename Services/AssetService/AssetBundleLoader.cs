@@ -8,9 +8,9 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Zenject;
 using Object = UnityEngine.Object;
-
 #if UNITY_EDITOR
 using UnityEditor;
+
 #endif
 
 namespace Core.Services.Assets
@@ -45,18 +45,18 @@ namespace Core.Services.Assets
         /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <returns> Observable </returns>
-        internal async Task<T> LoadAsset<T>(BundleRequest bundleRequest, bool forceLoadFromStreamingAssets, 
+        internal async Task<T> LoadAsset<T>(BundleRequest bundleRequest, bool forceLoadFromStreamingAssets,
             IProgress<float> progress = null, CancellationToken cancellationToken = default(CancellationToken)) where T : Object
         {
             var bundle = await LoadBundle(bundleRequest, forceLoadFromStreamingAssets, progress, cancellationToken);
             return await bundle.LoadAssetAsync<T>(bundleRequest.AssetName, progress, cancellationToken);
         }
 
-        internal async Task<LoadedBundle> LoadBundle(BundleRequest bundleRequest, bool forceLoadFromStreamingAssets, 
+        internal async Task<LoadedBundle> LoadBundle(BundleRequest bundleRequest, bool forceLoadFromStreamingAssets,
             IProgress<float> progress = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (!_loadedBundles.ContainsKey(bundleRequest.BundleName))
-            {      
+            {
 #if UNITY_EDITOR
                 if (EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES)
                 {
@@ -66,9 +66,9 @@ namespace Core.Services.Assets
                     var theone = string.Empty;
                     foreach (var path in paths)
                     {
-                        if(cancellationToken.IsCancellationRequested)
+                        if (cancellationToken.IsCancellationRequested)
                             return null;
-                        
+
                         if (path.ToLower().Contains(bundleRequest.AssetName))
                         {
                             theone = path;
@@ -82,7 +82,7 @@ namespace Core.Services.Assets
                     return _loadedBundles[bundleRequest.BundleName];
                 }
 #endif
-                
+
                 AssetBundle bundle;
                 if (_assetService.UseStreamingAssets || forceLoadFromStreamingAssets)
                     bundle = await GetBundleFromStreamingAssetsAsync(bundleRequest, progress, cancellationToken);
@@ -110,12 +110,12 @@ namespace Core.Services.Assets
         internal async Task UnloadAssetBundle(string name, bool unloadAllDependencies)
         {
             name = name.ToLower();
-            
+
             if (_loadedBundles.ContainsKey(name))
             {
                 _loadedBundles[name].Unload(unloadAllDependencies);
                 _loadedBundles.Remove(name);
-               
+
                 await Resources.UnloadUnusedAssets();
             }
         }
@@ -128,10 +128,10 @@ namespace Core.Services.Assets
         /// <summary>
         /// Method attemps to get a bundle from the web/cloud
         /// </summary>
-        /// <param name="bundleRequest">     Bundle to request </param>
+        /// <param name="bundleRequest">Bundle to request</param>
         /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
-        private async Task<AssetBundle> GetBundleFromWebOrCacheAsync(BundleRequest bundleRequest, 
+        private async Task<AssetBundle> GetBundleFromWebOrCacheAsync(BundleRequest bundleRequest,
             IProgress<float> progress, CancellationToken cancellationToken)
         {
             var uwr = new UnityWebRequest();
@@ -157,14 +157,14 @@ namespace Core.Services.Assets
             var asyncOperation = uwr.SendWebRequest();
             while (!asyncOperation.isDone)
             {
-                if(cancellationToken.IsCancellationRequested)
+                if (cancellationToken.IsCancellationRequested)
                     return null;
-                
+
                 await UniTask.Yield(cancellationToken: cancellationToken);
                 progress?.Report(asyncOperation.progress);
                 Debug.Log($"GetBundleFromWebOrCacheAsync {bundleRequest.BundleName} progress: {asyncOperation.progress * 100f}%".Colored(Colors.LightSalmon));
             }
-            
+
             //get bundle
             var bundle = DownloadHandlerAssetBundle.GetContent(uwr);
 
@@ -172,7 +172,7 @@ namespace Core.Services.Assets
                 throw new System.Exception($"AssetBundleLoader:  {uwr.error}");
 
             uwr.Dispose();
-            
+
             return bundle;
         }
 
@@ -182,7 +182,7 @@ namespace Core.Services.Assets
         /// <param name="bundleRequest"> Bundle to request </param>
         /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
-        private async Task<AssetBundle> GetBundleFromStreamingAssetsAsync(BundleRequest bundleRequest, 
+        private async Task<AssetBundle> GetBundleFromStreamingAssetsAsync(BundleRequest bundleRequest,
             IProgress<float> progress, CancellationToken cancellationToken)
         {
             Debug.Log($"AssetBundleLoader: Using StreamingAssets -  Requesting: {bundleRequest.AssetCategory}  {bundleRequest.BundleName}".Colored(Colors.Aqua));
@@ -191,14 +191,14 @@ namespace Core.Services.Assets
             var asyncOperation = AssetBundle.LoadFromFileAsync(path);
             while (!asyncOperation.isDone)
             {
-                if(cancellationToken.IsCancellationRequested)
+                if (cancellationToken.IsCancellationRequested)
                     return null;
-                
+
                 await UniTask.Yield(cancellationToken: cancellationToken);
                 progress?.Report(asyncOperation.progress);
                 Debug.Log($"GetBundleFromStreamingAssetsAsync {bundleRequest.BundleName} progress: {asyncOperation.progress * 100f}%".Colored(Colors.LightSalmon));
             }
-           
+
             return asyncOperation.assetBundle;
         }
     }

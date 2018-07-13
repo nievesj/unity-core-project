@@ -42,14 +42,6 @@ namespace Core.Services.UI
         /// </summary>
         protected abstract void OnElementHide();
 
-        protected override void Awake()
-        {
-            base.Awake();
-
-            // if (PauseGameWhenOpen)
-            //     _signalBus.Fire(new OnGamePausedSignal(true));
-        }
-
         protected override void Start()
         {
             base.Start();
@@ -104,14 +96,6 @@ namespace Core.Services.UI
             
             _onClosed.OnNext(this);
             _onClosed.OnCompleted();
-        }
-
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-
-            // if (PauseGameWhenOpen)
-                // _signalBus.Fire(new OnGamePausedSignal(false));
         }
     }
 }

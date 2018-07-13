@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
 using UniRx.Async;
@@ -19,7 +18,7 @@ namespace Core.Services.Assets
         {
             Bundle = asset;
         }
-        
+
         public LoadedBundle(GameObject asset)
         {
             _simulatedAsset = asset;
@@ -42,7 +41,7 @@ namespace Core.Services.Assets
         /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<T> LoadAssetAsync<T>(string name,  IProgress<float> progress, 
+        public async Task<T> LoadAssetAsync<T>(string name, IProgress<float> progress,
             CancellationToken cancellationToken) where T : UnityEngine.Object
         {
 #if UNITY_EDITOR
@@ -54,9 +53,9 @@ namespace Core.Services.Assets
                 return comp;
             }
 #endif
-            
+
             Debug.Log(("LoadAssetAsync: loading asset: " + name).Colored(Colors.Yellow));
-            return await GetAssetComponentAsync<T>(Bundle.LoadAssetAsync(name),progress,cancellationToken);
+            return await GetAssetComponentAsync<T>(Bundle.LoadAssetAsync(name), progress, cancellationToken);
         }
 
         /// <summary>
@@ -66,14 +65,14 @@ namespace Core.Services.Assets
         /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        private async Task<T> GetAssetComponentAsync<T>(AssetBundleRequest asyncOperation, IProgress<float> progress, 
+        private async Task<T> GetAssetComponentAsync<T>(AssetBundleRequest asyncOperation, IProgress<float> progress,
             CancellationToken cancellationToken) where T : UnityEngine.Object
         {
             while (!asyncOperation.isDone)
             {
-                if(cancellationToken.IsCancellationRequested)
+                if (cancellationToken.IsCancellationRequested)
                     return null;
-                
+
                 await UniTask.Yield(cancellationToken: cancellationToken);
                 //Supressing this so it doesnt step over GetBundleFromStreamingAssetsAsync or GetBundleFromWebOrCacheAsync
                 //progress?.Report(asyncOperation.progress);

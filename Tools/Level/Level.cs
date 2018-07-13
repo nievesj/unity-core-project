@@ -2,6 +2,7 @@
 using Core.Services.Audio;
 using Core.Services.UI;
 using UnityEngine;
+using UnityEngine.Audio;
 using Zenject;
 
 namespace Core.Services.Levels
@@ -23,7 +24,10 @@ namespace Core.Services.Levels
 		public LevelState LevelState => _levelState;
 
 		[SerializeField]
-		protected AudioPlayer _backgroundMusic;
+		protected AudioClip _backgroundMusic;
+
+		[SerializeField]
+		protected AudioMixerGroup _audioMixer;
 
 		protected LevelState _levelState;
 		
@@ -47,16 +51,8 @@ namespace Core.Services.Levels
 			_levelState = LevelState.Started;
 			_levelState = LevelState.InProgress;
 
-			if (_audioService != null && _backgroundMusic != null && _backgroundMusic.Clip != null)
-				_audioService.PlayMusic(_backgroundMusic);
-		}
-
-		protected override void OnDestroy()
-		{
-			base.OnDestroy();
-			
-			if (_audioService != null && _backgroundMusic != null && _backgroundMusic.Clip != null)
-				_audioService.StopClip(_backgroundMusic);
+			if (_audioService != null && _backgroundMusic != null && _backgroundMusic != null)
+				_audioService.PlayMusic(_backgroundMusic, _audioMixer);
 		}
 	}
 }

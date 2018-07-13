@@ -91,7 +91,7 @@ namespace Core.Services.Data
                 filename += _configuration.DataFileExtension;
                 if (!File.Exists(_dataDirectory + "/" + filename))
                 {
-                    Debug.LogError($"Persistent Data Service: File {_dataDirectory + "/" + filename} does not exists.");
+                    Debug.LogWarning($"Persistent Data Service: File {_dataDirectory + "/" + filename} does not exists.");
                     return default(T);
                 }
 
