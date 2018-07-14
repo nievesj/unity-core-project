@@ -27,7 +27,7 @@ namespace Core.Services.Data
         public override void Initialize()
         {
             base.Initialize();
-            
+
             //Cache this as Application.persistentDataPath cannot be accessed from a thread.
             _dataDirectory = $"{Application.persistentDataPath}/{_configuration.PersistentDataDirectoryName}";
 
@@ -43,14 +43,14 @@ namespace Core.Services.Data
         /// <returns></returns>
         public async Task Save<T>(T data) where T : IStorable
         {
-            await Task.Run(() => 
-            { 
+            await Task.Run(() =>
+            {
                 if (data is MonoBehaviour)
                 {
                     Debug.LogError($"Persistent Data Service: Monobehaviours cannot be serialized. Aborting.".Colored(Colors.LightPink));
                     return;
                 }
-            
+
                 var filename = data.FileName + _configuration.DataFileExtension;
 
                 try
@@ -86,8 +86,8 @@ namespace Core.Services.Data
         /// <returns></returns>
         public async Task<T> Load<T>(string filename) where T : IStorable
         {
-            return await Task.Run(() => 
-            { 
+            return await Task.Run(() =>
+            {
                 filename += _configuration.DataFileExtension;
                 if (!File.Exists(_dataDirectory + "/" + filename))
                 {
@@ -104,7 +104,7 @@ namespace Core.Services.Data
                         file.Close();
 
                         Debug.Log($"Persistent Data Service: Reading from - {_dataDirectory + "/" + filename}".Colored(Colors.LightPink));
-                    
+
                         return data;
                     }
                 }
@@ -112,7 +112,7 @@ namespace Core.Services.Data
                 {
                     Debug.LogError($"Persistent Data Service: Error - {e.Message}");
                 }
-            
+
                 return default(T);
             });
         }

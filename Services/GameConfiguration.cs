@@ -18,12 +18,12 @@ namespace Core.Services
 	[CreateAssetMenu(fileName = "Game Configuration", menuName = "Installers/Core Framework Settings/Game Configuration")]
 	public class GameConfiguration : ScriptableObjectInstaller<GameConfiguration>
 	{
-		public bool disableLogging = false;
+		public bool DisableLogging;
 		public List<ServiceConfiguration> services = new List<ServiceConfiguration>();
 
 		public override void InstallBindings()
 		{
-			if (disableLogging)
+			if (DisableLogging)
 				Debug.unityLogger.logEnabled = false;
 			
 			//Initialize SignalBus

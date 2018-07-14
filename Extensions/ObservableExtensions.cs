@@ -13,7 +13,7 @@ public static class ObservableExtensions
     /// <returns></returns>
     public static IObservable<UnityEngine.Object> ToObservable(this UnityEngine.AssetBundleRequest asyncOperation)
     {
-        if (asyncOperation == null) throw new ArgumentNullException("asyncOperation");
+        if (asyncOperation == null) throw new ArgumentNullException(nameof(asyncOperation));
         return Observable.FromCoroutine<UnityEngine.Object>((observer, cancellationToken) => RunAssetBundleRequestOperation(asyncOperation, observer, cancellationToken));
     }
 

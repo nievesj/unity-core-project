@@ -6,8 +6,8 @@
     /// </summary>
     public class UIWidget : UIElement
     {
-        protected bool isShowing = false;
-        protected bool isTransitioning = false;
+        protected bool IsShowing = false;
+        protected bool IsTransitioning = false;
 
         protected override void Awake()
         {
@@ -17,11 +17,11 @@
 
         public void ShowHideWidget()
         {
-            if (!isTransitioning)
+            if (!IsTransitioning)
             {
-                isTransitioning = true;
+                IsTransitioning = true;
 
-                if (isShowing)
+                if (IsShowing)
                     Hide().Run();
                 else
                     Show().Run();
@@ -30,14 +30,14 @@
 
         protected override void OnElementShow()
         {
-            isShowing = true;
-            isTransitioning = false;
+            IsShowing = true;
+            IsTransitioning = false;
         }
 
         protected override void OnElementHide()
         {
-            isShowing = false;
-            isTransitioning = false;
+            IsShowing = false;
+            IsTransitioning = false;
         }
     }
 }

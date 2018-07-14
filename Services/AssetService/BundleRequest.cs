@@ -1,16 +1,5 @@
 namespace Core.Services.Assets
 {
-    public struct AssetOptions
-    {
-        private AssetCacheState _assetCacheState;
-        public AssetCacheState AssetCacheState => _assetCacheState;
-
-        public AssetOptions(AssetCacheState sta)
-        {
-            _assetCacheState = sta;
-        }
-    }
-
     /// <summary>
     /// Helper class used to create a bundle request. Contains all the paths needed to request and
     /// access the bundle.
@@ -28,7 +17,7 @@ namespace Core.Services.Assets
         {
             get
             {
-                if (AssetCategory.Equals(AssetCategoryRoot.None))
+                if (AssetCategory == AssetCategoryRoot.None)
                     return BundleName;
                 else
                     return AssetCategory.ToString().ToLower() + "/" + BundleName;
@@ -44,7 +33,7 @@ namespace Core.Services.Assets
 
         public string GetAssetPath(AssetServiceConfiguration config)
         {
-            if (AssetCategory.Equals(AssetCategoryRoot.None))
+            if (AssetCategory == AssetCategoryRoot.None)
                 return config.PlatformAssetBundleURL + BundleName + "?r=" + UnityEngine.Random.value * 9999999; //this random value prevents caching on the web server
             else
                 return config.PlatformAssetBundleURL + AssetCategory.ToString().ToLower() + "/" + BundleName;

@@ -34,13 +34,12 @@ namespace Core.Services.Social
             return Observable.Create<bool>(
                 observer =>
                 {
-                    Action<bool> onAuthenticate = isAuthenticated =>
+                    void OnAuthenticate(bool isAuthenticated)
                     {
                         observer.OnNext(isAuthenticated);
                         observer.OnCompleted();
-                    };
-                    UnityEngine.Social.localUser.Authenticate(onAuthenticate);
-
+                    }
+                    UnityEngine.Social.localUser.Authenticate(OnAuthenticate);
                     return Disposable.Empty;
                 });
         }
@@ -79,13 +78,12 @@ namespace Core.Services.Social
             return Observable.Create<List<IAchievement>>(
                 observer =>
                 {
-                    Action<IAchievement[]> onLoadedAchievements = achievements =>
+                    void OnLoadedAchievements(IAchievement[] achievements)
                     {
                         observer.OnNext(achievements.ToList());
                         observer.OnCompleted();
-                    };
-                    UnityEngine.Social.LoadAchievements(onLoadedAchievements);
-
+                    }
+                    UnityEngine.Social.LoadAchievements(OnLoadedAchievements);
                     return Disposable.Empty;
                 });
         }
@@ -99,13 +97,12 @@ namespace Core.Services.Social
             return Observable.Create<List<IAchievementDescription>>(
                 observer =>
                 {
-                    Action<IAchievementDescription[]> onLoadedAchievements = achievements =>
+                    void OnLoadedAchievements(IAchievementDescription[] achievements)
                     {
                         observer.OnNext(achievements.ToList());
                         observer.OnCompleted();
-                    };
-                    UnityEngine.Social.LoadAchievementDescriptions(onLoadedAchievements);
-
+                    }
+                    UnityEngine.Social.LoadAchievementDescriptions(OnLoadedAchievements);
                     return Disposable.Empty;
                 });
         }
@@ -119,13 +116,12 @@ namespace Core.Services.Social
             return Observable.Create<List<IScore>>(
                 observer =>
                 {
-                    Action<IScore[]> onLoadedAchievements = achievements =>
+                    void OnLoadedAchievements(IScore[] achievements)
                     {
                         observer.OnNext(achievements.ToList());
                         observer.OnCompleted();
-                    };
-                    UnityEngine.Social.LoadScores(_configuration.LeaderboardID, onLoadedAchievements);
-
+                    }
+                    UnityEngine.Social.LoadScores(_configuration.LeaderboardID, OnLoadedAchievements);
                     return Disposable.Empty;
                 });
         }
@@ -140,13 +136,12 @@ namespace Core.Services.Social
             return Observable.Create<List<IUserProfile>>(
                 observer =>
                 {
-                    Action<IUserProfile[]> onLoadedAchievements = achievements =>
+                    void OnLoadedAchievements(IUserProfile[] achievements)
                     {
                         observer.OnNext(achievements.ToList());
                         observer.OnCompleted();
-                    };
-                    UnityEngine.Social.LoadUsers(userIds.ToArray(), onLoadedAchievements);
-
+                    }
+                    UnityEngine.Social.LoadUsers(userIds.ToArray(), OnLoadedAchievements);
                     return Disposable.Empty;
                 });
         }
@@ -162,13 +157,12 @@ namespace Core.Services.Social
             return Observable.Create<bool>(
                 observer =>
                 {
-                    Action<bool> onProgressReported = success =>
+                    void OnProgressReported(bool success)
                     {
                         observer.OnNext(success);
                         observer.OnCompleted();
-                    };
-                    UnityEngine.Social.ReportProgress(achievementId, achievementProgress, onProgressReported);
-
+                    }
+                    UnityEngine.Social.ReportProgress(achievementId, achievementProgress, OnProgressReported);
                     return Disposable.Empty;
                 });
         }
@@ -183,13 +177,12 @@ namespace Core.Services.Social
             return Observable.Create<bool>(
                 observer =>
                 {
-                    Action<bool> onScoreReported = success =>
+                    void OnScoreReported(bool success)
                     {
                         observer.OnNext(success);
                         observer.OnCompleted();
-                    };
-                    UnityEngine.Social.ReportScore(score, _configuration.LeaderboardID, onScoreReported);
-                    
+                    }
+                    UnityEngine.Social.ReportScore(score, _configuration.LeaderboardID, OnScoreReported);
                     return Disposable.Empty;
                 });
         }

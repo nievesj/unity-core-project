@@ -30,17 +30,17 @@ namespace Core.Services.UI
         [Inject]
         private FactoryService _factoryService;
 
-        private UIServiceConfiguration _configuration;
+        private readonly UIServiceConfiguration _configuration;
 
         private RectTransform _mainCanvas;
 
         private UIScreenBlocker _uiScreenBlocker;
 
-        private Dictionary<UIType, RectTransform> _renderPriorityCanvas;
+        private readonly Dictionary<UIType, RectTransform> _renderPriorityCanvas;
 
-        private Dictionary<string, UIElement> _activeUIElements;
+        private readonly Dictionary<string, UIElement> _activeUIElements;
         
-        private Subject<bool> _onGamePaused = new Subject<bool>();
+        private readonly Subject<bool> _onGamePaused = new Subject<bool>();
 
         public UIService(ServiceConfiguration config)
         {
@@ -54,9 +54,9 @@ namespace Core.Services.UI
         {
             base.Initialize();
 
-            if (_configuration.mainCanvas)
+            if (_configuration.MainCanvas)
             {
-                var canvas = _factoryService.Instantiate(_configuration.mainCanvas);
+                var canvas = _factoryService.Instantiate(_configuration.MainCanvas);
 
                 _mainCanvas = canvas.GetComponent<RectTransform>();
                 _uiScreenBlocker = _factoryService.Instantiate(_configuration.UIScreenBlocker,_mainCanvas.transform);
@@ -101,7 +101,7 @@ namespace Core.Services.UI
         {
             var screen = await _assetService.LoadAsset<UIElement>(AssetCategoryRoot.UI, window, forceLoadFromStreamingAssets, progress, cancellationToken);
             if (!_mainCanvas)
-                throw new System.Exception("UI Service: StartService - UICanvas is missing from the scene. Was is destroyed?.");
+                throw new Exception("UI Service: StartService - UICanvas is missing from the scene. Was is destroyed?.");
 
             return await OpenUI<T>(screen, progress, cancellationToken);
         }
@@ -207,7 +207,7 @@ namespace Core.Services.UI
             await _uiScreenBlocker.BlockScreen(block);
         }
 
-        public IObservable<bool> OnGamePaused(bool isPaused)
+        public IObservable<bool> OnGamePaused()
         {
             return _onGamePaused;
         }

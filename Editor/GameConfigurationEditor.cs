@@ -16,7 +16,7 @@ namespace Core.Services
 		public override void OnInspectorGUI()
 		{
 			_gameConfiguration = target as GameConfiguration;
-			_gameConfiguration.disableLogging = EditorGUILayout.ToggleLeft("Disable Debug.Log?", _gameConfiguration.disableLogging);
+			_gameConfiguration.DisableLogging = EditorGUILayout.ToggleLeft("Disable Debug.Log?", _gameConfiguration.DisableLogging);
 
 			GUILayout.Space(10);
 			serializedObject.Update();

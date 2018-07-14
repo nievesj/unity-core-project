@@ -2,7 +2,7 @@
 
 namespace Core.Services.Input
 {
-    internal class Constants
+    internal static class Constants
     {
         public const string MouseAxisX = "Mouse X";
         public const string MouseAxisY = "Mouse Y";
@@ -98,7 +98,6 @@ namespace Core.Services.Input
         private void MouseControl()
         {
             CurrentTouchMousePosition = UnityEngine.Input.mousePosition;
-            // currentTouchMousePosition.z = mainCamera.nearClipPlane;
 
             if (UnityEngine.Input.GetMouseButton(0))
             {

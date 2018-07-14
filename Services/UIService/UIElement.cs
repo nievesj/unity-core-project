@@ -75,8 +75,6 @@ namespace Core.Services.UI
         /// <returns></returns>
         public virtual async Task Hide(bool isClose = false)
         {
-            //if isClose wait until PlayClip AND PlayTransition are done before doing OnNext
-            //for this PlayClip needs to be an observable
             if (outTransition.transitionSound)
                 AudioService.PlayClip(outTransition.transitionSound);
 

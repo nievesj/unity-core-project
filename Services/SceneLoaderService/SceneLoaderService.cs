@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Core.Services.Assets;
 using Core.Services.UI;
-using UniRx;
 using UniRx.Async;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -41,7 +40,6 @@ namespace Core.Services.Scenes
             bool forceLoadFromStreamingAssets = false, IProgress<float> progress = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            await _uiService.BlockScreen(true);
             return await GetScene(scene, mode, forceLoadFromStreamingAssets, progress, cancellationToken);
         }
 
@@ -69,9 +67,6 @@ namespace Core.Services.Scenes
                 Debug.Log(("SceneLoaderService: Loaded scene - " + scene).Colored(Colors.LightBlue));
 
                 await SceneManager.LoadSceneAsync(scene, mode);
-                // await Resources.UnloadUnusedAssets();
-                //Scene loaded, return screen to normal.
-                await _uiService.BlockScreen(false);
                 Debug.Log(("SceneLoaderService: Opened scene - " + scene).Colored(Colors.LightBlue));
             }
 

@@ -75,8 +75,8 @@ namespace Core.Services.Audio
         {
             base.Initialize();
 
-            if (_configuration.audioSourcePrefab)
-                _pooler = _factoryService.CreatePool<AudioSource>(_configuration.audioSourcePrefab, _configuration.poolAmount);
+            if (_configuration.AudioSourcePrefab)
+                _pooler = _factoryService.CreatePool<AudioSource>(_configuration.AudioSourcePrefab, _configuration.PoolAmount);
             else
                 Debug.LogError("AudioService : PlayClip - Failed to create pool. Configuration is missing the AudioSource prefab.");
 
@@ -170,7 +170,7 @@ namespace Core.Services.Audio
             audioPlayer.Player.Play();
             while (volume <= _musicVolume)
             {
-                volume += _musicVolume * Time.deltaTime / _configuration.crossfadeWait;
+                volume += _musicVolume * Time.deltaTime / _configuration.CrossfadeWait;
                 audioPlayer.Player.volume = volume;
                 await UniTask.Yield();
             }
@@ -189,7 +189,7 @@ namespace Core.Services.Audio
             {
                 while (volume > 0)
                 {
-                    volume -= _musicVolume * Time.deltaTime / _configuration.crossfadeWait;
+                    volume -= _musicVolume * Time.deltaTime / _configuration.CrossfadeWait;
                     aPlayer.Player.volume = volume;
                     await UniTask.Yield();
                 }

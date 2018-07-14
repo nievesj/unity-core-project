@@ -6,79 +6,78 @@ namespace Core.Services.Audio
 	public class AudioPlayer
 	{
 		[SerializeField]
-		private AudioClip clip;
+		private readonly AudioClip _clip;
 
-		public AudioClip Clip { get { return clip; } }
+		public AudioClip Clip => _clip;
 
 		[SerializeField]
-		private Transform playFrom;
+		private readonly Transform _playFrom;
 
-		public Transform PlayFrom { get { return playFrom; } }
+		public Transform PlayFrom => _playFrom;
 
-		public float pitch { get; set; }
+		public float Pitch { get; set; }
 
 		[SerializeField]
 		private AudioSource audioSource;
 
 		public AudioSource Player
 		{
-			get { return audioSource; }
+			get => audioSource;
 			set
 			{
 				audioSource = value;
-
 				if (audioSource)
 				{
-					audioSource.clip = clip;
+					audioSource.clip = _clip;
 					SetUpOptions(audioSource);
 				}
 			}
 		}
 
 		[SerializeField]
-		private AudioSourceOptions audioSourceOptions;
+		private readonly AudioSourceOptions _audioSourceOptions;
 
-		public AudioSourceOptions AudioOptions { get { return audioSourceOptions; } }
+		public AudioSourceOptions AudioOptions => _audioSourceOptions;
 
 		public AudioPlayer(AudioClip ac)
 		{
-			clip = ac;
-			audioSourceOptions = new AudioSourceOptions();
+			_clip = ac;
+			_audioSourceOptions = new AudioSourceOptions();
 		}
 
 		public AudioPlayer(AudioClip ac, Transform from)
 		{
-			clip = ac;
-			playFrom = from;
+			_clip = ac;
+			_playFrom = from;
 		}
 
 		public AudioPlayer(AudioClip ac, GameObject from)
 		{
-			clip = ac;
-			playFrom = from.transform; ;
+			_clip = ac;
+			_playFrom = from.transform; ;
 		}
 
-		protected void SetUpOptions(AudioSource aus)
+		private void SetUpOptions(AudioSource aus)
 		{
-			aus.mute = audioSourceOptions.mute;
-			aus.bypassEffects = audioSourceOptions.bypassEffects;
-			aus.bypassListenerEffects = audioSourceOptions.bypassListenerEffects;
-			aus.bypassReverbZones = audioSourceOptions.bypassReverbZones;
-			aus.playOnAwake = audioSourceOptions.playOnAwake;
-			aus.loop = audioSourceOptions.loop;
+			aus.mute = _audioSourceOptions.mute;
+			aus.bypassEffects = _audioSourceOptions.bypassEffects;
+			aus.bypassListenerEffects = _audioSourceOptions.bypassListenerEffects;
+			aus.bypassReverbZones = _audioSourceOptions.bypassReverbZones;
+			aus.playOnAwake = _audioSourceOptions.playOnAwake;
+			aus.loop = _audioSourceOptions.loop;
 
-			aus.priority = audioSourceOptions.priority;
-			aus.volume = audioSourceOptions.volume;
-			aus.pitch = audioSourceOptions.pitch;
-			aus.panStereo = audioSourceOptions.panStereo;
-			aus.spatialBlend = audioSourceOptions.spatialBlend;
-			aus.reverbZoneMix = audioSourceOptions.reverbZoneMix;
+			aus.priority = _audioSourceOptions.priority;
+			aus.volume = _audioSourceOptions.volume;
+			aus.pitch = _audioSourceOptions.pitch;
+			aus.panStereo = _audioSourceOptions.panStereo;
+			aus.spatialBlend = _audioSourceOptions.spatialBlend;
+			aus.reverbZoneMix = _audioSourceOptions.reverbZoneMix;
 
-			aus.dopplerLevel = audioSourceOptions.SoundSettings3D.dopplerLevel;
-			aus.spread = audioSourceOptions.SoundSettings3D.spread;
-			aus.rolloffMode = audioSourceOptions.SoundSettings3D.rolloffMode;
-			aus.minDistance = audioSourceOptions.SoundSettings3D.minDistance;
-			aus.maxDistance = audioSourceOptions.SoundSettings3D.maxDistance;
+			aus.dopplerLevel = _audioSourceOptions.SoundSettings3D.dopplerLevel;
+			aus.spread = _audioSourceOptions.SoundSettings3D.spread;
+			aus.rolloffMode = _audioSourceOptions.SoundSettings3D.rolloffMode;
+			aus.minDistance = _audioSourceOptions.SoundSettings3D.minDistance;
+			aus.maxDistance = _audioSourceOptions.SoundSettings3D.maxDistance;
 		}
 	}
 }

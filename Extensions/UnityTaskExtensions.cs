@@ -34,7 +34,7 @@ public static class UnityTaskExtensions
             onComplete?.Invoke(null);
         });
     }
-    
+
     /// <summary>
     /// Runs a UniTask and calls onComplete when done.
     /// </summary>
@@ -55,7 +55,7 @@ public static class UnityTaskExtensions
     {
         var taskRunner = new TaskRunner<T>(task, onComplete);
     }
-    
+
     private struct TaskRunner
     {
         public TaskRunner(UniTask task, Action<object> onComplete)
@@ -69,7 +69,7 @@ public static class UnityTaskExtensions
             onComplete?.Invoke(null);
         }
     }
-    
+
     private struct TaskRunner<T>
     {
         public TaskRunner(UniTask<T> task, Action<T> onComplete)

@@ -44,14 +44,14 @@ public class ClearCacheMenuItem
 	{
 		ClearAssetBundleCache();
 
-		EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES = true;
+		EditorPreferences.EditorprefSimulateAssetBundles = true;
 		Debug.Log(("Enabled asset bundle simulation mode.").Colored(Colors.Yellow));
 	}
 
 	[MenuItem("Core Framework / Enable Simulate Asset Bundles", true)]
 	private static bool GetEnableCachedInfoVal()
 	{
-		return !EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES ? true : false;
+		return !EditorPreferences.EditorprefSimulateAssetBundles ? true : false;
 	}
 
 	[MenuItem("Core Framework / Disable Simulate Asset Bundles")]
@@ -59,13 +59,13 @@ public class ClearCacheMenuItem
 	{
 		ClearAssetBundleCache();
 
-		EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES = false;
+		EditorPreferences.EditorprefSimulateAssetBundles = false;
 		Debug.Log(("Disabled asset bundle simulation mode.").Colored(Colors.Yellow));
 	}
 
 	[MenuItem("Core Framework / Disable Simulate Asset Bundles", true)]
 	private static bool GetDisableCachedInfoVal()
 	{
-		return EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES ? true : false;
+		return EditorPreferences.EditorprefSimulateAssetBundles ? true : false;
 	}
 }

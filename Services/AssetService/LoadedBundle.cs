@@ -45,7 +45,7 @@ namespace Core.Services.Assets
             CancellationToken cancellationToken) where T : UnityEngine.Object
         {
 #if UNITY_EDITOR
-            if (EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES)
+            if (EditorPreferences.EditorprefSimulateAssetBundles)
             {
                 Debug.Log(("LoadAssetAsync Simulated: loading asset: " + name).Colored(Colors.Yellow));
                 var comp = _simulatedAsset.GetComponent<T>();

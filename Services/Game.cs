@@ -10,8 +10,6 @@ namespace Core.Services
     /// </summary>
     public abstract class Game : CoreBehaviour
     {
-        // [Inject]
-        // private SignalBus _signalBus;
         [Inject]
         private IObservable<Unit> _onGameStarted;
 
@@ -19,10 +17,9 @@ namespace Core.Services
         {
             //Make this object persistent
             DontDestroyOnLoad(gameObject);
+            
             _onGameStarted.Subscribe(OnGameStart)
                 .AddTo(this);
-            //Start listening to GameStartedSignal
-            // _signalBus.Subscribe<OnGameStartedSignal>(OnGameStart);
         }
 
         /// <summary>
@@ -32,12 +29,6 @@ namespace Core.Services
         protected virtual void OnGameStart(Unit unit)
         {
             Debug.Log("Game Started".Colored(Colors.Lime));
-        }
-
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            // _signalBus.Unsubscribe<OnGameStartedSignal>(OnGameStart);
         }
     }
 }

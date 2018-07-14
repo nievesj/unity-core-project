@@ -7,7 +7,6 @@ using UniRx.Async;
 using UnityEngine;
 using UnityEngine.Networking;
 using Zenject;
-using Object = UnityEngine.Object;
 #if UNITY_EDITOR
 using UnityEditor;
 
@@ -46,7 +45,7 @@ namespace Core.Services.Assets
         /// <param name="cancellationToken"></param>
         /// <returns> Observable </returns>
         internal async Task<T> LoadAsset<T>(BundleRequest bundleRequest, bool forceLoadFromStreamingAssets,
-            IProgress<float> progress = null, CancellationToken cancellationToken = default(CancellationToken)) where T : Object
+            IProgress<float> progress = null, CancellationToken cancellationToken = default(CancellationToken)) where T : UnityEngine.Object
         {
             var bundle = await LoadBundle(bundleRequest, forceLoadFromStreamingAssets, progress, cancellationToken);
             return await bundle.LoadAssetAsync<T>(bundleRequest.AssetName, progress, cancellationToken);
@@ -58,7 +57,7 @@ namespace Core.Services.Assets
             if (!_loadedBundles.ContainsKey(bundleRequest.BundleName))
             {
 #if UNITY_EDITOR
-                if (EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES)
+                if (EditorPreferences.EditorprefSimulateAssetBundles)
                 {
                     var assPath = bundleRequest.AssetCategory.ToString().ToLower() + "/" + bundleRequest.BundleName;
                     var paths = AssetDatabase.GetAssetPathsFromAssetBundle(assPath);
@@ -95,7 +94,7 @@ namespace Core.Services.Assets
             return _loadedBundles[bundleRequest.BundleName];
         }
 
-        internal async Task<Object> LoadScene(BundleRequest bundleRequest, bool forceLoadFromStreamingAssets = false,
+        internal async Task<UnityEngine.Object> LoadScene(BundleRequest bundleRequest, bool forceLoadFromStreamingAssets = false,
             IProgress<float> progress = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var bundle = await LoadBundle(bundleRequest, forceLoadFromStreamingAssets, progress, cancellationToken);
