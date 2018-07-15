@@ -17,7 +17,7 @@ namespace Core.Services.Audio
         [Inject]
         private FactoryService _factoryService;
 
-        [Inject]
+        [InjectOptional]
         private PersistentDataService _persistentData;
 
         private Pooler<AudioSource> _pooler;

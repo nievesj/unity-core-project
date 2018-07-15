@@ -1,6 +1,7 @@
 ﻿using System;
 using Core.Services.Assets;
 using Core.Services.Audio;
+using Core.Services.Factory;
 using Core.Services.UI;
 using UnityEngine;
 using Zenject;
@@ -24,6 +25,11 @@ namespace Core.Services
         
         [Inject]
         protected AssetService AssetService;
+        
+        [Inject]
+        protected FactoryService FactoryService;
+        
+        private readonly Subject<CoreBehaviour> _onDestroyed = new Subject<CoreBehaviour>();
 
         protected virtual void Awake(){ }
 
@@ -33,7 +39,20 @@ namespace Core.Services
         }
 
         protected virtual void OnGamePaused(bool isPaused){}
+        
+        /// <summary>
+        /// Triggered when the object is destroyed
+        /// </summary>
+        /// <returns></returns>
+        public IObservable<CoreBehaviour> OnDestroyed()
+        {
+            return _onDestroyed;
+        }
 
-        protected virtual void OnDestroy(){}
+        protected virtual void OnDestroy()
+        {
+            _onDestroyed.OnNext(this);
+            _onDestroyed.OnCompleted();
+        }
     }
 }

@@ -23,11 +23,11 @@ namespace Core.Services.UI
 
         public void OnCloseButtonClicked()
         {
-            Close().Run();
+            Close();
         }
+        
+        protected override void OnElementHide() { }
 
         protected override void OnElementShow() { }
-
-        protected override void OnElementHide() { }
     }
 }

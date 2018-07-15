@@ -51,7 +51,7 @@ namespace Core.Services.UI
 
         protected override void OnDestroy()
         {
-            Close().Run();
+            Close();
         }
     }
 }

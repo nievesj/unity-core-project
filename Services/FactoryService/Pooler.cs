@@ -145,8 +145,7 @@ namespace Core.Services.Factory
         {
             foreach (var obj in _pool)
             {
-                if (obj)
-                    Object.Destroy(obj.gameObject);
+                if (obj) obj.gameObject.Destroy();
             }
         }
     }

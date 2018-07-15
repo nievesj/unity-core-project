@@ -19,8 +19,6 @@ namespace Core.Services.UI
 
         protected override void Start()
         {
-            base.Start();
-
             _image.DOFade(0, 0);
             _image.raycastTarget = false;
         }

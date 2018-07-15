@@ -19,25 +19,20 @@ namespace Core.Services.Levels
     /// </summary>
     public abstract class Level : CoreBehaviour
     {
-        public LevelState LevelState => _levelState;
+        public LevelState LevelState { get; private set; }
 
         [SerializeField]
-        protected AudioClip _backgroundMusic;
+        protected AudioClip BackgroundMusic;
 
         [SerializeField]
-        protected AudioMixerGroup _audioMixer;
-
-        protected LevelState _levelState;
-
-        [Inject]
-        protected AudioService _audioService;
+        protected AudioMixerGroup AudioMixer;
 
         protected override void Awake()
         {
             base.Awake();
             Debug.Log(("Level: " + name + " loaded").Colored(Colors.LightBlue));
 
-            _levelState = LevelState.Loaded;
+            LevelState = LevelState.Loaded;
         }
 
         protected override void Start()
@@ -46,11 +41,11 @@ namespace Core.Services.Levels
 
             Debug.Log(("Level: " + name + " started").Colored(Colors.LightBlue));
 
-            _levelState = LevelState.Started;
-            _levelState = LevelState.InProgress;
+            LevelState = LevelState.Started;
+            LevelState = LevelState.InProgress;
 
-            if (_audioService != null && _backgroundMusic != null && _backgroundMusic != null)
-                _audioService.PlayMusic(_backgroundMusic, _audioMixer);
+            if (AudioService != null && BackgroundMusic != null && BackgroundMusic != null)
+                AudioService.PlayMusic(BackgroundMusic, AudioMixer);
         }
     }
 }

@@ -134,7 +134,6 @@ namespace Core.Services.UI
         /// Widget: Draw on tops of Panels but below Dialogs
         /// Panel: Lowest render priority
         /// </summary>
-        /// <param name="element"></param>
         /// <returns></returns>
         private RectTransform DetermineRenderPriorityCanvas(UIType uiType)
         {
