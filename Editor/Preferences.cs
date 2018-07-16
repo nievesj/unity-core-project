@@ -13,7 +13,7 @@ namespace Core.Services
 		{
 			if (!prefsLoaded)
 			{
-				simulateAssetBundles = EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES;
+				simulateAssetBundles = EditorPreferences.EditorprefSimulateAssetBundles;
 				prefsLoaded = true;
 			}
 
@@ -22,7 +22,7 @@ namespace Core.Services
 
 			if (GUI.changed)
 			{
-				EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES = simulateAssetBundles;
+				EditorPreferences.EditorprefSimulateAssetBundles = simulateAssetBundles;
 			}
 
 			EditorUITools.HorizontalLine();

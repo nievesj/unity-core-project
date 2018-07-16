@@ -13,7 +13,7 @@ public static class ObservableExtensions
     /// <returns></returns>
     public static IObservable<UnityEngine.Object> ToObservable(this UnityEngine.AssetBundleRequest asyncOperation)
     {
-        if (asyncOperation == null) throw new ArgumentNullException("asyncOperation");
+        if (asyncOperation == null) throw new ArgumentNullException(nameof(asyncOperation));
         return Observable.FromCoroutine<UnityEngine.Object>((observer, cancellationToken) => RunAssetBundleRequestOperation(asyncOperation, observer, cancellationToken));
     }
 
@@ -29,35 +29,44 @@ public static class ObservableExtensions
         }
     }
 
+    /// <summary>
+    /// Converts a Task to an Observable, runs on main thread.
+    /// </summary>
+    /// <param name="task"></param>
+    /// <returns></returns>
     public static IObservable<Unit> TaskToObservable(this Task task)
     {
         return Observable.Create<Unit>(
             (observer) =>
             {
-                Func<Task> runTask = async () =>
+                task.Run(_ =>
                 {
-                    await task;
                     observer.OnNext(new Unit());
                     observer.OnCompleted();
-                };
-                runTask();
+                });
+
                 return Disposable.Empty;
             }
         );
     }
 
+    /// <summary>
+    /// Converts a Task<T/> to an Observable, runs on main thread.
+    /// </summary>
+    /// <param name="task"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     public static IObservable<T> TaskToObservable<T>(this Task<T> task) where T : UnityEngine.Object
     {
         return Observable.Create<T>(
             (observer) =>
             {
-                Func<Task> runTask = async () =>
+                task.Run(x =>
                 {
-                    var val = await task;
-                    observer.OnNext(val);
+                    observer.OnNext(x);
                     observer.OnCompleted();
-                };
-                runTask();
+                });
+
                 return Disposable.Empty;
             }
         );

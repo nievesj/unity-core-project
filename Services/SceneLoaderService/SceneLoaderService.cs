@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Core.Services.Assets;
 using Core.Services.UI;
-using UniRx;
+using UniRx.Async;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
@@ -31,11 +32,15 @@ namespace Core.Services.Scenes
         /// </summary>
         /// <param name="scene"></param>
         /// <param name="mode"> </param>
+        /// <param name="forceLoadFromStreamingAssets"></param>
+        /// <param name="progress"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<UnityEngine.Object> LoadScene(string scene, LoadSceneMode mode = LoadSceneMode.Single)
+        public async Task<UnityEngine.Object> LoadScene(string scene, LoadSceneMode mode = LoadSceneMode.Single,
+            bool forceLoadFromStreamingAssets = false, IProgress<float> progress = null,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
-            _uiService.DarkenScreen(true).Subscribe();
-            return await GetScene(scene, mode);
+            return await GetScene(scene, mode, forceLoadFromStreamingAssets, progress, cancellationToken);
         }
 
         /// <summary>
@@ -43,22 +48,25 @@ namespace Core.Services.Scenes
         /// </summary>
         /// <param name="scene"></param>
         /// <param name="mode"> </param>
+        /// <param name="forceLoadFromStreamingAssets"></param>
+        /// <param name="progress"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        private async Task<UnityEngine.Object> GetScene(string scene, LoadSceneMode mode = LoadSceneMode.Single)
+        private async Task<UnityEngine.Object> GetScene(string scene, LoadSceneMode mode,
+            bool forceLoadFromStreamingAssets, IProgress<float> progress,
+            CancellationToken cancellationToken)
         {
-            if (_assetService.GetLoadedBundle<UnityEngine.Object>(scene))
+            if (_assetService.GetLoadedBundle(scene))
                 throw new Exception("Scene " + scene + " is already loaded and open. Opening the same scene twice is not supported.");
 
-            var sceneObject = await _assetService.GetScene(new BundleRequest(AssetCategoryRoot.Scenes, scene, scene, _assetService.Configuration));
+            var sceneObject = await _assetService.GetScene(new BundleRequest(AssetCategoryRoot.Scenes, scene, scene),
+                forceLoadFromStreamingAssets, progress, cancellationToken);
 
-            if (sceneObject)
+            if (sceneObject && !cancellationToken.IsCancellationRequested)
             {
                 Debug.Log(("SceneLoaderService: Loaded scene - " + scene).Colored(Colors.LightBlue));
 
                 await SceneManager.LoadSceneAsync(scene, mode);
-                // await Resources.UnloadUnusedAssets();
-                //Scene loaded, return screen to normal.
-                _uiService.DarkenScreen(false).Subscribe();
                 Debug.Log(("SceneLoaderService: Opened scene - " + scene).Colored(Colors.LightBlue));
             }
 
@@ -76,7 +84,7 @@ namespace Core.Services.Scenes
 
             Debug.Log(("SceneLoaderService: Unloaded scene - " + scene).Colored(Colors.LightBlue));
 
-            _assetService.UnloadAsset(scene, true);
+            await _assetService.UnloadAsset(scene, true);
         }
     }
 }

@@ -1,7 +1,8 @@
 {
     "name": "CoreFramework-ASM",
     "references": [
-        "Zenject"
+        "Zenject",
+        "UniRx"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [],

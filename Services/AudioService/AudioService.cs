@@ -1,29 +1,36 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Core.Services.Data;
 using Core.Services.Factory;
-using UniRx;
+using UniRx.Async;
 using UnityEngine;
 using UnityEngine.Audio;
 using Zenject;
 
 namespace Core.Services.Audio
 {
+    /// <summary>
+    /// Service plays audio from a central place.
+    /// </summary>
     public class AudioService : Service
     {
         [Inject]
         private FactoryService _factoryService;
 
+        [InjectOptional]
+        private PersistentDataService _persistentData;
+
         private Pooler<AudioSource> _pooler;
-        private AudioServiceConfiguration _configuration;
-        private List<AudioPlayer> _activeAudioPlayers;
-        private List<AudioPlayer> _activeBackgroundMusicPlayers;
+        private readonly AudioServiceConfiguration _configuration;
+        private readonly List<AudioPlayer> _activeAudioPlayers;
+        private readonly List<AudioPlayer> _activeBackgroundMusicPlayers;
 
         //Global _mute
         private bool _mute;
 
         public bool Mute
         {
-            get { return _mute; }
+            get => _mute;
             set
             {
                 _mute = value;
@@ -33,16 +40,27 @@ namespace Core.Services.Audio
         }
 
         //Global _volume
-        private float _volume;
+        private float _musicVolume;
 
-        public float Volume
+        public float MusicVolume
         {
-            get { return _volume; }
+            get => _musicVolume;
             set
             {
-                _volume = value;
-                foreach (var ap in _activeBackgroundMusicPlayers) ap.Player.volume = _volume;
-                foreach (var ap in _activeAudioPlayers) ap.Player.volume = _volume;
+                _musicVolume = value;
+                foreach (var ap in _activeBackgroundMusicPlayers) ap.Player.volume = _musicVolume;
+            }
+        }
+
+        private float _fxVolume;
+
+        public float FxVolume
+        {
+            get => _fxVolume;
+            set
+            {
+                _fxVolume = value;
+                foreach (var ap in _activeAudioPlayers) ap.Player.volume = _fxVolume;
             }
         }
 
@@ -57,19 +75,18 @@ namespace Core.Services.Audio
         {
             base.Initialize();
 
-            if (_configuration.audioSourcePrefab)
-            {
-                _pooler = _factoryService.CreatePool<AudioSource>(_configuration.audioSourcePrefab, _configuration.poolAmount);
-            }
+            if (_configuration.AudioSourcePrefab)
+                _pooler = _factoryService.CreatePool<AudioSource>(_configuration.AudioSourcePrefab, _configuration.PoolAmount);
             else
                 Debug.LogError("AudioService : PlayClip - Failed to create pool. Configuration is missing the AudioSource prefab.");
+
+            GetPreferences();
         }
 
         public void PlayClip(AudioPlayer ap)
         {
             Play(ap);
-
-            MainThreadDispatcher.StartCoroutine(WaitUntilDonePlaying(ap));
+            WaitUntilDonePlaying(ap);
         }
 
         public void PlayClip(AudioClip clip)
@@ -83,20 +100,14 @@ namespace Core.Services.Audio
             var ap = new AudioPlayer(clip);
 
             Play(ap, mixerGroup);
-            MainThreadDispatcher.StartCoroutine(WaitUntilDonePlaying(ap));
+            WaitUntilDonePlaying(ap);
         }
 
-        public void PlayMusic(AudioPlayer ap)
+        public void PlayMusic(AudioClip clip, AudioMixerGroup mixerGroup = null)
         {
-            _activeAudioPlayers.Add(ap);
-            Play(ap);
+            FadeMusicIn(clip, mixerGroup);
         }
-
-        public void PlayMusic(AudioClip clip, AudioMixerGroup mixerGroup)
-        {
-            MainThreadDispatcher.StartCoroutine(FadeMusicIn(clip, mixerGroup));
-        }
-
+        
         private void Play(AudioPlayer ap, AudioMixerGroup mixerGroup = null)
         {
             if (_pooler != null && (!ap.Player || !ap.Player.gameObject.activeSelf))
@@ -112,25 +123,16 @@ namespace Core.Services.Audio
                 Debug.Log(("AudioService: Playing Clip - " + ap.Clip.name).Colored(Colors.Magenta));
                 ap.Player = _pooler.PopResize();
 
-                ap.Player.volume = _volume;
+                ap.Player.volume = _fxVolume;
                 ap.Player.mute = _mute;
-
-                if (mixerGroup)
-                    ap.Player.outputAudioMixerGroup = mixerGroup;
-
+                ap.Player.outputAudioMixerGroup = mixerGroup;
                 ap.Player.Play();
             }
         }
-
-        public void StopClip(AudioPlayer ap)
+        
+        public void StopMusic()
         {
-            if (_pooler != null && ap.Player)
-            {
-                Debug.Log(("AudioService: Stopping Clip - " + ap.Clip.name).Colored(Colors.Magenta));
-
-                ap.Player.Stop();
-                PushAudioSource(ap);
-            }
+            FadeMusicOut();
         }
 
         private void PushAudioSource(AudioPlayer ap)
@@ -147,18 +149,17 @@ namespace Core.Services.Audio
             ap.Player = null;
         }
 
-        //TODO: stop using IEnumerator, replace with Async/Task
-        private IEnumerator FadeMusicIn(AudioClip clip, AudioMixerGroup mixerGroup = null)
+        private async Task FadeMusicIn(AudioClip clip, AudioMixerGroup mixerGroup = null)
         {
             var volume = 0f;
             var audioPlayer = new AudioPlayer(clip) {Player = _pooler.PopResize()};
 
-            if (mixerGroup)
-                audioPlayer.Player.outputAudioMixerGroup = mixerGroup;
+            audioPlayer.Player.outputAudioMixerGroup = mixerGroup;
 
-            MainThreadDispatcher.StartCoroutine(FadeMusicOut());
+            FadeMusicOut();
+
             //wait a tiny bit
-            yield return new WaitForEndOfFrame();
+            await UniTask.Yield();
 
             audioPlayer.Player.clip = clip;
             audioPlayer.Player.loop = true;
@@ -167,18 +168,17 @@ namespace Core.Services.Audio
 
             _activeBackgroundMusicPlayers.Add(audioPlayer);
             audioPlayer.Player.Play();
-            while (volume <= _volume)
+            while (volume <= _musicVolume)
             {
-                volume += _volume * Time.deltaTime / _configuration.crossfadeWait;
+                volume += _musicVolume * Time.deltaTime / _configuration.CrossfadeWait;
                 audioPlayer.Player.volume = volume;
-                yield return null;
+                await UniTask.Yield();
             }
         }
 
-        //TODO: stop using IEnumerator, replace with Async/Task
-        private IEnumerator FadeMusicOut()
+        private async Task FadeMusicOut()
         {
-            var volume = _volume;
+            var volume = _musicVolume;
 
             //flush all background music out
             var toFade = new List<AudioPlayer>();
@@ -189,9 +189,9 @@ namespace Core.Services.Audio
             {
                 while (volume > 0)
                 {
-                    volume -= _volume * Time.deltaTime / _configuration.crossfadeWait;
+                    volume -= _musicVolume * Time.deltaTime / _configuration.CrossfadeWait;
                     aPlayer.Player.volume = volume;
-                    yield return null;
+                    await UniTask.Yield();
                 }
 
                 aPlayer.Player.Stop();
@@ -201,19 +201,47 @@ namespace Core.Services.Audio
             }
         }
 
-        //TODO: stop using IEnumerator, replace with Async/Task
-        private IEnumerator WaitUntilDonePlaying(AudioPlayer ap)
+        private async Task WaitUntilDonePlaying(AudioPlayer ap)
         {
             CustomYieldInstruction wait = new WaitUntil(() => ap.Player.clip.loadState == AudioDataLoadState.Loaded);
-            yield return wait;
+            await wait;
 
             wait = new WaitWhile(() => ap.Player.isPlaying);
-            yield return wait;
+            await wait;
 
             if (ap.Clip)
                 Debug.Log(("AudioService: Done Playing Clip - " + ap.Clip.name).Colored(Colors.Magenta));
 
             PushAudioSource(ap);
+        }
+
+        private async Task GetPreferences()
+        {
+            if (_persistentData == null) return;
+            
+            var preferences = await _persistentData.Load<UserPreferences>();
+            if (preferences.Equals(default(UserPreferences)))
+            {
+                Debug.Log(("AudioService: No UserPreferences set. Creating default.").Colored(Colors.Magenta));
+                SaveInitialPreferences();
+            }
+            else
+            {
+                _musicVolume = preferences.MusicVolume;
+                _fxVolume = preferences.FxVolume;
+            }
+        }
+
+        private async Task SaveInitialPreferences()
+        {
+            var pref = new UserPreferences
+            {
+                MusicVolume = 1,
+                FxVolume = 1,
+                UseGameCenter = false
+            };
+
+            await _persistentData.Save(pref);
         }
     }
 }

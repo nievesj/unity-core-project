@@ -4,16 +4,16 @@ using UnityEditor;
 
 public static class EditorPreferences
 {
-    public static bool EDITORPREF_SIMULATE_ASSET_BUNDLES 
+    public static bool EditorprefSimulateAssetBundles 
     { 
-        get { return EditorPrefs.GetBool("EditorPrefSimulateAssetBundles", false); } 
-        set { EditorPrefs.SetBool("EditorPrefSimulateAssetBundles", value); } 
+        get => EditorPrefs.GetBool("EditorPrefSimulateAssetBundles", false);
+        set => EditorPrefs.SetBool("EditorPrefSimulateAssetBundles", value);
     }
     
-    public static bool EDITORPREF_FIRST_TIME_USE 
+    public static bool EditorprefFirstTimeUse 
     { 
-        get { return EditorPrefs.GetBool("EditorPrefFirstTimeUse", true); } 
-        set { EditorPrefs.SetBool("EditorPrefFirstTimeUse", value); } 
+        get => EditorPrefs.GetBool("EditorPrefFirstTimeUse", true);
+        set => EditorPrefs.SetBool("EditorPrefFirstTimeUse", value);
     }
 }
 

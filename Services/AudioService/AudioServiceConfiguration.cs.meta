@@ -1,12 +1,10 @@
 fileFormatVersion: 2
 guid: 8d82e82ef7b764a509d5dda4d4dbbf73
-timeCreated: 1520028168
-licenseType: Pro
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
-  - audioSourcePrefab: {fileID: 82150614225088218, guid: 499ad987645774733a7a17cde91bcc2a,
+  - AudioSourcePrefab: {fileID: 82150614225088218, guid: 499ad987645774733a7a17cde91bcc2a,
       type: 2}
   executionOrder: 0
   icon: {instanceID: 0}

@@ -8,8 +8,8 @@ using UnityEngine;
 /// </summary>
 public class ClearCacheMenuItem
 {
-	[MenuItem("_Core / Clear Asset Bundle Cache")]
-	private static void CreateRedBlueGameObject()
+	[MenuItem("Core Framework / Clear Asset Bundle Cache")]
+	private static void ClearAssetBundleCache()
 	{
 		//Get all cache paths... in Unity's unique way....
 		var cachePaths = new List<string>();
@@ -29,39 +29,43 @@ public class ClearCacheMenuItem
 
 		if (cachePaths.Count < 1)
 			Debug.Log(("Cache was empty.").Colored(Colors.Yellow));
-
-		//Delete any cached .manifest files
-		Directory.Delete(Application.persistentDataPath, true);
-		Debug.Log(("Clearing persistent data: Directory " + Application.persistentDataPath + " deleted.").Colored(Colors.Yellow));
 	}
 
-	[MenuItem("_Core / Enable Simulate Asset Bundles")]
+	[MenuItem("Core Framework / Delete Persistent Data Directory (Also deletes any saved data files)")]
+	private static void DeletePersistentData()
+	{
+		//Delete Application.persistentDataPath
+		Directory.Delete(Application.persistentDataPath, true);
+		Debug.Log(("Deleting persistent data directory " + Application.persistentDataPath).Colored(Colors.Yellow));
+	}
+
+	[MenuItem("Core Framework / Enable Simulate Asset Bundles")]
 	private static void GetEnableCachedInfo()
 	{
-		CreateRedBlueGameObject();
+		ClearAssetBundleCache();
 
-		EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES = true;
+		EditorPreferences.EditorprefSimulateAssetBundles = true;
 		Debug.Log(("Enabled asset bundle simulation mode.").Colored(Colors.Yellow));
 	}
 
-	[MenuItem("_Core / Enable Simulate Asset Bundles", true)]
+	[MenuItem("Core Framework / Enable Simulate Asset Bundles", true)]
 	private static bool GetEnableCachedInfoVal()
 	{
-		return !EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES ? true : false;
+		return !EditorPreferences.EditorprefSimulateAssetBundles ? true : false;
 	}
 
-	[MenuItem("_Core / Disable Simulate Asset Bundles")]
+	[MenuItem("Core Framework / Disable Simulate Asset Bundles")]
 	private static void GetDisableCachedInfo()
 	{
-		CreateRedBlueGameObject();
+		ClearAssetBundleCache();
 
-		EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES = false;
+		EditorPreferences.EditorprefSimulateAssetBundles = false;
 		Debug.Log(("Disabled asset bundle simulation mode.").Colored(Colors.Yellow));
 	}
 
-	[MenuItem("_Core / Disable Simulate Asset Bundles", true)]
+	[MenuItem("Core Framework / Disable Simulate Asset Bundles", true)]
 	private static bool GetDisableCachedInfoVal()
 	{
-		return EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES ? true : false;
+		return EditorPreferences.EditorprefSimulateAssetBundles ? true : false;
 	}
 }

@@ -2,17 +2,16 @@
 
 internal struct JsonDateTime
 {
-	public long value;
+	public long Value;
 
 	public static implicit operator DateTime(JsonDateTime jdt)
 	{
-		return DateTime.FromFileTimeUtc(jdt.value);
+		return DateTime.FromFileTimeUtc(jdt.Value);
 	}
 
 	public static implicit operator JsonDateTime(DateTime dt)
 	{
-		JsonDateTime jdt = new JsonDateTime();
-		jdt.value = dt.ToFileTimeUtc();
+		var jdt = new JsonDateTime {Value = dt.ToFileTimeUtc()};
 		return jdt;
 	}
 }

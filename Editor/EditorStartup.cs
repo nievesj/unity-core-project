@@ -10,12 +10,12 @@ namespace Core
         {
             static Startup()
             {
-                if (EditorPreferences.EDITORPREF_FIRST_TIME_USE)
+                if (EditorPreferences.EditorprefFirstTimeUse)
                 {
                     Debug.Log("First time use. Enabling asset bundle simulation mode.".Colored(Colors.Yellow));
 
-                    EditorPreferences.EDITORPREF_SIMULATE_ASSET_BUNDLES = true;
-                    EditorPreferences.EDITORPREF_FIRST_TIME_USE = false;
+                    EditorPreferences.EditorprefSimulateAssetBundles = true;
+                    EditorPreferences.EditorprefFirstTimeUse = false;
                 }
             }
         }

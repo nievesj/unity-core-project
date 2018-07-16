@@ -1,11 +1,11 @@
 ﻿using Core.Services.Assets;
 using Core.Services.Audio;
 using Core.Services.Factory;
-using Core.Services.Levels;
 using Core.Services.Scenes;
 using Core.Services.UI;
-using Core.Services.UpdateManager;
 using System.Collections.Generic;
+using Core.Services.Data;
+using Core.Services.Social;
 using UnityEngine;
 using Zenject;
 
@@ -15,19 +15,26 @@ namespace Core.Services
 	/// Game configuration. Contains the configuration of all the services to be started when the
 	/// game starts.
 	/// </summary>
-	[CreateAssetMenu(fileName = "Core Framework", menuName = "Installers/Core Framework Settings/Game Configuration")]
+	[CreateAssetMenu(fileName = "Game Configuration", menuName = "Installers/Core Framework Settings/Game Configuration")]
 	public class GameConfiguration : ScriptableObjectInstaller<GameConfiguration>
 	{
-		public bool disableLogging = false;
-
+		public bool DisableLogging;
 		public List<ServiceConfiguration> services = new List<ServiceConfiguration>();
 
 		public override void InstallBindings()
 		{
-			if (disableLogging)
+			if (DisableLogging)
 				Debug.unityLogger.logEnabled = false;
+			
+			//Initialize SignalBus
+			// SignalBusInstaller.Install(Container); //This allows SignalBus to be injected in any class instantiated here, or any of its children.
+			
+			//Add Game Started Signal
+			// Container.DeclareSignal<OnGameStartedSignal>();
+			
+			//Add On Game Paused Signal
+			// Container.DeclareSignal<OnGamePausedSignal>();
 
-			//TODO: JMN I'm not convinced this is the BEST way to go about this, but it will work for now.
 			Debug.Log(("GameConfiguration: Starting Services").Colored(Colors.Lime));
 			foreach (var service in services)
 			{
@@ -40,41 +47,35 @@ namespace Core.Services
 					Container.Bind<AssetServiceConfiguration>().AsSingle().NonLazy();
 					Container.Bind<AssetBundleLoader>().AsSingle().NonLazy();
 				}
-
-				if (service is LevelLoaderServiceConfiguration)
-				{
-					Container.BindInterfacesAndSelfTo<LevelLoaderService>().AsSingle().WithArguments(service).NonLazy();
-					Container.Bind<LevelLoaderServiceConfiguration>().AsSingle().NonLazy();
-				}
-
-				if (service is SceneLoaderServiceConfiguration)
+				else if (service is SceneLoaderServiceConfiguration)
 				{
 					Container.BindInterfacesAndSelfTo<SceneLoaderService>().AsSingle().WithArguments(service).NonLazy();
 					Container.Bind<SceneLoaderServiceConfiguration>().AsSingle().NonLazy();
 				}
-
-				if (service is UIServiceConfiguration)
+				else if (service is UIServiceConfiguration)
 				{
 					Container.BindInterfacesAndSelfTo<UIService>().AsSingle().WithArguments(service).NonLazy();
 					Container.Bind<UIServiceConfiguration>().AsSingle().NonLazy();
 				}
-
-				// if (service is UpdateServiceConfiguration)
-				// {
-				// 	Container.BindInterfacesAndSelfTo<UpdateService>().AsSingle().WithArguments(service).NonLazy();
-				// 	Container.Bind<UpdateServiceConfiguration>().AsSingle().NonLazy();
-				// }
-
-				if (service is FactoryServiceConfiguration)
+				else if (service is FactoryServiceConfiguration)
 				{
 					Container.BindInterfacesAndSelfTo<FactoryService>().AsSingle().WithArguments(service, Container).NonLazy();
 					Container.Bind<FactoryServiceConfiguration>().AsSingle().NonLazy();
 				}
-
-				if (service is AudioServiceConfiguration)
+				else if (service is AudioServiceConfiguration)
 				{
 					Container.BindInterfacesAndSelfTo<AudioService>().AsSingle().WithArguments(service).NonLazy();
 					Container.Bind<AudioServiceConfiguration>().AsSingle().NonLazy();
+				}
+				else if (service is SocialServiceConfiguration)
+				{
+					Container.BindInterfacesAndSelfTo<SocialService>().AsSingle().WithArguments(service).NonLazy();
+					Container.Bind<SocialServiceConfiguration>().AsSingle().NonLazy();
+				}
+				else if (service is PersistentDataServiceConfiguration)
+				{
+					Container.BindInterfacesAndSelfTo<PersistentDataService>().AsSingle().WithArguments(service).NonLazy();
+					Container.Bind<PersistentDataServiceConfiguration>().AsSingle().NonLazy();
 				}
 			}
 		}

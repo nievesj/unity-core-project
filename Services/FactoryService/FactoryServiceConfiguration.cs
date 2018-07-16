@@ -2,6 +2,6 @@
 {
 	public class FactoryServiceConfiguration : ServiceConfiguration
 	{
-		public override Service ServiceClass { get { return new FactoryService(this, null); } }
+		public override Service ServiceClass => new FactoryService(this, null);
 	}
 }

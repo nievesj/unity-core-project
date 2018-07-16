@@ -2,8 +2,10 @@
 {
 	public class UIServiceConfiguration : ServiceConfiguration
 	{
-		public UIContainer mainCanvas;
+		public UIContainer MainCanvas;
 
-		public override Service ServiceClass { get { return new UIService(this); } }
+		public UIScreenBlocker UIScreenBlocker;
+
+		public override Service ServiceClass => new UIService(this);
 	}
 }

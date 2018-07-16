@@ -6,20 +6,17 @@ namespace Core.Services.Factory
 {
     public class Pooler<T> where T : Component
     {
-        private readonly Transform _poolerTransform;
-        public Transform PoolerTransform => _poolerTransform;
-        
-        private int _sizeLimit = 1;
-        public int SizeLimit => _sizeLimit;
-        
-        private int _activeElements = 0;
-        public int ActiveElements => _activeElements;
-        
+        public Transform PoolerTransform { get; }
+
+        public int SizeLimit { get; private set; }
+
+        public int ActiveElements { get; private set; } = 0;
+
         private Stack<T> _pool;
         private readonly Component _prefab;
         private readonly DiContainer _diContainer;
 
-         /// <summary>
+        /// <summary>
         /// Initialize pooler
         /// </summary>
         /// <param name="prefab"> Gameobject to be pooled </param>
@@ -29,15 +26,15 @@ namespace Core.Services.Factory
         public Pooler(Component prefab, int amount, DiContainer container, Transform poolTransform = null)
         {
             if (poolTransform)
-                _poolerTransform = poolTransform;
+                PoolerTransform = poolTransform;
             else
             {
                 var go = new GameObject(Constants.PooledObject + prefab.name);
-                _poolerTransform = go.transform;
+                PoolerTransform = go.transform;
             }
 
             _prefab = prefab;
-            _sizeLimit = amount;
+            SizeLimit = amount;
             _diContainer = container;
 
             CreatePool(amount);
@@ -61,7 +58,7 @@ namespace Core.Services.Factory
         /// <returns></returns>
         public T PopResize()
         {
-            _sizeLimit++;
+            SizeLimit++;
             if (_pool.Count == 0)
                 _pool.Push(CreateObject(_prefab));
 
@@ -76,8 +73,8 @@ namespace Core.Services.Factory
         /// <param name="val"> New _pool size </param>
         public void ResizePool(int val)
         {
-            _sizeLimit = val;
-            var totalElems = _pool.Count + _activeElements;
+            SizeLimit = val;
+            var totalElems = _pool.Count + ActiveElements;
             if (totalElems < val)
                 for (var i = totalElems; i <= val - 1; i++)
                     _pool.Push(CreateObject(_prefab));
@@ -97,12 +94,12 @@ namespace Core.Services.Factory
         public void Push(T obj)
         {
             obj.gameObject.SetActive(false);
-            if (_pool.Count + _activeElements <= _sizeLimit)
+            if (_pool.Count + ActiveElements <= SizeLimit)
                 _pool.Push(obj);
             else
                 Object.Destroy(obj.gameObject);
 
-            _activeElements--;
+            ActiveElements--;
         }
 
         /// <summary>
@@ -112,15 +109,15 @@ namespace Core.Services.Factory
         {
             DestroyPool();
 
-            if (_poolerTransform)
-                Object.Destroy(_poolerTransform.gameObject);
+            if (PoolerTransform)
+                Object.Destroy(PoolerTransform.gameObject);
         }
 
         private T Get()
         {
             var obj = _pool.Pop();
             obj.gameObject.SetActive(true);
-            _activeElements++;
+            ActiveElements++;
 
             return obj;
         }
@@ -131,15 +128,15 @@ namespace Core.Services.Factory
                 DestroyPool();
 
             _pool = new Stack<T>();
-            _activeElements = 0;
+            ActiveElements = 0;
 
             for (var i = 0; i <= amount - 1; i++)
                 _pool.Push(CreateObject(_prefab));
         }
 
-        private T CreateObject(Component prefab)
+        private T CreateObject(Object prefab)
         {
-            var go = _diContainer.InstantiatePrefab(prefab, _poolerTransform);
+            var go = _diContainer.InstantiatePrefab(prefab, PoolerTransform);
             go.SetActive(false);
             return go.GetComponent<T>() as T;
         }
@@ -148,8 +145,7 @@ namespace Core.Services.Factory
         {
             foreach (var obj in _pool)
             {
-                if (obj)
-                    Object.Destroy(obj.gameObject);
+                if (obj) obj.gameObject.Destroy();
             }
         }
     }

@@ -9,7 +9,7 @@ namespace Core.Services.Factory
         private FactoryServiceConfiguration _configuration;
 #pragma warning restore 0414    // restore value not used warning
 
-        private DiContainer _diContainer;
+        private readonly DiContainer _diContainer;
 
         public FactoryService(ServiceConfiguration config, DiContainer context)
         {
@@ -17,19 +17,19 @@ namespace Core.Services.Factory
             _diContainer = context;
         }
 
-        public T Instantiate<T>(T obj) where T : UnityEngine.Object
+        public T Instantiate<T>(T original) where T : Object
         {
-            return _diContainer.InstantiatePrefabForComponent<T>(obj);
+            return _diContainer.InstantiatePrefabForComponent<T>(original);
         }
 
-        public T Instantiate<T>(T obj, Transform t) where T : UnityEngine.Object
+        public T Instantiate<T>(T original, Transform transform) where T : Object
         {
-            return _diContainer.InstantiatePrefabForComponent<T>(obj, t);
+            return _diContainer.InstantiatePrefabForComponent<T>(original, transform);
         }
 
-        public GameObject Instantiate(UnityEngine.Object obj, Transform t)
+        public GameObject Instantiate(Object original, Transform transform)
         {
-            return _diContainer.InstantiatePrefab(obj, t);
+            return _diContainer.InstantiatePrefab(original, transform);
         }
 
         public Pooler<T> CreatePool<T>(Component prefab, int amount, Transform poolTransform = null) where T : Component

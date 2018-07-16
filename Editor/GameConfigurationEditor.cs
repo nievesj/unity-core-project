@@ -10,18 +10,17 @@ namespace Core.Services
 	[CustomEditor(typeof(GameConfiguration))]
 	public class GameConfigurationEditor : Editor
 	{
-		private ReorderableList services;
-		private GameConfiguration gameConfiguration;
+		private ReorderableList _services;
+		private GameConfiguration _gameConfiguration;
 
 		public override void OnInspectorGUI()
 		{
-			gameConfiguration = target as GameConfiguration;
-
-			gameConfiguration.disableLogging = EditorGUILayout.ToggleLeft("Disable Debug.Log?", gameConfiguration.disableLogging);
+			_gameConfiguration = target as GameConfiguration;
+			_gameConfiguration.DisableLogging = EditorGUILayout.ToggleLeft("Disable Debug.Log?", _gameConfiguration.DisableLogging);
 
 			GUILayout.Space(10);
 			serializedObject.Update();
-			services.DoLayoutList();
+			_services.DoLayoutList();
 			serializedObject.ApplyModifiedProperties();
 		}
 
@@ -31,19 +30,19 @@ namespace Core.Services
 			Color contentColor = GUI.contentColor;
 			float line = EditorGUIUtility.singleLineHeight;
 			SerializedProperty property = serializedObject.FindProperty("services");
-			services = new ReorderableList(serializedObject, property);
-			services.showDefaultBackground = true;
-			services.elementHeight = line + 6;
+			_services = new ReorderableList(serializedObject, property);
+			_services.showDefaultBackground = true;
+			_services.elementHeight = line + 6;
 
-			services.drawHeaderCallback = (rect) =>
+			_services.drawHeaderCallback = (rect) =>
 			{
 				EditorGUI.LabelField(rect, "Core Framework Services");
 			};
 
-			services.drawElementCallback = (Rect rect, int index, bool active, bool focused) =>
+			_services.drawElementCallback = (Rect rect, int index, bool active, bool focused) =>
 			{
 				float width = rect.width - 22;
-				SerializedProperty element = services.serializedProperty.GetArrayElementAtIndex(index);
+				SerializedProperty element = _services.serializedProperty.GetArrayElementAtIndex(index);
 
 				if (GUI.Button(new Rect(rect.x + rect.width - 20, rect.y + 4, 18, line), EditorGUIUtility.IconContent("_Popup").image, GUIStyle.none))
 				{
@@ -55,16 +54,16 @@ namespace Core.Services
 
 					menu.AddItem(new GUIContent("Remove"), false, delegate ()
 					{
-						if (!gameConfiguration.services[index])
+						if (!_gameConfiguration.services[index])
 						{
-							gameConfiguration.services.RemoveAt(index);
-							EditorUtility.SetDirty(gameConfiguration);
+							_gameConfiguration.services.RemoveAt(index);
+							EditorUtility.SetDirty(_gameConfiguration);
 						}
-						else if (EditorUtility.DisplayDialog("Remove " + ObjectNames.NicifyVariableName(gameConfiguration.services[index].name) + "?", "Are you sure you want to remove this service? This will delete the ScriptableObject and can't be undone.", "Yes", "No"))
+						else if (EditorUtility.DisplayDialog("Remove " + ObjectNames.NicifyVariableName(_gameConfiguration.services[index].name) + "?", "Are you sure you want to remove this service? This will delete the ScriptableObject and can't be undone.", "Yes", "No"))
 						{
 							AssetDatabase.DeleteAsset(AssetDatabase.GetAssetOrScenePath(element.objectReferenceValue));
-							gameConfiguration.services.RemoveAt(index);
-							EditorUtility.SetDirty(gameConfiguration);
+							_gameConfiguration.services.RemoveAt(index);
+							EditorUtility.SetDirty(_gameConfiguration);
 						}
 					});
 
@@ -74,7 +73,7 @@ namespace Core.Services
 				EditorGUI.PropertyField(new Rect(rect.x, rect.y + 2, width, line), element, GUIContent.none);
 			};
 
-			services.onAddCallback = (list) =>
+			_services.onAddCallback = (list) =>
 			{
 				Type[] allServiceTypes = GetAllServiceTypes();
 				GenericMenu servicesMenu = new GenericMenu();
@@ -90,16 +89,16 @@ namespace Core.Services
 								if (typ.Name == styp.Name + "Config" || typ.Name == styp.Name + "Configuration")
 								{
 									serializedObject.ApplyModifiedProperties();
-									object thing = ScriptableObject.CreateInstance(typ);
-									if (thing == null || (thing as ServiceConfiguration) == null) return;
+									object so = ScriptableObject.CreateInstance(typ);
+									if (so == null || (so as ServiceConfiguration) == null) return;
 									serializedObject.ApplyModifiedProperties();
 									string path = AssetDatabase.GetAssetOrScenePath(serializedObject.targetObject);
 									path = Path.GetDirectoryName(path) + Path.DirectorySeparatorChar + styp.Name + ".asset";
-									AssetDatabase.CreateAsset(thing as ServiceConfiguration, path);
-									if (thing != null)
+									AssetDatabase.CreateAsset(so as ServiceConfiguration, path);
+									if (so != null)
 									{
-										gameConfiguration.services.Add(thing as ServiceConfiguration);
-										EditorUtility.SetDirty(gameConfiguration);
+										_gameConfiguration.services.Add(so as ServiceConfiguration);
+										EditorUtility.SetDirty(_gameConfiguration);
 									}
 									return;
 								}

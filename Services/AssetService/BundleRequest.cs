@@ -1,18 +1,5 @@
-using UnityEngine;
-
 namespace Core.Services.Assets
 {
-    public struct AssetOptions
-    {
-        private AssetCacheState _assetCacheState;
-        public AssetCacheState AssetCacheState => _assetCacheState;
-
-        public AssetOptions(AssetCacheState sta)
-        {
-            _assetCacheState = sta;
-        }
-    }
-
     /// <summary>
     /// Helper class used to create a bundle request. Contains all the paths needed to request and
     /// access the bundle.
@@ -20,73 +7,36 @@ namespace Core.Services.Assets
     public class BundleRequest
     {
         //Directory where the bundle is located.
-        private AssetCategoryRoot _assetCategory;
-        private AssetServiceConfiguration _assetServiceConfiguration;
-        public AssetCategoryRoot AssetCategory => _assetCategory;
-        private string _bundleName;
-        public string BundleName => _bundleName;
+        public AssetCategoryRoot AssetCategory { get; }
 
-        //Manifest file associated to the bundle. This is needed in case the HASH number is requiered for caching the bundle
-        public string ManifestName => _bundleName + ".manifest";
+        public string BundleName { get; }
 
-        private string assetName;
-        public string AssetName => assetName;
-
-        public string ManifestAgeFile => Application.persistentDataPath + "/" + BundleName + "age.json";
-        public string CachedManifestFile => Application.persistentDataPath + "/" + ManifestName;
-
-        public string AssetPath
-        {
-            get
-            {
-                if (AssetCategory.Equals(AssetCategoryRoot.None))
-                    return _assetServiceConfiguration.PlatformAssetBundleURL + BundleName + "?r=" + UnityEngine.Random.value * 9999999; //this random value prevents caching on the web server
-                else
-                    return _assetServiceConfiguration.PlatformAssetBundleURL + AssetCategory.ToString().ToLower() + "/" + BundleName;
-            }
-        }
-
-        public string ManifestPath
-        {
-            get
-            {
-                Debug.Log(("AssetBundleLoader: Loading Manifest " + ManifestName).Colored(Colors.Aqua));
-
-                if (AssetCategory.Equals(AssetCategoryRoot.None))
-                    return _assetServiceConfiguration.PlatformAssetBundleURL + ManifestName + "?r=" + UnityEngine.Random.value * 9999999; //this random value prevents caching on the web server;
-                else
-                    return _assetServiceConfiguration.PlatformAssetBundleURL + AssetCategory.ToString().ToLower() + "/" + ManifestName;
-            }
-        }
+        public string AssetName { get; }
 
         public string AssetPathFromLocalStreamingAssets
         {
             get
             {
-                if (AssetCategory.Equals(AssetCategoryRoot.None))
+                if (AssetCategory == AssetCategoryRoot.None)
                     return BundleName;
                 else
                     return AssetCategory.ToString().ToLower() + "/" + BundleName;
             }
         }
 
-        public string AssetPathFromLocalStreamingAssetsManifest
+        public BundleRequest(AssetCategoryRoot cat, string bundle, string asset)
         {
-            get
-            {
-                if (AssetCategory.Equals(AssetCategoryRoot.None))
-                    return ManifestName;
-                else
-                    return AssetCategory.ToString().ToLower() + "/" + ManifestName;
-            }
+            AssetCategory = cat;
+            BundleName = bundle.ToLower();
+            AssetName = asset.ToLower();
         }
 
-        public BundleRequest(AssetCategoryRoot cat, string bundle, string asset, AssetServiceConfiguration config)
+        public string GetAssetPath(AssetServiceConfiguration config)
         {
-            _assetCategory = cat;
-            _bundleName = bundle.ToLower();
-            assetName = asset.ToLower();
-            _assetServiceConfiguration = config;
+            if (AssetCategory == AssetCategoryRoot.None)
+                return config.PlatformAssetBundleURL + BundleName + "?r=" + UnityEngine.Random.value * 9999999; //this random value prevents caching on the web server
+            else
+                return config.PlatformAssetBundleURL + AssetCategory.ToString().ToLower() + "/" + BundleName;
         }
     }
 
@@ -100,9 +50,10 @@ namespace Core.Services.Assets
         Services,
         Levels,
         Scenes,
-        Screens,
+        UI,
         Audio,
-        Prefabs
+        Prefabs,
+        Particles
     }
 
     /// <summary>
@@ -147,15 +98,5 @@ namespace Core.Services.Assets
     {
         Cache,
         NoCache
-    }
-
-    /// <summary>
-    /// Used to determine if the caching is going to be performed with the Unity Cloud Manifest file
-    /// by using the build version as the control or by using .manifest files and the HASH number
-    /// </summary>
-    public enum AssetCacheStrategy
-    {
-        CopyBundleManifestFileLocally,
-        UseUnityCloudManifestBuildVersion
     }
 }

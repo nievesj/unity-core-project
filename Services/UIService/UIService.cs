@@ -1,25 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Core.Services.Assets;
 using Core.Services.Factory;
 using UniRx;
+using UniRx.Async;
 using UnityEngine;
 using Zenject;
-using Object = UnityEngine.Object;
 
 namespace Core.Services.UI
 {
     /// <summary>
     /// Used to determine the parent of the UI Element
     /// </summary>
-    public enum UIElementType
+    public enum UIType
     {
+        Panel,
         Dialog,
         Widget,
-        Panel
+        ScreenBlocker
     }
-
+    
     public class UIService : Service
     {
         [Inject]
@@ -28,58 +30,47 @@ namespace Core.Services.UI
         [Inject]
         private FactoryService _factoryService;
 
-        private UIServiceConfiguration _configuration;
+        private readonly UIServiceConfiguration _configuration;
 
         private RectTransform _mainCanvas;
 
-        private UIScreenFader _uiScreenFader;
+        private UIScreenBlocker _uiScreenBlocker;
 
-        private Dictionary<UIElementType, RectTransform> _renderPriorityCanvas;
+        private readonly Dictionary<UIType, RectTransform> _renderPriorityCanvas;
 
-        private Dictionary<string, UIElement> _activeUIElements;
-
-        //Global signal emited when a window is opened. Hot observable.
-        private Subject<UIElement> _onUIElementOpened = new Subject<UIElement>();
-
-        public IObservable<UIElement> OnUIElementOpened => _onUIElementOpened;
-
-        //Global signal emited when a window is closed. Hot observable.
-        private Subject<UIElement> _onUIElementClosed = new Subject<UIElement>();
-
-        public IObservable<UIElement> OnUIElementClosed => _onUIElementClosed;
-
-        //Global signal emited when a game is paused. Hot observable.
-        private Subject<bool> _onGamePaused = new Subject<bool>();
-
-        public IObservable<bool> OnGamePaused => _onGamePaused;
+        private readonly Dictionary<string, UIElement> _activeUIElements;
+        
+        private readonly Subject<bool> _onGamePaused = new Subject<bool>();
 
         public UIService(ServiceConfiguration config)
         {
             _configuration = config as UIServiceConfiguration;
 
             _activeUIElements = new Dictionary<string, UIElement>();
-            _renderPriorityCanvas = new Dictionary<UIElementType, RectTransform>();
+            _renderPriorityCanvas = new Dictionary<UIType, RectTransform>();
         }
 
         public override void Initialize()
         {
             base.Initialize();
 
-            if (_configuration.mainCanvas)
+            if (_configuration.MainCanvas)
             {
-                var canvas = _factoryService.Instantiate<UIContainer>(_configuration.mainCanvas);
+                var canvas = _factoryService.Instantiate(_configuration.MainCanvas);
+
                 _mainCanvas = canvas.GetComponent<RectTransform>();
-                _uiScreenFader = canvas.GetComponentInChildren<UIScreenFader>();
-                Object.DontDestroyOnLoad(_mainCanvas);
+                _uiScreenBlocker = _factoryService.Instantiate(_configuration.UIScreenBlocker,_mainCanvas.transform);
+                
+                UnityEngine.Object.DontDestroyOnLoad(_mainCanvas);
 
                 var canvasElem = canvas.GetComponent<Canvas>();
 
                 if (canvasElem.renderMode == RenderMode.ScreenSpaceCamera)
                     canvasElem.worldCamera = Camera.main;
 
-                _renderPriorityCanvas.Add(UIElementType.Dialog, canvas.dialogContainer);
-                _renderPriorityCanvas.Add(UIElementType.Panel, canvas.panelContainer);
-                _renderPriorityCanvas.Add(UIElementType.Widget, canvas.widgetContainer);
+                _renderPriorityCanvas.Add(UIType.Dialog, canvas.dialogContainer);
+                _renderPriorityCanvas.Add(UIType.Panel, canvas.panelContainer);
+                _renderPriorityCanvas.Add(UIType.Widget, canvas.widgetContainer);
             }
         }
 
@@ -87,30 +78,54 @@ namespace Core.Services.UI
         /// Opens a window
         /// </summary>
         /// <param name="window"> Window name </param>
+        /// <param name="forceLoadFromStreamingAssets"></param>
+        /// <param name="progress"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns> Observable </returns>
-        public async Task<UIElement> OpenUIElement(string window)
+        public async Task<UIElement> OpenUI(string window, bool forceLoadFromStreamingAssets = false,
+            IProgress<float> progress = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var bundleNeeded = new BundleRequest(AssetCategoryRoot.Screens, window, window, _assetService.Configuration);
-            var screen = await _assetService.GetAndLoadAsset<UIElement>(bundleNeeded);
+            return await OpenUI<UIElement>(window, forceLoadFromStreamingAssets, progress, cancellationToken);
+        }
+
+        /// <summary>
+        /// Opens a window
+        /// </summary>
+        /// <param name="window"> Window name </param>
+        /// <param name="progress"></param>
+        /// <param name="cancellationToken"></param>
+        /// <param name="forceLoadFromStreamingAssets"></param>
+        /// <returns> Observable </returns>
+        public async Task<T> OpenUI<T>(string window, bool forceLoadFromStreamingAssets = false, IProgress<float> progress = null,
+            CancellationToken cancellationToken = default(CancellationToken)) where T : UIElement
+        {
+            var screen = await _assetService.LoadAsset<UIElement>(AssetCategoryRoot.UI, window, forceLoadFromStreamingAssets, progress, cancellationToken);
             if (!_mainCanvas)
-                throw new System.Exception("UI Service: StartService - UICanvas is missing from the scene. Was is destroyed?.");
+                throw new Exception("UI Service: StartService - UICanvas is missing from the scene. Was is destroyed?.");
 
-            var obj = _factoryService.Instantiate<UIElement>(screen, DetermineRenderPriorityCanvas(screen));
+            return await OpenUI<T>(screen, progress, cancellationToken);
+        }
 
-            obj.name = screen.name;
-            obj.OnClosed.Subscribe(UIElementClosed);
-            obj.OnOpened.Subscribe(UIElementOpened);
+        public async Task<T> OpenUI<T>(UIElement window, IProgress<float> progress = null,
+            CancellationToken cancellationToken = default(CancellationToken)) where T : UIElement
+        {
+            if(cancellationToken.IsCancellationRequested)
+                return null;
+                        
+            var obj = _factoryService.Instantiate(window, DetermineRenderPriorityCanvas(window.UIType));
+            obj.name = window.name;
+
+            obj.OnClosed().Subscribe(x => { UIElementClosed(x).Run(); });
 
             if (!_activeUIElements.ContainsKey(obj.name))
                 _activeUIElements.Add(obj.name, obj);
+            
+            if(obj.PauseGameWhenOpen)
+                PauseResume(true);
 
-            //Trigger OnGamePaused signal. Is up to the game to determine what happens. That's beyond the scope of the _uiService.
-            if (obj is UIDialog)
-                _onGamePaused.OnNext(true);
-
-            Debug.Log(($"UI Service: Loaded window - {screen.name}").Colored(Colors.LightBlue));
-
-            return obj;
+            Debug.Log($"UI Service: Loaded window - {obj.name}".Colored(Colors.LightBlue));
+            await UniTask.Yield(cancellationToken: cancellationToken);
+            return obj as T;
         }
 
         /// <summary>
@@ -119,18 +134,23 @@ namespace Core.Services.UI
         /// Widget: Draw on tops of Panels but below Dialogs
         /// Panel: Lowest render priority
         /// </summary>
-        /// <param name="element"></param>
         /// <returns></returns>
-        private RectTransform DetermineRenderPriorityCanvas(UIElement element)
+        private RectTransform DetermineRenderPriorityCanvas(UIType uiType)
         {
-            if (element is UIDialog)
-                return _renderPriorityCanvas[UIElementType.Dialog];
-            else if (element is UIPanel)
-                return _renderPriorityCanvas[UIElementType.Panel];
-            else if (element is UIWidget)
-                return _renderPriorityCanvas[UIElementType.Widget];
-            else
-                return _mainCanvas;
+            switch (uiType)
+            {
+                case UIType.Panel:
+                    return _renderPriorityCanvas[UIType.Panel];
+                    break;
+                case UIType.Dialog:
+                    return _renderPriorityCanvas[UIType.Dialog];
+                    break;
+                case UIType.Widget:
+                    return _renderPriorityCanvas[UIType.Widget];
+                    break;
+                default:
+                    return _mainCanvas;
+            }
         }
 
         /// <summary>
@@ -140,7 +160,19 @@ namespace Core.Services.UI
         /// <returns> bool </returns>
         public bool IsUIElementOpen(string window)
         {
-            return _activeUIElements.ContainsKey(window) ? true : false;
+            var win = GetOpenUIElement(window);
+            return win != null;
+        }
+
+        /// <summary>
+        /// Checks if a window is already open
+        /// </summary>
+        /// <param name="window"> Window name </param>
+        /// <returns> bool </returns>
+        public bool IsUIElementOpen<T>() where T : UIElement
+        {
+            var window = GetOpenUIElement<T>();
+            return window != null;
         }
 
         /// <summary>
@@ -153,35 +185,49 @@ namespace Core.Services.UI
             return _activeUIElements.ContainsKey(window) ? _activeUIElements[window] : null;
         }
 
-        public IObservable<UIElement> CloseUIElement(UIElement window)
+        /// <summary>
+        /// Returns the reference of an open window
+        /// </summary>
+        /// <param name="window"> Window name </param>
+        /// <returns> UIWindow </returns>
+        public UIElement GetOpenUIElement<T>() where T : UIElement
         {
-            return window.Close()
-                .Subscribe(UIElementClosed) as IObservable<UIElement>;
+            foreach (var value in _activeUIElements.Values)
+            {
+                if (value is T)
+                    return value as T;
+            }
+
+            return null;
         }
 
-        public IObservable<UIElement> DarkenScreen(bool block)
+        public async Task BlockScreen(bool block)
         {
-            return _uiScreenFader.DarkenScreen(block);
+            await _uiScreenBlocker.BlockScreen(block);
         }
 
-        private void UIElementClosed(UIElement window)
+        public IObservable<bool> OnGamePaused()
+        {
+            return _onGamePaused;
+        }
+
+        public void PauseResume(bool isPause)
+        {
+            _onGamePaused.OnNext(isPause);
+        }
+
+        private async Task UIElementClosed(UIElement window)
         {
             Debug.Log(("UI Service: Closed window - " + window.name).Colored(Colors.LightBlue));
 
-            //Trigger OnGamePaused signal. Is up to the game to determine what happens. That's beyond the scope of the _uiService.
-            if (window is UIDialog)
-                _onGamePaused.OnNext(false);
-
             _activeUIElements.Remove(window.name);
-            _onUIElementClosed.OnNext(window);
 
-            _assetService.UnloadAsset(window.name, true);
-            Object.Destroy(window.gameObject);
-        }
+            await _assetService.UnloadAsset(window.name, true);
 
-        private void UIElementOpened(UIElement window)
-        {
-            _onUIElementOpened.OnNext(window);
+            if (window.PauseGameWhenOpen)
+                PauseResume(false);
+            
+            UnityEngine.Object.Destroy(window.gameObject);
         }
     }
 }

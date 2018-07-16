@@ -1,6 +1,10 @@
 {
     "name": "Zenject",
-    "references": [],
+    "references": [
+        "UniRx"
+    ],
+    "optionalUnityReferences": [],
     "includePlatforms": [],
-    "excludePlatforms": []
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
 }

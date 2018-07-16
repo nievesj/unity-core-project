@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Collections;
+using System.Threading;
 using System.Threading.Tasks;
+using UniRx.Async;
 using UnityEngine;
 
 namespace Core.Services.Assets
@@ -10,13 +11,17 @@ namespace Core.Services.Assets
     /// </summary>
     public class LoadedBundle
     {
-        private AssetBundle _assetBundle;
-        private ManifestInfo _manifestInfo;
-        internal AssetBundle Bundle => _assetBundle;
+        private readonly GameObject _simulatedAsset;
+        internal AssetBundle Bundle { get; }
 
         public LoadedBundle(AssetBundle asset)
         {
-            _assetBundle = asset;
+            Bundle = asset;
+        }
+
+        public LoadedBundle(GameObject asset)
+        {
+            _simulatedAsset = asset;
         }
 
         /// <summary>
@@ -25,39 +30,61 @@ namespace Core.Services.Assets
         /// <param name="unloadAll"></param>
         public void Unload(bool unloadAll = false)
         {
-            if (_assetBundle)
-                _assetBundle.Unload(unloadAll);
+            if (Bundle)
+                Bundle.Unload(unloadAll);
         }
 
         /// <summary>
         /// Loads an asset inside this bundle
         /// </summary>
         /// <param name="name"></param>
+        /// <param name="progress"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<T> LoadAssetAsync<T>(string name) where T : UnityEngine.Object
+        public async Task<T> LoadAssetAsync<T>(string name, IProgress<float> progress,
+            CancellationToken cancellationToken) where T : UnityEngine.Object
         {
-            Debug.Log(("LoadedBundle: Async loading asset: " + name).Colored(Colors.Yellow));
+#if UNITY_EDITOR
+            if (EditorPreferences.EditorprefSimulateAssetBundles)
+            {
+                Debug.Log(("LoadAssetAsync Simulated: loading asset: " + name).Colored(Colors.Yellow));
+                var comp = _simulatedAsset.GetComponent<T>();
+                await UniTask.Yield(cancellationToken: cancellationToken);
+                return comp;
+            }
+#endif
 
-            return await GetAssetCompomnentAsync<T>(_assetBundle.LoadAssetAsync(name));
+            Debug.Log(("LoadAssetAsync: loading asset: " + name).Colored(Colors.Yellow));
+            return await GetAssetComponentAsync<T>(Bundle.LoadAssetAsync(name), progress, cancellationToken);
         }
 
         /// <summary>
         /// Operation extracts an asset from the loaded bundle
         /// </summary>
-        /// <param name="asyncOperation">   </param>
+        /// <param name="asyncOperation"></param>
+        /// <param name="progress"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        private async Task<T> GetAssetCompomnentAsync<T>(AssetBundleRequest asyncOperation) where T : UnityEngine.Object
+        private async Task<T> GetAssetComponentAsync<T>(AssetBundleRequest asyncOperation, IProgress<float> progress,
+            CancellationToken cancellationToken) where T : UnityEngine.Object
         {
-            await asyncOperation;
+            while (!asyncOperation.isDone)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    return null;
+
+                await UniTask.Yield(cancellationToken: cancellationToken);
+                //Supressing this so it doesnt step over GetBundleFromStreamingAssetsAsync or GetBundleFromWebOrCacheAsync
+                //progress?.Report(asyncOperation.progress);
+                Debug.Log($"GetAssetComponentAsync {Bundle.name} progress: {asyncOperation.progress * 100f}%".Colored(Colors.LightSalmon));
+            }
 
             if (!asyncOperation.asset)
                 throw new Exception("RunAssetBundleRequestOperation: Error getting bundle.");
 
             //Current use case returns the component, if this changes then deal with it downstream but for now this should be ok
             var go = asyncOperation.asset as GameObject;
-            var comp = go.GetComponent<T>();
-
-            return comp;
+            return go.GetComponent<T>();
         }
     }
 }
