@@ -35,14 +35,10 @@ Demo
 
 Purpose
 ---
-The main aspect of this library is loading and unloading asset bundles in a relatively simple way.
+The main aspect of this library is loading and unloading asset bundles in a very simple way.
 
-     _assetService.GetAndLoadAsset<Ball>(bundleNeeded)
-                .TaskToObservable()
-                .Subscribe(ball =>
-                {
-                    var myBall = Instantiate<Ball>(ball);
-                });
+     var ball = await AssetService.LoadAsset<Ball>(AssetCategoryRoot.Prefabs,
+                "Ball");
 
 How to integrate into a project?
 ---
