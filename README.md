@@ -85,12 +85,8 @@ The service also detects the platform it's running on, and uses that to get the 
 
 This functionality is entirely seamless to the developer, thus requesting an asset is now as easy as:
 
-       _assetService.GetAndLoadAsset<Ball>(bundleNeeded)
-                .TaskToObservable()
-                .Subscribe(ball =>
-                {
-                    var myBall = Instantiate<Ball>(ball);
-                });
+       var shaterrer = await AssetService.LoadAsset<Shaterrer>(AssetCategoryRoot.Prefabs,
+                Constants.Prefabs.Shaterrer);
 
 Simulating Asset Bundles
 ---
