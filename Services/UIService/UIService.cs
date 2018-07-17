@@ -211,7 +211,7 @@ namespace Core.Services.UI
             return _onGamePaused;
         }
 
-        public void PauseResume(bool isPause)
+        private void PauseResume(bool isPause)
         {
             _onGamePaused.OnNext(isPause);
         }
