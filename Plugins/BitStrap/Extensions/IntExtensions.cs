@@ -1,10 +1,13 @@
 ﻿using UnityEngine;
+using System.Collections;
+
 
 /// <summary>
 /// Bunch of utility methods to the int class.
 /// </summary>
 public static class IntExtensions
 {
+
     /// <summary>
     /// Maps value from original range to new range
     /// </summary>
@@ -16,6 +19,7 @@ public static class IntExtensions
     /// <returns>value in new range</returns>
     public static int MapRange(this int value, int min1, int max1, int min2, int max2)
     {
-        return (int) Mathf.Round((value - min1) / ((float) max1 - min1) * (max2 - min2) + min2);
+        return (int)Mathf.Round( (value - min1) / ((float)max1 - min1) * (max2 - min2) + min2 );
     }
 }
+

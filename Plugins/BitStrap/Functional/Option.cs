@@ -6,29 +6,33 @@
 
 	public static class Option
 	{
-		public static Option<T> Some<T>( T value )
+		public sealed class UnwrapNoneException : System.Exception
 		{
-			return new Option<T>( value );
 		}
 	}
 
 	public struct Option<A>
 	{
-		private static readonly bool IsValueType;
+		private readonly static bool IsValue;
+
+		private readonly A value;
+		private readonly bool isSome;
+
+		public bool IsSome
+		{
+			get { return isSome && ( IsValue || !ReferenceEquals( value, null ) && !value.Equals( null ) ); }
+		}
 
 		static Option()
 		{
-			IsValueType = typeof( A ).IsByValue();
+			IsValue = typeof( A ).IsValueType;
 		}
-
-		private readonly A value;
-
-		public readonly bool hasValue;
 
 		public Option( A value )
 		{
 			this.value = value;
-			hasValue = IsValueType || value != null;
+			isSome = true;
+			isSome = IsSome;
 		}
 
 		public static implicit operator Option<A>( A value )
@@ -41,65 +45,143 @@
 			return default( Option<A> );
 		}
 
-		public bool TryGet( out A retValue )
+		public bool TryGet( out A value )
 		{
-			if( hasValue )
+			if( IsSome )
 			{
-				retValue = value;
+				value = this.value;
 				return true;
 			}
 
-			retValue = default( A );
+			value = default( A );
 			return false;
 		}
 
-		public B Match<B>( System.Func<A, B> onSome, System.Func<B> onNone )
+		public B Match<B>( System.Func<A, B> some, System.Func<B> none )
 		{
-			if( hasValue )
-				return onSome( value );
+			if( IsSome )
+				return some( value );
+
+			return none();
+		}
+
+		public Unit Match( System.Action<A> some, System.Action none )
+		{
+			if( IsSome )
+				some( value );
+			else
+				none();
+
+			return Functional.Unit;
+		}
+
+		public Result<A, E> OkOr<E>( E error )
+		{
+			if( IsSome )
+				return new Result<A, E>( value );
+
+			return new Result<A, E>( error );
+		}
+
+		public Result<A, E> OkOrElse<E>( System.Func<E> onError )
+		{
+			if( IsSome )
+				return new Result<A, E>( value );
+
+			return new Result<A, E>( onError() );
+		}
+
+		public A Unwrap()
+		{
+			if( IsSome )
+				return value;
+
+			throw new Option.UnwrapNoneException();
+		}
+
+		public A UnwrapOr( A noneValue )
+		{
+			if( IsSome )
+				return value;
+
+			return noneValue;
+		}
+
+		public A UnwrapOrElse( System.Func<A> onNone )
+		{
+			if( IsSome )
+				return value;
+
 			return onNone();
 		}
 
-		public A Or( A orValue )
+		public bool IfSome( System.Action<A> onSome )
 		{
-			if( hasValue )
-				return value;
+			if( IsSome )
+			{
+				onSome( value );
+				return true;
+			}
 
-			return orValue;
+			return false;
 		}
 
-		public A Or( System.Func<A> onNone )
+		public Option<B> And<B>( Option<B> other )
 		{
-			if( hasValue )
-				return value;
+			if( IsSome )
+				return other;
 
-			return onNone();
+			return default( Option<B> );
+		}
+
+		public Option<B> AndThen<B>( System.Func<A, Option<B>> onOther )
+		{
+			if( IsSome )
+				return onOther( value );
+
+			return default( Option<B> );
+		}
+
+		public Option<A> Or( Option<A> other )
+		{
+			if( IsSome )
+				return this;
+
+			return other;
+		}
+
+		public Option<A> OrElse( System.Func<Option<A>> onOther )
+		{
+			if( IsSome )
+				return this;
+
+			return onOther();
 		}
 
 		public Option<B> Select<B>( System.Func<A, B> select )
 		{
-			if( !hasValue )
-				return new None();
+			if( IsSome )
+				return select( value );
 
-			return select( value );
+			return default( Option<B> );
 		}
 
 		public Option<A> Where( System.Predicate<A> predicate )
 		{
-			if( !hasValue || !predicate( value ) )
-				return new None();
+			if( IsSome && predicate( value ) )
+				return this;
 
-			return this;
+			return default( Option<A> );
 		}
 
 		public Option<C> SelectMany<B, C>( System.Func<A, Option<B>> func, System.Func<A, B, C> select )
 		{
-			if( !hasValue )
-				return new None();
+			if( !IsSome )
+				return default( Option<C> );
 
 			var b = func( value );
-			if( !b.hasValue )
-				return new None();
+			if( !b.IsSome )
+				return default( Option<C> );
 
 			return select( value, b.value );
 		}

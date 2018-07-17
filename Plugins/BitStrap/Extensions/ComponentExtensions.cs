@@ -14,9 +14,9 @@ namespace BitStrap
         /// <param name="self"></param>
         /// <param name="includeInactive"></param>
         /// <returns></returns>
-        public static T GetComponentInParent<T>(this Component self, bool includeInactive) where T : Component
+        public static T GetComponentInParent<T>( this Component self, bool includeInactive ) where T : Component
         {
-            return self.gameObject.GetComponentInParent<T>(includeInactive);
+            return self.gameObject.GetComponentInParent<T>( includeInactive );
         }
     }
 }

@@ -1,8 +1,13 @@
-﻿/// <summary>
+﻿using UnityEngine;
+using System.Collections;
+
+
+/// <summary>
 /// Bunch of utility methods to the float class.
 /// </summary>
 public static class FloatExtensions
 {
+
     /// <summary>
     /// Maps value from original range to new range
     /// </summary>
@@ -17,3 +22,4 @@ public static class FloatExtensions
         return (value - min1) / (max1 - min1) * (max2 - min2) + min2;
     }
 }
+
