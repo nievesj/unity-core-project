@@ -38,6 +38,11 @@ namespace Zenject
 
         public Type GetInstanceType(InjectContext context)
         {
+            if (!_concreteType.DerivesFromOrEqual(context.MemberType))
+            {
+                return null;
+            }
+
             return GetTypeToCreate(context.MemberType);
         }
 

@@ -22,7 +22,8 @@ namespace Zenject
                     ContractType, container, BindInfo.Arguments, BindInfo.ContextInfo, BindInfo.ConcreteIdentifier);
         }
 
-        protected DiContainer BindContainer
+        // Don't use this
+        internal DiContainer BindContainer
         {
             get; private set;
         }
@@ -32,7 +33,8 @@ namespace Zenject
             get; private set;
         }
 
-        protected Func<DiContainer, IProvider> ProviderFunc
+        // Don't use this
+        internal Func<DiContainer, IProvider> ProviderFunc
         {
             get { return FactoryBindInfo.ProviderFunc; }
             set { FactoryBindInfo.ProviderFunc = value; }
@@ -90,7 +92,8 @@ namespace Zenject
             return this;
         }
 
-        protected ConcreteBinderGeneric<T> CreateIFactoryBinder<T>(out Guid factoryId)
+        // Don't use this
+        internal ConcreteBinderGeneric<T> CreateIFactoryBinder<T>(out Guid factoryId)
         {
             // Use a random ID so that our provider is the only one that can find it and so it doesn't
             // conflict with anything else

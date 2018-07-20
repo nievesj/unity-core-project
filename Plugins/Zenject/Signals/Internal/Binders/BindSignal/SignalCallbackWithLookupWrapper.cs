@@ -26,7 +26,12 @@ namespace Zenject
 
         void OnSignalFired(TSignal signal)
         {
-            _methodGetter(_container.ResolveId<TObject>(_lookupId))(signal);
+            var objects = _container.ResolveIdAll<TObject>(_lookupId);
+
+            for (int i = 0; i < objects.Count; i++)
+            {
+                _methodGetter(objects[i])(signal);
+            }
         }
 
         public void Dispose()
