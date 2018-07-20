@@ -1,6 +1,4 @@
-﻿using System;
-using UniRx;
-using UnityEngine;
+﻿using UnityEngine;
 using Zenject;
 
 namespace Core.Services
@@ -9,7 +7,7 @@ namespace Core.Services
     /// Starting point for Core Framework.
     /// </summary>
     public abstract class Game : CoreBehaviour
-    {   
+    {
         [Inject]
         private SignalBus _signalBus;
 
@@ -18,6 +16,7 @@ namespace Core.Services
             //Make this object persistent
             DontDestroyOnLoad(gameObject);
             
+            //Trigger OnGameStartedSignal
             _signalBus.Subscribe<OnGameStartedSignal>(OnGameStart);
         }
 

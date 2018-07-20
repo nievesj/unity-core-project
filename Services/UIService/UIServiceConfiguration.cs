@@ -2,7 +2,7 @@
 {
 	public class UIServiceConfiguration : ServiceConfiguration
 	{
-		public UIContainer MainCanvas;
+		public UICanvas MainCanvas;
 
 		public UIScreenBlocker UIScreenBlocker;
 

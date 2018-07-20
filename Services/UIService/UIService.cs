@@ -68,9 +68,9 @@ namespace Core.Services.UI
                 if (canvasElem.renderMode == RenderMode.ScreenSpaceCamera)
                     canvasElem.worldCamera = Camera.main;
 
-                _renderPriorityCanvas.Add(UIType.Dialog, canvas.dialogContainer);
-                _renderPriorityCanvas.Add(UIType.Panel, canvas.panelContainer);
-                _renderPriorityCanvas.Add(UIType.Widget, canvas.widgetContainer);
+                _renderPriorityCanvas.Add(UIType.Dialog, canvas.DialogContainer);
+                _renderPriorityCanvas.Add(UIType.Panel, canvas.PanelContainer);
+                _renderPriorityCanvas.Add(UIType.Widget, canvas.WidgetContainer);
             }
         }
 
