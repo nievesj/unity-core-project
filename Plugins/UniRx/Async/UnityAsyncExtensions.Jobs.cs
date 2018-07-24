@@ -1,4 +1,4 @@
-﻿#if UNITY_2018_1_OR_NEWER && (NET_4_6 || NET_STANDARD_2_0 || CSHARP_7_OR_LATER) && !UNITY_WSA
+﻿#if CSHARP_7_OR_LATER
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 using System;
@@ -41,12 +41,15 @@ namespace UniRx.Async
             readonly JobHandle jobHandle;
             CancellationToken cancellationToken;
             Action continuation;
+            AwaiterStatus status;
             bool calledComplete = false;
+            bool registerFinishedAction = false;
 
             public JobHandleAwaiter(JobHandle jobHandle, CancellationToken cancellationToken)
             {
                 this.jobHandle = jobHandle;
                 this.cancellationToken = cancellationToken;
+                this.status = AwaiterStatus.Pending;
                 this.continuation = null;
             }
 
@@ -58,6 +61,8 @@ namespace UniRx.Async
                 }
             }
 
+            public AwaiterStatus Status => status;
+
             public void GetResult()
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -67,9 +72,11 @@ namespace UniRx.Async
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    // Call jobHandle.Complete after finished.
-                    if (!calledComplete)
+                    status = AwaiterStatus.Canceled;
+                    if (!calledComplete && !registerFinishedAction)
                     {
+                        // Call jobHandle.Complete after finished.
+                        registerFinishedAction = true;
                         PlayerLoopHelper.AddAction(PlayerLoopTiming.EarlyUpdate, new JobHandleAwaiter(jobHandle, CancellationToken.None));
                         this.continuation?.Invoke();
                     }
@@ -81,6 +88,7 @@ namespace UniRx.Async
                 {
                     if (!calledComplete)
                     {
+                        status = AwaiterStatus.Succeeded;
                         calledComplete = true;
                         jobHandle.Complete();
 

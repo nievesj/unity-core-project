@@ -11,14 +11,10 @@ namespace UniRx.Async
 {
     public static partial class UnityAsyncExtensions
     {
-        static void ThrowIfNull(string name)
-        {
-            throw new ArgumentNullException(name);
-        }
-
         public static AsyncOperationAwaiter GetAwaiter(this AsyncOperation asyncOperation)
         {
-            if (asyncOperation == null) ThrowIfNull(nameof(asyncOperation));
+            Guard.ThrowArgumentNullException(asyncOperation, nameof(asyncOperation));
+
             return new AsyncOperationAwaiter(asyncOperation);
         }
 
@@ -29,28 +25,32 @@ namespace UniRx.Async
 
         public static UniTask ConfigureAwait(this AsyncOperation asyncOperation, IProgress<float> progress = null, PlayerLoopTiming timing = PlayerLoopTiming.Update, CancellationToken cancellation = default(CancellationToken))
         {
-            if (asyncOperation == null) ThrowIfNull(nameof(asyncOperation));
+            Guard.ThrowArgumentNullException(asyncOperation, nameof(asyncOperation));
+
             var awaiter = new AsyncOperationConfiguredAwaiter(asyncOperation, progress, cancellation);
             PlayerLoopHelper.AddAction(timing, awaiter);
             return new UniTask(awaiter);
         }
 
-        public static ResourceRequestAwaiter GetAwaiter(this ResourceRequest asyncOperation)
+        public static ResourceRequestAwaiter GetAwaiter(this ResourceRequest resourceRequest)
         {
-            if (asyncOperation == null) ThrowIfNull(nameof(asyncOperation));
-            return new ResourceRequestAwaiter(asyncOperation);
+            Guard.ThrowArgumentNullException(resourceRequest, nameof(resourceRequest));
+
+            return new ResourceRequestAwaiter(resourceRequest);
         }
 
-        public static UniTask<UnityEngine.Object> ToUniTask(this ResourceRequest asyncOperation)
+        public static UniTask<UnityEngine.Object> ToUniTask(this ResourceRequest resourceRequest)
         {
-            if (asyncOperation == null) ThrowIfNull(nameof(asyncOperation));
-            return new UniTask<UnityEngine.Object>(new ResourceRequestAwaiter(asyncOperation));
+            Guard.ThrowArgumentNullException(resourceRequest, nameof(resourceRequest));
+
+            return new UniTask<UnityEngine.Object>(new ResourceRequestAwaiter(resourceRequest));
         }
 
-        public static UniTask<UnityEngine.Object> ConfigureAwait(this ResourceRequest asyncOperation, IProgress<float> progress = null, PlayerLoopTiming timing = PlayerLoopTiming.Update, CancellationToken cancellation = default(CancellationToken))
+        public static UniTask<UnityEngine.Object> ConfigureAwait(this ResourceRequest resourceRequest, IProgress<float> progress = null, PlayerLoopTiming timing = PlayerLoopTiming.Update, CancellationToken cancellation = default(CancellationToken))
         {
-            if (asyncOperation == null) ThrowIfNull(nameof(asyncOperation));
-            var awaiter = new ResourceRequestConfiguredAwaiter(asyncOperation, progress, cancellation);
+            Guard.ThrowArgumentNullException(resourceRequest, nameof(resourceRequest));
+
+            var awaiter = new ResourceRequestConfiguredAwaiter(resourceRequest, progress, cancellation);
             PlayerLoopHelper.AddAction(timing, awaiter);
             return new UniTask<UnityEngine.Object>(awaiter);
         }
@@ -69,7 +69,8 @@ namespace UniRx.Async
 
         public static UniTask ConfigureAwait(this WWW www, IProgress<float> progress = null, PlayerLoopTiming timing = PlayerLoopTiming.Update, CancellationToken cancellation = default(CancellationToken))
         {
-            if (www == null) ThrowIfNull(nameof(www));
+            Guard.ThrowArgumentNullException(www, nameof(www));
+
             var awaiter = new WWWConfiguredAwaiter(www, progress, cancellation);
             PlayerLoopHelper.AddAction(timing, awaiter);
             return new UniTask(awaiter);
@@ -81,7 +82,8 @@ namespace UniRx.Async
 
         public static UnityWebRequestAsyncOperationAwaiter GetAwaiter(this UnityWebRequestAsyncOperation asyncOperation)
         {
-            if (asyncOperation == null) ThrowIfNull(nameof(asyncOperation));
+            Guard.ThrowArgumentNullException(asyncOperation, nameof(asyncOperation));
+
             return new UnityWebRequestAsyncOperationAwaiter(asyncOperation);
         }
 
@@ -92,7 +94,8 @@ namespace UniRx.Async
 
         public static UniTask<UnityWebRequest> ConfigureAwait(this UnityWebRequestAsyncOperation asyncOperation, IProgress<float> progress = null, PlayerLoopTiming timing = PlayerLoopTiming.Update, CancellationToken cancellation = default(CancellationToken))
         {
-            if (asyncOperation == null) ThrowIfNull(nameof(asyncOperation));
+            Guard.ThrowArgumentNullException(asyncOperation, nameof(asyncOperation));
+
             var awaiter = new UnityWebRequestAsyncOperationConfiguredAwaiter(asyncOperation, progress, cancellation);
             PlayerLoopHelper.AddAction(timing, awaiter);
             return new UniTask<UnityWebRequest>(awaiter);
@@ -116,6 +119,8 @@ namespace UniRx.Async
                     return asyncOperation.isDone;
                 }
             }
+
+            public AwaiterStatus Status => asyncOperation.isDone ? AwaiterStatus.Succeeded : AwaiterStatus.Pending;
 
             public void GetResult()
             {
@@ -154,6 +159,10 @@ namespace UniRx.Async
                     return cancellationToken.IsCancellationRequested || asyncOperation.isDone;
                 }
             }
+
+            public AwaiterStatus Status => asyncOperation.isDone ? AwaiterStatus.Succeeded
+                     : cancellationToken.IsCancellationRequested ? AwaiterStatus.Canceled
+                     : AwaiterStatus.Pending;
 
             public void GetResult()
             {
@@ -210,6 +219,8 @@ namespace UniRx.Async
                 }
             }
 
+            public AwaiterStatus Status => request.isDone ? AwaiterStatus.Succeeded : AwaiterStatus.Pending;
+
             public UnityEngine.Object GetResult()
             {
                 return request.asset;
@@ -253,6 +264,10 @@ namespace UniRx.Async
                     return cancellationToken.IsCancellationRequested || request.isDone;
                 }
             }
+
+            public AwaiterStatus Status => request.isDone ? AwaiterStatus.Succeeded
+                     : cancellationToken.IsCancellationRequested ? AwaiterStatus.Canceled
+                     : AwaiterStatus.Pending;
 
             public UnityEngine.Object GetResult()
             {
@@ -323,6 +338,10 @@ namespace UniRx.Async
                 }
             }
 
+            public AwaiterStatus Status => request.isDone ? AwaiterStatus.Succeeded
+                     : cancellationToken.IsCancellationRequested ? AwaiterStatus.Canceled
+                     : AwaiterStatus.Pending;
+
             public void GetResult()
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -382,6 +401,8 @@ namespace UniRx.Async
                 }
             }
 
+            public AwaiterStatus Status => asyncOperation.isDone ? AwaiterStatus.Succeeded : AwaiterStatus.Pending;
+
             public UnityWebRequest GetResult()
             {
                 return asyncOperation.webRequest;
@@ -425,6 +446,10 @@ namespace UniRx.Async
                     return cancellationToken.IsCancellationRequested || request.isDone;
                 }
             }
+
+            public AwaiterStatus Status => request.isDone ? AwaiterStatus.Succeeded
+                     : cancellationToken.IsCancellationRequested ? AwaiterStatus.Canceled
+                     : AwaiterStatus.Pending;
 
             public UnityWebRequest GetResult()
             {
