@@ -1,6 +1,4 @@
-﻿using System;
-using UniRx;
-using UnityEngine;
+﻿using UnityEngine;
 using Zenject;
 
 namespace Core.Services
@@ -11,22 +9,21 @@ namespace Core.Services
     public abstract class Game : CoreBehaviour
     {
         [Inject]
-        private IObservable<Unit> _onGameStarted;
+        private SignalBus _signalBus;
 
         protected override void Awake()
         {
             //Make this object persistent
             DontDestroyOnLoad(gameObject);
             
-            _onGameStarted.Subscribe(OnGameStart)
-                .AddTo(this);
+            //Trigger OnGameStartedSignal
+            _signalBus.Subscribe<OnGameStartedSignal>(OnGameStart);
         }
 
         /// <summary>
         /// Method triggered when the game starts.
         /// </summary>
-        /// <param name="unit"></param>
-        protected virtual void OnGameStart(Unit unit)
+        protected virtual void OnGameStart()
         {
             Debug.Log("Game Started".Colored(Colors.Lime));
         }
