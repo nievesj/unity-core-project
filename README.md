@@ -61,7 +61,7 @@ Asset Bundles
 
 For simplicity, the current asset bundle strategy for this tool is that each prefab is its own asset bundle, and asset bundles are organized by categories or directories. Image below is Unity's [AssetBundles-Browser](https://github.com/Unity-Technologies/AssetBundles-Browser).
 
-![Asset Bundle Organization](http://www.josemnieves.com/unity/images/aborg.PNG)
+![Asset Bundle Organization](http://www.josemnieves.net/unity/images/aborg.PNG)
 
  These directories are mapped to the enum [AssetCategoryRoot](https://github.com/nievesj/unity-core-project/blob/master/Services/AssetService/BundleRequest.cs#L97-L107) as shown below.
 
@@ -81,7 +81,7 @@ For simplicity, the current asset bundle strategy for this tool is that each pre
 
 The service also detects the platform it's running on, and uses that to get the asset bundles from the web in the following order: 
 
-![Cloud Asset Bundle Structure](http://www.josemnieves.com/unity/images/webab.png)
+![Cloud Asset Bundle Structure](http://www.josemnieves.net/unity/images/webab.png)
 
 This functionality is entirely seamless to the developer, thus requesting an asset is now as easy as:
 
@@ -92,11 +92,11 @@ Simulating Asset Bundles
 ---
 Asset Bundle simulation is enabled by default. If you wish to disable it go to menu Core Framework -> Disable Simulate Asset Bundles.
 
-![Core Framework Preferences](http://www.josemnieves.com/unity/images/preferences.png)
+![Core Framework Preferences](http://www.josemnieves.net/unity/images/preferences.png)
 
 Alternatively, there's also a _Core menu to enable/disable simulation mode
 
-![Core Menu](http://www.josemnieves.com/unity/images/coremenu.png)
+![Core Menu](http://www.josemnieves.net/unity/images/coremenu.png)
 
 Asset Service Options
 ---
@@ -112,7 +112,7 @@ Console window colors!
 
 This feature allows you to easily colorize debug messages so you can keep track of related events by colors on editor. This functionality is disabled on builds so the console log doesn't become cluttered with color tags. 
 
-![Asset Service Options](http://www.josemnieves.com/unity/images/consolecolors.png)
+![Asset Service Options](http://www.josemnieves.net/unity/images/consolecolors.png)
 
 
        Debug.Log(("My very awesome lime colored text!").Colored(Colors.Lime));
