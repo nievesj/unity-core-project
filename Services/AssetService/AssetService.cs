@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using UniRx.Async;
 using UnityEngine;
 using Zenject;
@@ -46,7 +45,7 @@ namespace Core.Services.Assets
             }
         }
 
-        private async Task<T> LoadAsset<T>(BundleRequest bundleRequest, bool forceLoadFromStreamingAssets = false,
+        private async UniTask<T> LoadAsset<T>(BundleRequest bundleRequest, bool forceLoadFromStreamingAssets = false,
             IProgress<float> progress = null, CancellationToken cancellationToken = default(CancellationToken)) where T : UnityEngine.Object
         {
             return await _assetBundlebundleLoader.LoadAsset<T>(bundleRequest, forceLoadFromStreamingAssets, progress, cancellationToken);
@@ -61,7 +60,7 @@ namespace Core.Services.Assets
         /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <returns> Observable </returns>
-        public async Task<T> LoadAsset<T>(AssetCategoryRoot assetCatRoot, string assetName, bool forceLoadFromStreamingAssets = false,
+        public async UniTask<T> LoadAsset<T>(AssetCategoryRoot assetCatRoot, string assetName, bool forceLoadFromStreamingAssets = false,
             IProgress<float> progress = null, CancellationToken cancellationToken = default(CancellationToken)) where T : UnityEngine.Object
         {
             var bundleNeeded = new BundleRequest(assetCatRoot,
@@ -80,7 +79,7 @@ namespace Core.Services.Assets
         /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <returns> Observable </returns>
-        public async Task<T> LoadAsset<T>(AssetCategoryRoot assetCatRoot, string bundleName, string assetName,
+        public async UniTask<T> LoadAsset<T>(AssetCategoryRoot assetCatRoot, string bundleName, string assetName,
             bool forceLoadFromStreamingAssets = false, IProgress<float> progress = null,
             CancellationToken cancellationToken = default(CancellationToken)) where T : UnityEngine.Object
         {
@@ -90,7 +89,7 @@ namespace Core.Services.Assets
             return await LoadAsset<T>(bundleNeeded, forceLoadFromStreamingAssets, progress, cancellationToken);
         }
 
-        public async Task<UnityEngine.Object> GetScene(BundleRequest bundleRequest, bool forceLoadFromStreamingAssets = false,
+        public async UniTask<UnityEngine.Object> GetScene(BundleRequest bundleRequest, bool forceLoadFromStreamingAssets = false,
             IProgress<float> progress = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return await _assetBundlebundleLoader.LoadScene(bundleRequest, forceLoadFromStreamingAssets, progress, cancellationToken);
@@ -104,35 +103,28 @@ namespace Core.Services.Assets
         /// <param name="forceLoadFromStreamingAssets"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<Dictionary<string, LoadedBundle>> LoadMultipleBundles(List<BundleRequest> requests,
+        public async UniTask<Dictionary<string, LoadedBundle>> LoadMultipleBundles(List<BundleRequest> requests,
             bool forceLoadFromStreamingAssets = false, IProgress<float> progress = null, CancellationToken cancellationToken = default(CancellationToken))
         {
+            var tempCount = 0;
             var total = requests.Count;
             var bundles = new Dictionary<string, LoadedBundle>();
-            var percent = 0;
 
-            var process = await Task.Run(async () =>
+            foreach (var request in requests)
             {
-                var tempCount = 0;
-                foreach (var request in requests)
-                {
-                    if(cancellationToken.IsCancellationRequested)
-                        return 0;
+                if (cancellationToken.IsCancellationRequested)
+                    return null;
 
-                    await UniTask.Yield(cancellationToken: cancellationToken);
+                await UniTask.Yield(cancellationToken: cancellationToken);
 
-                    var bundle = await _assetBundlebundleLoader.LoadBundle(request, forceLoadFromStreamingAssets, cancellationToken: cancellationToken);
-                    bundles.Add(request.BundleName, bundle);
+                var bundle = await _assetBundlebundleLoader.LoadBundle(request, forceLoadFromStreamingAssets, cancellationToken: cancellationToken);
+                bundles.Add(request.BundleName, bundle);
 
-                    tempCount++;
-                    percent = tempCount * 100 / total;
-                    progress?.Report(percent);
+                tempCount++;
+                progress?.Report(tempCount * 100 / total);
 
-                    Debug.Log($"LoadMultipleAssets: {tempCount} of {total} | {percent}%".Colored(Colors.Aquamarine));
-                }
-
-                return tempCount;
-            }, cancellationToken);
+                Debug.Log($"LoadMultipleAssets: {tempCount} of {total} | {tempCount * 100 / total}%".Colored(Colors.Aquamarine));
+            }
 
             return bundles;
         }
@@ -142,7 +134,7 @@ namespace Core.Services.Assets
         /// </summary>
         /// <param name="name">Asset name </param>
         /// <param name="unloadAllDependencies"> Unload all dependencies? </param>
-        public async Task UnloadAsset(string name, bool unloadAllDependencies)
+        public async UniTask UnloadAsset(string name, bool unloadAllDependencies)
         {
             await _assetBundlebundleLoader.UnloadAssetBundle(name, unloadAllDependencies);
         }

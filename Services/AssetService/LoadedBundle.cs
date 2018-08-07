@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
 using UniRx.Async;
 using UnityEngine;
 
@@ -41,7 +40,7 @@ namespace Core.Services.Assets
         /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<T> LoadAssetAsync<T>(string name, IProgress<float> progress,
+        public async UniTask<T> LoadAssetAsync<T>(string name, IProgress<float> progress,
             CancellationToken cancellationToken) where T : UnityEngine.Object
         {
 #if UNITY_EDITOR
@@ -65,7 +64,7 @@ namespace Core.Services.Assets
         /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        private async Task<T> GetAssetComponentAsync<T>(AssetBundleRequest asyncOperation, IProgress<float> progress,
+        private async UniTask<T> GetAssetComponentAsync<T>(AssetBundleRequest asyncOperation, IProgress<float> progress,
             CancellationToken cancellationToken) where T : UnityEngine.Object
         {
             while (!asyncOperation.isDone)

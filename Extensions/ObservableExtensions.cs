@@ -36,8 +36,7 @@ public static class ObservableExtensions
     /// <returns></returns>
     public static IObservable<Unit> TaskToObservable(this Task task)
     {
-        return Observable.Create<Unit>(
-            (observer) =>
+        return Observable.Create<Unit>(observer =>
             {
                 task.Run(_ =>
                 {
@@ -58,8 +57,7 @@ public static class ObservableExtensions
     /// <returns></returns>
     public static IObservable<T> TaskToObservable<T>(this Task<T> task) where T : UnityEngine.Object
     {
-        return Observable.Create<T>(
-            (observer) =>
+        return Observable.Create<T>(observer =>
             {
                 task.Run(x =>
                 {

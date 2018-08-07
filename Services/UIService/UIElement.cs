@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Core.Services.Audio;
 using UniRx;
+using UniRx.Async;
 using UnityEngine;
 using Zenject;
 
@@ -58,7 +58,7 @@ namespace Core.Services.UI
         /// Shows the UI Element and performs any transition 
         /// </summary>
         /// <returns></returns>
-        public virtual async Task Show()
+        public virtual async UniTask Show()
         {
             if (inTransition.transitionSound)
                 AudioService.PlayClip(inTransition.transitionSound);
@@ -73,7 +73,7 @@ namespace Core.Services.UI
         /// Hides the UI Element after playing the out transition. 
         /// </summary>
         /// <returns></returns>
-        public virtual async Task Hide(bool isClose = false)
+        public virtual async UniTask Hide(bool isClose = false)
         {
             if (outTransition.transitionSound)
                 AudioService.PlayClip(outTransition.transitionSound);
@@ -88,10 +88,10 @@ namespace Core.Services.UI
         /// Close window and tells iservice to destroy the uielement and unload the asset 
         /// </summary>
         /// <returns> Observable </returns>
-        public virtual async Task Close()
+        public virtual async UniTask Close()
         {
             await Hide(true);
-            
+
             _onClosed.OnNext(this);
             _onClosed.OnCompleted();
         }

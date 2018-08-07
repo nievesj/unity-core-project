@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
 using Core.Services.Assets;
 using Core.Services.UI;
 using UniRx.Async;
@@ -36,7 +35,7 @@ namespace Core.Services.Scenes
         /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<UnityEngine.Object> LoadScene(string scene, LoadSceneMode mode = LoadSceneMode.Single,
+        public async UniTask<UnityEngine.Object> LoadScene(string scene, LoadSceneMode mode = LoadSceneMode.Single,
             bool forceLoadFromStreamingAssets = false, IProgress<float> progress = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -52,7 +51,7 @@ namespace Core.Services.Scenes
         /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        private async Task<UnityEngine.Object> GetScene(string scene, LoadSceneMode mode,
+        private async UniTask<UnityEngine.Object> GetScene(string scene, LoadSceneMode mode,
             bool forceLoadFromStreamingAssets, IProgress<float> progress,
             CancellationToken cancellationToken)
         {
@@ -78,7 +77,7 @@ namespace Core.Services.Scenes
         /// </summary>
         /// <param name="scene"></param>
         /// <returns></returns>
-        public async Task UnLoadScene(string scene)
+        public async UniTask UnLoadScene(string scene)
         {
             await SceneManager.UnloadSceneAsync(scene);
 

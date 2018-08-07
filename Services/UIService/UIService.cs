@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using Core.Services.Assets;
 using Core.Services.Factory;
 using UniRx;
@@ -21,7 +20,7 @@ namespace Core.Services.UI
         Widget,
         ScreenBlocker
     }
-    
+
     public class UIService : Service
     {
         [Inject]
@@ -39,7 +38,7 @@ namespace Core.Services.UI
         private readonly Dictionary<UIType, RectTransform> _renderPriorityCanvas;
 
         private readonly Dictionary<string, UIElement> _activeUIElements;
-        
+
         private readonly Subject<bool> _onGamePaused = new Subject<bool>();
 
         public UIService(ServiceConfiguration config)
@@ -59,8 +58,8 @@ namespace Core.Services.UI
                 var canvas = _factoryService.Instantiate(_configuration.MainCanvas);
 
                 _mainCanvas = canvas.GetComponent<RectTransform>();
-                _uiScreenBlocker = _factoryService.Instantiate(_configuration.UIScreenBlocker,_mainCanvas.transform);
-                
+                _uiScreenBlocker = _factoryService.Instantiate(_configuration.UIScreenBlocker, _mainCanvas.transform);
+
                 UnityEngine.Object.DontDestroyOnLoad(_mainCanvas);
 
                 var canvasElem = canvas.GetComponent<Canvas>();
@@ -82,7 +81,7 @@ namespace Core.Services.UI
         /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <returns> Observable </returns>
-        public async Task<UIElement> OpenUI(string window, bool forceLoadFromStreamingAssets = false,
+        public async UniTask<UIElement> OpenUI(string window, bool forceLoadFromStreamingAssets = false,
             IProgress<float> progress = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return await OpenUI<UIElement>(window, forceLoadFromStreamingAssets, progress, cancellationToken);
@@ -96,7 +95,7 @@ namespace Core.Services.UI
         /// <param name="cancellationToken"></param>
         /// <param name="forceLoadFromStreamingAssets"></param>
         /// <returns> Observable </returns>
-        public async Task<T> OpenUI<T>(string window, bool forceLoadFromStreamingAssets = false, IProgress<float> progress = null,
+        public async UniTask<T> OpenUI<T>(string window, bool forceLoadFromStreamingAssets = false, IProgress<float> progress = null,
             CancellationToken cancellationToken = default(CancellationToken)) where T : UIElement
         {
             var screen = await _assetService.LoadAsset<UIElement>(AssetCategoryRoot.UI, window, forceLoadFromStreamingAssets, progress, cancellationToken);
@@ -106,12 +105,12 @@ namespace Core.Services.UI
             return await OpenUI<T>(screen, progress, cancellationToken);
         }
 
-        public async Task<T> OpenUI<T>(UIElement window, IProgress<float> progress = null,
+        public async UniTask<T> OpenUI<T>(UIElement window, IProgress<float> progress = null,
             CancellationToken cancellationToken = default(CancellationToken)) where T : UIElement
         {
-            if(cancellationToken.IsCancellationRequested)
+            if (cancellationToken.IsCancellationRequested)
                 return null;
-                        
+
             var obj = _factoryService.Instantiate(window, DetermineRenderPriorityCanvas(window.UIType));
             obj.name = window.name;
 
@@ -119,8 +118,8 @@ namespace Core.Services.UI
 
             if (!_activeUIElements.ContainsKey(obj.name))
                 _activeUIElements.Add(obj.name, obj);
-            
-            if(obj.PauseGameWhenOpen)
+
+            if (obj.PauseGameWhenOpen)
                 PauseResume(true);
 
             Debug.Log($"UI Service: Loaded window - {obj.name}".Colored(Colors.LightBlue));
@@ -201,7 +200,7 @@ namespace Core.Services.UI
             return null;
         }
 
-        public async Task BlockScreen(bool block)
+        public async UniTask BlockScreen(bool block)
         {
             await _uiScreenBlocker.BlockScreen(block);
         }
@@ -216,7 +215,7 @@ namespace Core.Services.UI
             _onGamePaused.OnNext(isPause);
         }
 
-        private async Task UIElementClosed(UIElement window)
+        private async UniTask UIElementClosed(UIElement window)
         {
             Debug.Log(("UI Service: Closed window - " + window.name).Colored(Colors.LightBlue));
 
@@ -226,7 +225,7 @@ namespace Core.Services.UI
 
             if (window.PauseGameWhenOpen)
                 PauseResume(false);
-            
+
             UnityEngine.Object.Destroy(window.gameObject);
         }
     }

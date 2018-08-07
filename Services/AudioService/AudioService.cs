@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
 using Core.Services.Data;
 using Core.Services.Factory;
 using UniRx.Async;
@@ -107,7 +106,7 @@ namespace Core.Services.Audio
         {
             FadeMusicIn(clip, mixerGroup);
         }
-        
+
         private void Play(AudioPlayer ap, AudioMixerGroup mixerGroup = null)
         {
             if (_pooler != null && (!ap.Player || !ap.Player.gameObject.activeSelf))
@@ -129,7 +128,7 @@ namespace Core.Services.Audio
                 ap.Player.Play();
             }
         }
-        
+
         public void StopMusic()
         {
             FadeMusicOut();
@@ -149,7 +148,7 @@ namespace Core.Services.Audio
             ap.Player = null;
         }
 
-        private async Task FadeMusicIn(AudioClip clip, AudioMixerGroup mixerGroup = null)
+        private async UniTask FadeMusicIn(AudioClip clip, AudioMixerGroup mixerGroup = null)
         {
             var volume = 0f;
             var audioPlayer = new AudioPlayer(clip) {Player = _pooler.PopResize()};
@@ -176,7 +175,7 @@ namespace Core.Services.Audio
             }
         }
 
-        private async Task FadeMusicOut()
+        private async UniTask FadeMusicOut()
         {
             var volume = _musicVolume;
 
@@ -201,7 +200,7 @@ namespace Core.Services.Audio
             }
         }
 
-        private async Task WaitUntilDonePlaying(AudioPlayer ap)
+        private async UniTask WaitUntilDonePlaying(AudioPlayer ap)
         {
             CustomYieldInstruction wait = new WaitUntil(() => ap.Player.clip.loadState == AudioDataLoadState.Loaded);
             await wait;
@@ -215,14 +214,14 @@ namespace Core.Services.Audio
             PushAudioSource(ap);
         }
 
-        private async Task GetPreferences()
+        private async UniTask GetPreferences()
         {
             if (_persistentData == null) return;
-            
+
             var preferences = await _persistentData.Load<UserPreferences>();
             if (preferences.Equals(default(UserPreferences)))
             {
-                Debug.Log(("AudioService: No UserPreferences set. Creating default.").Colored(Colors.Magenta));
+                Debug.Log("AudioService: No UserPreferences set. Creating default.".Colored(Colors.Magenta));
                 SaveInitialPreferences();
             }
             else
@@ -232,7 +231,7 @@ namespace Core.Services.Audio
             }
         }
 
-        private async Task SaveInitialPreferences()
+        private async UniTask SaveInitialPreferences()
         {
             var pref = new UserPreferences
             {

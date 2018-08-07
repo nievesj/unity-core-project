@@ -2,7 +2,10 @@
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
+using ModestTree;
+using UniRx.Async;
 using UnityEngine;
+using Assert = UnityEngine.Assertions.Assert;
 
 namespace Core.Services.Data
 {
@@ -41,7 +44,7 @@ namespace Core.Services.Data
         /// <param name="data"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public async Task Save<T>(T data) where T : IStorable
+        public async UniTask Save<T>(T data) where T : IStorable
         {
             await Task.Run(() =>
             {
@@ -73,7 +76,7 @@ namespace Core.Services.Data
             });
         }
 
-        public async Task<T> Load<T>() where T : IStorable
+        public async UniTask<T> Load<T>() where T : IStorable
         {
             return await Load<T>(typeof(T).Name);
         }
@@ -84,7 +87,7 @@ namespace Core.Services.Data
         /// <param name="filename"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public async Task<T> Load<T>(string filename) where T : IStorable
+        public async UniTask<T> Load<T>(string filename) where T : IStorable
         {
             return await Task.Run(() =>
             {

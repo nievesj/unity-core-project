@@ -5,7 +5,7 @@ using UniRx.Async;
 public static class UnityTaskExtensions
 {
     /// <summary>
-    /// Runs a task on main thread and calls onComplete when done.
+    /// Runs a Task on main thread and calls onComplete when done.
     /// </summary>
     /// <param name="task"></param>
     /// <param name="onComplete"></param>
@@ -21,7 +21,7 @@ public static class UnityTaskExtensions
     }
 
     /// <summary>
-    /// Runs a task on main thread and calls onComplete when done.
+    /// Runs a Task on main thread and calls onComplete when done.
     /// </summary>
     /// <param name="task"></param>
     /// <param name="onComplete"></param>
@@ -42,7 +42,7 @@ public static class UnityTaskExtensions
     /// <param name="onComplete"></param>
     public static void Run(this UniTask task, Action<object> onComplete = null)
     {
-        var taskRunner = new TaskRunner(task, onComplete);
+        TaskRunner.RunTask(task, onComplete);
     }
 
     /// <summary>
@@ -53,17 +53,12 @@ public static class UnityTaskExtensions
     /// <typeparam name="T"></typeparam>
     public static void Run<T>(this UniTask<T> task, Action<T> onComplete = null)
     {
-        var taskRunner = new TaskRunner<T>(task, onComplete);
+        TaskRunner<T>.RunTask(task, onComplete);
     }
 
     private struct TaskRunner
     {
-        public TaskRunner(UniTask task, Action<object> onComplete)
-        {
-            RunTask(task, onComplete);
-        }
-
-        private async UniTask RunTask(UniTask task, Action<object> onComplete)
+        public static async UniTask RunTask(UniTask task, Action<object> onComplete)
         {
             await task;
             onComplete?.Invoke(null);
@@ -72,12 +67,7 @@ public static class UnityTaskExtensions
 
     private struct TaskRunner<T>
     {
-        public TaskRunner(UniTask<T> task, Action<T> onComplete)
-        {
-            RunTask(task, onComplete);
-        }
-
-        private async UniTask RunTask(UniTask<T> task, Action<T> onComplete)
+        public static async UniTask RunTask(UniTask<T> task, Action<T> onComplete)
         {
             var result = await task;
             onComplete?.Invoke(result);
