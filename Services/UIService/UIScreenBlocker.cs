@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using DG.Tweening;
+﻿using DG.Tweening;
+using UniRx.Async;
 using UnityEngine.UI;
 
 namespace Core.Services.UI
@@ -23,7 +23,7 @@ namespace Core.Services.UI
             _image.raycastTarget = false;
         }
 
-        public async Task BlockScreen(bool isblock)
+        public async UniTask BlockScreen(bool isblock)
         {
             IsBlockingScreen = isblock;
             if (isblock)

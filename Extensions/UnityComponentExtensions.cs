@@ -22,6 +22,16 @@ public static class UnityComponentExtensions
     }
 
     /// <summary>
+    /// Same as GameObject.SetActive(), but applied from a component
+    /// </summary>
+    /// <param name="component"></param>
+    /// <param name="isActive"></param>
+    public static void SetActive(this Component component, bool isActive)
+    {
+        component.gameObject.SetActive(isActive);
+    }
+
+    /// <summary>
     /// Add a child to the gameobject. Same as SetParent on other.
     /// </summary>
     /// <param name="gameObject"></param>

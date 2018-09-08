@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using UniRx.Async;
+﻿using UniRx.Async;
 using UnityEngine;
 
 namespace Core.Services.Assets
@@ -30,7 +29,7 @@ namespace Core.Services.Assets
         /// Loads UnityCloudBuildManifest into a structure the rest of the system can use,
         /// </summary>
         /// <returns></returns>
-        public static async Task<UnityCloudBuildManifest> LoadBuildManifest()
+        public static async UniTask<UnityCloudBuildManifest> LoadBuildManifest()
         {
             var res = await Resources.LoadAsync(Constants.UnityBuildManifest);
             UnityCloudBuildManifest manifest = null;

@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using DG.Tweening;
+﻿using DG.Tweening;
 using UniRx.Async;
 using UnityEngine;
 using UnityEngine.UI;
@@ -27,7 +26,7 @@ namespace Core.Services.UI
 
         private bool _transitionCompleted = false;
 
-        public async Task PlayTransition(UIElement uiElement, bool isOutTransition = false)
+        public async UniTask PlayTransition(UIElement uiElement, bool isOutTransition = false)
         {
             var start = Vector2.zero;
             var end = Vector2.zero;
@@ -120,7 +119,7 @@ namespace Core.Services.UI
             }
         }
 
-        private async Task Scale(RectTransform transform, Vector2 start, Vector2 end)
+        private async UniTask Scale(RectTransform transform, Vector2 start, Vector2 end)
         {
             transform.DOScale(start, 0);
             transform.DOScale(end, transitionTime)
@@ -131,7 +130,7 @@ namespace Core.Services.UI
                 await UniTask.Yield();
         }
 
-        private async Task Move(RectTransform transform, Vector2 start, Vector2 end)
+        private async UniTask Move(RectTransform transform, Vector2 start, Vector2 end)
         {
             transform.DOAnchorPos(start, 0);
             transform.DOAnchorPos(end, transitionTime)
@@ -142,7 +141,7 @@ namespace Core.Services.UI
                 await UniTask.Yield();
         }
 
-        private async Task Fade(RectTransform transform, float start, float end)
+        private async UniTask Fade(RectTransform transform, float start, float end)
         {
             var images = transform.GetComponentsInChildren<Image>();
             var completed = 0;

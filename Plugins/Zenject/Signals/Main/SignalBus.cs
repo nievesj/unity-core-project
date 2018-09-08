@@ -80,6 +80,25 @@ namespace Zenject
             GetDeclaration(signal.GetType()).Fire(signal);
         }
 
+        public void TryFire<TSignal>()
+        {
+            var declaration = GetDeclaration(typeof(TSignal), false);
+            if (declaration != null)
+            {
+                declaration.Fire(
+                    (TSignal)Activator.CreateInstance(typeof(TSignal)));
+            }
+        }
+
+        public void TryFire(object signal)
+        {
+            var declaration = GetDeclaration(signal.GetType(), false);
+            if (declaration != null)
+            {
+                declaration.Fire(signal);
+            }
+        }
+
 #if ZEN_SIGNALS_ADD_UNIRX
         public IObservable<TSignal> GetStream<TSignal>()
         {
@@ -191,7 +210,7 @@ namespace Zenject
             _subscriptionMap.Add(id, subscription);
         }
 
-        SignalDeclaration GetDeclaration(Type signalType)
+        SignalDeclaration GetDeclaration(Type signalType, bool requireDeclaration = true)
         {
             SignalDeclaration handler;
 
@@ -202,11 +221,18 @@ namespace Zenject
 
             if (_parentBus != null)
             {
-                return _parentBus.GetDeclaration(signalType);
+                return _parentBus.GetDeclaration(signalType, requireDeclaration);
             }
 
-            throw Assert.CreateException(
-                "Fired undeclared signal with type '{0}'!", signalType);
+            if (requireDeclaration)
+            {
+                throw Assert.CreateException(
+                    "Fired undeclared signal with type '{0}'!", signalType);
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }
