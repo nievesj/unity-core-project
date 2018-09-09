@@ -48,7 +48,7 @@ namespace Core.Services.Assets
             {
                 Debug.Log(("LoadAssetAsync Simulated: loading asset: " + name).Colored(Colors.Yellow));
                 var comp = _simulatedAsset.GetComponent<T>();
-                await UniTask.Yield(cancellationToken: cancellationToken);
+                await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
                 return comp;
             }
 #endif
@@ -72,7 +72,7 @@ namespace Core.Services.Assets
                 if (cancellationToken.IsCancellationRequested)
                     return null;
 
-                await UniTask.Yield(cancellationToken: cancellationToken);
+                await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
                 //Supressing this so it doesnt step over GetBundleFromStreamingAssetsAsync or GetBundleFromWebOrCacheAsync
                 //progress?.Report(asyncOperation.progress);
                 Debug.Log($"GetAssetComponentAsync {Bundle.name} progress: {asyncOperation.progress * 100f}%".Colored(Colors.LightSalmon));

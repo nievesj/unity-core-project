@@ -3,13 +3,69 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Threading;
+using UniRx.Async.Internal;
 
 namespace UniRx.Async
 {
-    public class UniTaskCompletionSource : IAwaiter
+    internal class ExceptionHolder
+    {
+        ExceptionDispatchInfo exception;
+        bool calledGet = false;
+
+        public ExceptionHolder(ExceptionDispatchInfo exception)
+        {
+            this.exception = exception;
+        }
+
+        public ExceptionDispatchInfo GetException()
+        {
+            if (!calledGet)
+            {
+                calledGet = true;
+                GC.SuppressFinalize(this);
+            }
+            return exception;
+        }
+
+        ~ExceptionHolder()
+        {
+            UniTaskScheduler.PublishUnobservedTaskException(exception.SourceException);
+        }
+    }
+
+    public interface IResolvePromise
+    {
+        bool TrySetResult();
+    }
+
+    public interface IResolvePromise<T>
+    {
+        bool TrySetResult(T value);
+    }
+
+    public interface IRejectPromise
+    {
+        bool TrySetException(Exception exception);
+    }
+
+    public interface ICancelPromise
+    {
+        bool TrySetCanceled();
+    }
+
+    public interface IPromise<T> : IResolvePromise<T>, IRejectPromise, ICancelPromise
+    {
+    }
+
+    public interface IPromise : IResolvePromise, IRejectPromise, ICancelPromise
+    {
+    }
+
+    public class UniTaskCompletionSource : IAwaiter, IPromise
     {
         // State(= AwaiterStatus)
         const int Pending = 0;
@@ -18,7 +74,8 @@ namespace UniRx.Async
         const int Canceled = 3;
 
         int state = 0;
-        ExceptionDispatchInfo exception;
+        bool handled = false;
+        ExceptionHolder exception;
         object continuation; // action or list
 
         AwaiterStatus IAwaiter.Status => (AwaiterStatus)state;
@@ -27,23 +84,41 @@ namespace UniRx.Async
 
         public UniTask Task => new UniTask(this);
 
+        public UniTaskCompletionSource()
+        {
+            TaskTracker.TrackActiveTask(this, 2);
+        }
+
+        [Conditional("UNITY_EDITOR")]
+        internal void MarkHandled()
+        {
+            if (!handled)
+            {
+                handled = true;
+                TaskTracker.RemoveTracking(this);
+            }
+        }
+
         void IAwaiter.GetResult()
         {
+            MarkHandled();
+
             if (state == Succeeded)
             {
                 return;
             }
             else if (state == Faulted)
             {
-                exception.Throw();
+                exception.GetException().Throw();
             }
             else if (state == Canceled)
             {
-                if (exception == null)
+                if (exception != null)
                 {
-                    exception = ExceptionDispatchInfo.Capture(new OperationCanceledException());
+                    exception.GetException().Throw(); // guranteed operation canceled exception.
                 }
-                exception.Throw();
+
+                throw new OperationCanceledException();
             }
             else // Pending
             {
@@ -123,7 +198,7 @@ namespace UniRx.Async
         {
             if (Interlocked.CompareExchange(ref state, Faulted, Pending) == Pending)
             {
-                this.exception = ExceptionDispatchInfo.Capture(exception);
+                this.exception = new ExceptionHolder(ExceptionDispatchInfo.Capture(exception));
                 TryInvokeContinuation();
                 return true;
             }
@@ -140,13 +215,24 @@ namespace UniRx.Async
             return false;
         }
 
+        public bool TrySetCanceled(OperationCanceledException exception)
+        {
+            if (Interlocked.CompareExchange(ref state, Canceled, Pending) == Pending)
+            {
+                this.exception = new ExceptionHolder(ExceptionDispatchInfo.Capture(exception));
+                TryInvokeContinuation();
+                return true;
+            }
+            return false;
+        }
+
         void INotifyCompletion.OnCompleted(Action continuation)
         {
             ((ICriticalNotifyCompletion)this).UnsafeOnCompleted(continuation);
         }
     }
 
-    public class UniTaskCompletionSource<T> : IAwaiter<T>
+    public class UniTaskCompletionSource<T> : IAwaiter<T>, IPromise<T>
     {
         // State(= AwaiterStatus)
         const int Pending = 0;
@@ -156,7 +242,8 @@ namespace UniRx.Async
 
         int state = 0;
         T value;
-        ExceptionDispatchInfo exception;
+        bool handled = false;
+        ExceptionHolder exception;
         object continuation; // action or list
 
         bool IAwaiter.IsCompleted => state != Pending;
@@ -166,24 +253,41 @@ namespace UniRx.Async
 
         AwaiterStatus IAwaiter.Status => (AwaiterStatus)state;
 
+        public UniTaskCompletionSource()
+        {
+            TaskTracker.TrackActiveTask(this, 2);
+        }
+
+        [Conditional("UNITY_EDITOR")]
+        internal void MarkHandled()
+        {
+            if (!handled)
+            {
+                handled = true;
+                TaskTracker.RemoveTracking(this);
+            }
+        }
+
         T IAwaiter<T>.GetResult()
         {
+            MarkHandled();
+
             if (state == Succeeded)
             {
                 return value;
             }
             else if (state == Faulted)
             {
-                exception.Throw();
+                exception.GetException().Throw();
             }
             else if (state == Canceled)
             {
-                if (exception == null)
+                if (exception != null)
                 {
-                    // lazy create to reduce cancellation cost.
-                    exception = ExceptionDispatchInfo.Capture(new OperationCanceledException());
+                    exception.GetException().Throw(); // guranteed operation canceled exception.
                 }
-                exception.Throw();
+
+                throw new OperationCanceledException();
             }
             else // Pending
             {
@@ -266,7 +370,7 @@ namespace UniRx.Async
         {
             if (Interlocked.CompareExchange(ref state, Faulted, Pending) == Pending)
             {
-                this.exception = ExceptionDispatchInfo.Capture(exception);
+                this.exception = new ExceptionHolder(ExceptionDispatchInfo.Capture(exception));
                 TryInvokeContinuation();
                 return true;
             }
@@ -277,6 +381,17 @@ namespace UniRx.Async
         {
             if (Interlocked.CompareExchange(ref state, Canceled, Pending) == Pending)
             {
+                TryInvokeContinuation();
+                return true;
+            }
+            return false;
+        }
+
+        public bool TrySetCanceled(OperationCanceledException exception)
+        {
+            if (Interlocked.CompareExchange(ref state, Canceled, Pending) == Pending)
+            {
+                this.exception = new ExceptionHolder(ExceptionDispatchInfo.Capture(exception));
                 TryInvokeContinuation();
                 return true;
             }

@@ -3,134 +3,219 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using UniRx.Async.Internal;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using UniRx.Async.Triggers;
 
 namespace UniRx.Async
 {
     public static partial class UnityAsyncExtensions
     {
-        public static AsyncUnityEventHandler GetAsyncEventHandler(this UnityEvent unityEvent)
+        public static AsyncUnityEventHandler GetAsyncEventHandler(this UnityEvent unityEvent, CancellationToken cancellationToken)
         {
-            return new AsyncUnityEventHandler(unityEvent);
+            return new AsyncUnityEventHandler(unityEvent, cancellationToken, false);
         }
 
-        public static async UniTask OnInvokeAsync(this UnityEvent unityEvent)
+        public static UniTask OnInvokeAsync(this UnityEvent unityEvent, CancellationToken cancellationToken)
         {
-            using (var handler = unityEvent.GetAsyncEventHandler())
-            {
-                await handler.OnInvokeAsync();
-            }
+            return new AsyncUnityEventHandler(unityEvent, cancellationToken, true).OnInvokeAsync();
         }
 
         public static IAsyncClickEventHandler GetAsyncClickEventHandler(this Button button)
         {
-            return new AsyncUnityEventHandler(button.onClick);
+            return new AsyncUnityEventHandler(button.onClick, button.GetCancellationTokenOnDestroy(), false);
         }
 
-        public static async UniTask OnInvokeAsync(this Button button)
+        public static IAsyncClickEventHandler GetAsyncClickEventHandler(this Button button, CancellationToken cancellationToken)
         {
-            using (var handler = button.GetAsyncClickEventHandler())
-            {
-                await handler.OnClickAsync();
-            }
+            return new AsyncUnityEventHandler(button.onClick, cancellationToken, false);
+        }
+
+        public static UniTask OnClickAsync(this Button button)
+        {
+            return new AsyncUnityEventHandler(button.onClick, button.GetCancellationTokenOnDestroy(), true).OnInvokeAsync();
+        }
+
+        public static UniTask OnClickAsync(this Button button, CancellationToken cancellationToken)
+        {
+            return new AsyncUnityEventHandler(button.onClick, cancellationToken, true).OnInvokeAsync();
         }
 
         public static IAsyncValueChangedEventHandler<bool> GetAsyncValueChangedEventHandler(this Toggle toggle)
         {
-            return new AsyncUnityEventHandler<bool>(toggle.onValueChanged);
+            return new AsyncUnityEventHandler<bool>(toggle.onValueChanged, toggle.GetCancellationTokenOnDestroy(), false);
         }
 
-        public static async UniTask<bool> OnValueChangedAsync(this Toggle toggle)
+        public static IAsyncValueChangedEventHandler<bool> GetAsyncValueChangedEventHandler(this Toggle toggle, CancellationToken cancellationToken)
         {
-            using (var handler = toggle.GetAsyncValueChangedEventHandler())
-            {
-                return await handler.OnValueChangedAsync();
-            }
+            return new AsyncUnityEventHandler<bool>(toggle.onValueChanged, cancellationToken, false);
+        }
+
+        public static UniTask<bool> OnValueChangedAsync(this Toggle toggle)
+        {
+            return new AsyncUnityEventHandler<bool>(toggle.onValueChanged, toggle.GetCancellationTokenOnDestroy(), true).OnInvokeAsync();
+        }
+
+        public static UniTask<bool> OnValueChangedAsync(this Toggle toggle, CancellationToken cancellationToken)
+        {
+            return new AsyncUnityEventHandler<bool>(toggle.onValueChanged, cancellationToken, true).OnInvokeAsync();
         }
 
         public static IAsyncValueChangedEventHandler<float> GetAsyncValueChangedEventHandler(this Scrollbar scrollbar)
         {
-            return new AsyncUnityEventHandler<float>(scrollbar.onValueChanged);
+            return new AsyncUnityEventHandler<float>(scrollbar.onValueChanged, scrollbar.GetCancellationTokenOnDestroy(), false);
         }
 
-        public static async UniTask<float> OnValueChangedAsync(this Scrollbar scrollbar)
+        public static IAsyncValueChangedEventHandler<float> GetAsyncValueChangedEventHandler(this Scrollbar scrollbar, CancellationToken cancellationToken)
         {
-            using (var handler = scrollbar.GetAsyncValueChangedEventHandler())
-            {
-                return await handler.OnValueChangedAsync();
-            }
+            return new AsyncUnityEventHandler<float>(scrollbar.onValueChanged, cancellationToken, false);
+        }
+
+        public static UniTask<float> OnValueChangedAsync(this Scrollbar scrollbar)
+        {
+            return new AsyncUnityEventHandler<float>(scrollbar.onValueChanged, scrollbar.GetCancellationTokenOnDestroy(), true).OnInvokeAsync();
+        }
+
+        public static UniTask<float> OnValueChangedAsync(this Scrollbar scrollbar, CancellationToken cancellationToken)
+        {
+            return new AsyncUnityEventHandler<float>(scrollbar.onValueChanged, cancellationToken, true).OnInvokeAsync();
         }
 
         public static IAsyncValueChangedEventHandler<Vector2> GetAsyncValueChangedEventHandler(this ScrollRect scrollRect)
         {
-            return new AsyncUnityEventHandler<Vector2>(scrollRect.onValueChanged);
+            return new AsyncUnityEventHandler<Vector2>(scrollRect.onValueChanged, scrollRect.GetCancellationTokenOnDestroy(), false);
         }
 
-        public static async UniTask<Vector2> OnValueChangedAsync(this ScrollRect scrollRect)
+        public static IAsyncValueChangedEventHandler<Vector2> GetAsyncValueChangedEventHandler(this ScrollRect scrollRect, CancellationToken cancellationToken)
         {
-            using (var handler = scrollRect.GetAsyncValueChangedEventHandler())
-            {
-                return await handler.OnValueChangedAsync();
-            }
+            return new AsyncUnityEventHandler<Vector2>(scrollRect.onValueChanged, cancellationToken, false);
+        }
+
+        public static UniTask<Vector2> OnValueChangedAsync(this ScrollRect scrollRect)
+        {
+            return new AsyncUnityEventHandler<Vector2>(scrollRect.onValueChanged, scrollRect.GetCancellationTokenOnDestroy(), true).OnInvokeAsync();
+        }
+
+        public static UniTask<Vector2> OnValueChangedAsync(this ScrollRect scrollRect, CancellationToken cancellationToken)
+        {
+            return new AsyncUnityEventHandler<Vector2>(scrollRect.onValueChanged, cancellationToken, true).OnInvokeAsync();
         }
 
         public static IAsyncValueChangedEventHandler<float> GetAsyncValueChangedEventHandler(this Slider slider)
         {
-            return new AsyncUnityEventHandler<float>(slider.onValueChanged);
+            return new AsyncUnityEventHandler<float>(slider.onValueChanged, slider.GetCancellationTokenOnDestroy(), false);
         }
 
-        public static async UniTask<float> OnValueChangedAsync(this Slider slider)
+        public static IAsyncValueChangedEventHandler<float> GetAsyncValueChangedEventHandler(this Slider slider, CancellationToken cancellationToken)
         {
-            using (var handler = slider.GetAsyncValueChangedEventHandler())
-            {
-                return await handler.OnValueChangedAsync();
-            }
+            return new AsyncUnityEventHandler<float>(slider.onValueChanged, cancellationToken, false);
+        }
+
+        public static UniTask<float> OnValueChangedAsync(this Slider slider)
+        {
+            return new AsyncUnityEventHandler<float>(slider.onValueChanged, slider.GetCancellationTokenOnDestroy(), true).OnInvokeAsync();
+        }
+
+        public static UniTask<float> OnValueChangedAsync(this Slider slider, CancellationToken cancellationToken)
+        {
+            return new AsyncUnityEventHandler<float>(slider.onValueChanged, cancellationToken, true).OnInvokeAsync();
         }
 
         public static IAsyncEndEditEventHandler<string> GetAsyncEndEditEventHandler(this InputField inputField)
         {
-            return new AsyncUnityEventHandler<string>(inputField.onEndEdit);
+            return new AsyncUnityEventHandler<string>(inputField.onEndEdit, inputField.GetCancellationTokenOnDestroy(), false);
         }
 
-        public static async UniTask<string> OnEndEditAsync(this InputField inputField)
+        public static IAsyncEndEditEventHandler<string> GetAsyncEndEditEventHandler(this InputField inputField, CancellationToken cancellationToken)
         {
-            using (var handler = inputField.GetAsyncEndEditEventHandler())
-            {
-                return await handler.OnEndEditAsync();
-            }
+            return new AsyncUnityEventHandler<string>(inputField.onEndEdit, cancellationToken, false);
+        }
+
+        public static UniTask<string> OnEndEditAsync(this InputField inputField)
+        {
+            return new AsyncUnityEventHandler<string>(inputField.onEndEdit, inputField.GetCancellationTokenOnDestroy(), true).OnInvokeAsync();
+        }
+
+        public static UniTask<string> OnEndEditAsync(this InputField inputField, CancellationToken cancellationToken)
+        {
+            return new AsyncUnityEventHandler<string>(inputField.onEndEdit, cancellationToken, true).OnInvokeAsync();
+        }
+
+        public static IAsyncValueChangedEventHandler<int> GetAsyncValueChangedEventHandler(this Dropdown dropdown)
+        {
+            return new AsyncUnityEventHandler<int>(dropdown.onValueChanged, dropdown.GetCancellationTokenOnDestroy(), false);
+        }
+
+        public static IAsyncValueChangedEventHandler<int> GetAsyncValueChangedEventHandler(this Dropdown dropdown, CancellationToken cancellationToken)
+        {
+            return new AsyncUnityEventHandler<int>(dropdown.onValueChanged, cancellationToken, false);
+        }
+
+        public static UniTask<int> OnValueChanged(this Dropdown dropdown)
+        {
+            return new AsyncUnityEventHandler<int>(dropdown.onValueChanged, dropdown.GetCancellationTokenOnDestroy(), true).OnInvokeAsync();
+        }
+
+        public static UniTask<int> OnValueChanged(this Dropdown dropdown, CancellationToken cancellationToken)
+        {
+            return new AsyncUnityEventHandler<int>(dropdown.onValueChanged, cancellationToken, true).OnInvokeAsync();
         }
     }
 
     public interface IAsyncClickEventHandler : IDisposable
     {
         UniTask OnClickAsync();
+        UniTask<bool> OnClickAsyncSuppressCancellationThrow();
     }
 
     public interface IAsyncValueChangedEventHandler<T> : IDisposable
     {
         UniTask<T> OnValueChangedAsync();
+        UniTask<(bool IsCanceled, T Result)> OnValueChangedAsyncSuppressCancellationThrow();
     }
 
     public interface IAsyncEndEditEventHandler<T> : IDisposable
     {
         UniTask<T> OnEndEditAsync();
+        UniTask<(bool IsCanceled, T Result)> OnEndEditAsyncSuppressCancellationThrow();
     }
 
-    public class AsyncUnityEventHandler : IAwaiter<AsyncUnit>, IDisposable, IAsyncClickEventHandler
+    // event handler is reusable when callOnce = false.
+    public class AsyncUnityEventHandler : IAwaiter, IDisposable, IAsyncClickEventHandler
     {
+        static Action<object> cancellationCallback = CancellationCallback;
+
         readonly UnityAction action;
         readonly UnityEvent unityEvent;
         Action continuation;
-        AwaiterStatus status;
+        CancellationTokenRegistration registration;
+        bool isDisposed;
+        bool callOnce;
+        UniTask<bool>? suppressCancellationThrowTask;
 
-        public AsyncUnityEventHandler(UnityEvent unityEvent)
+        public AsyncUnityEventHandler(UnityEvent unityEvent, CancellationToken cancellationToken, bool callOnce)
         {
+            this.callOnce = callOnce;
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                isDisposed = true;
+                return;
+            }
+
             action = Invoke;
-            status = AwaiterStatus.Pending;
             unityEvent.AddListener(action);
             this.unityEvent = unityEvent;
+
+            if (cancellationToken.CanBeCanceled)
+            {
+                registration = cancellationToken.Register(cancellationCallback, this, false);
+            }
+
+            TaskTracker.TrackActiveTask(this, 3);
         }
 
         public UniTask OnInvokeAsync()
@@ -139,39 +224,52 @@ namespace UniRx.Async
             return new UniTask(this);
         }
 
+        public UniTask<bool> OnInvokeAsyncSuppressCancellationThrow()
+        {
+            if (suppressCancellationThrowTask == null)
+            {
+                suppressCancellationThrowTask = OnInvokeAsync().SuppressCancellationThrow();
+            }
+            return suppressCancellationThrowTask.Value;
+        }
+
         void Invoke()
         {
-            status = AwaiterStatus.Succeeded;
-
             var c = continuation;
             continuation = null;
             if (c != null)
             {
                 c.Invoke();
             }
+        }
 
-            status = AwaiterStatus.Pending;
+        static void CancellationCallback(object state)
+        {
+            var self = (AsyncUnityEventHandler)state;
+            self.Dispose();
+            self.Invoke(); // call continuation if exists yet(GetResult -> throw OperationCanceledException).
         }
 
         public void Dispose()
         {
-            if (unityEvent != null)
+            if (!isDisposed)
             {
-                unityEvent.RemoveListener(action);
+                isDisposed = true;
+                TaskTracker.RemoveTracking(this);
+                registration.Dispose();
+                if (unityEvent != null)
+                {
+                    unityEvent.RemoveListener(action);
+                }
             }
         }
 
-        bool IAwaiter.IsCompleted => false;
-
-        AwaiterStatus IAwaiter.Status => status;
-
+        bool IAwaiter.IsCompleted => isDisposed ? true : false;
+        AwaiterStatus IAwaiter.Status => isDisposed ? AwaiterStatus.Canceled : AwaiterStatus.Pending;
         void IAwaiter.GetResult()
         {
-        }
-
-        public AsyncUnit GetResult()
-        {
-            return AsyncUnit.Default;
+            if (isDisposed) throw new OperationCanceledException();
+            if (callOnce) Dispose();
         }
 
         void INotifyCompletion.OnCompleted(Action action)
@@ -181,7 +279,7 @@ namespace UniRx.Async
 
         void ICriticalNotifyCompletion.UnsafeOnCompleted(Action action)
         {
-            if (continuation != null) throw new InvalidOperationException("can't add multiple continuation(await)");
+            Error.ThrowWhenContinuationIsAlreadyRegistered(this.continuation);
             this.continuation = action;
         }
 
@@ -191,22 +289,47 @@ namespace UniRx.Async
         {
             return OnInvokeAsync();
         }
+
+        UniTask<bool> IAsyncClickEventHandler.OnClickAsyncSuppressCancellationThrow()
+        {
+            return OnInvokeAsyncSuppressCancellationThrow();
+        }
     }
 
+    // event handler is reusable when callOnce = false.
     public class AsyncUnityEventHandler<T> : IAwaiter<T>, IDisposable, IAsyncValueChangedEventHandler<T>, IAsyncEndEditEventHandler<T>
     {
+        static Action<object> cancellationCallback = CancellationCallback;
+
         readonly UnityAction<T> action;
         readonly UnityEvent<T> unityEvent;
         Action continuation;
+        CancellationTokenRegistration registration;
+        bool isDisposed;
         T eventValue;
-        AwaiterStatus status;
+        bool callOnce;
+        UniTask<(bool, T)>? suppressCancellationThrowTask;
 
-        public AsyncUnityEventHandler(UnityEvent<T> unityEvent)
+        public AsyncUnityEventHandler(UnityEvent<T> unityEvent, CancellationToken cancellationToken, bool callOnce)
         {
+            this.callOnce = callOnce;
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                isDisposed = true;
+                return;
+            }
+
             action = Invoke;
-            status = AwaiterStatus.Pending;
             unityEvent.AddListener(action);
             this.unityEvent = unityEvent;
+
+            if (cancellationToken.CanBeCanceled)
+            {
+                registration = cancellationToken.Register(cancellationCallback, this, false);
+            }
+
+            TaskTracker.TrackActiveTask(this, 3);
         }
 
         public UniTask<T> OnInvokeAsync()
@@ -215,10 +338,18 @@ namespace UniRx.Async
             return new UniTask<T>(this);
         }
 
+        public UniTask<(bool IsCanceled, T Result)> OnInvokeAsyncSuppressCancellationThrow()
+        {
+            if (suppressCancellationThrowTask == null)
+            {
+                suppressCancellationThrowTask = OnInvokeAsync().SuppressCancellationThrow();
+            }
+            return suppressCancellationThrowTask.Value;
+        }
+
         void Invoke(T value)
         {
             this.eventValue = value;
-            status = AwaiterStatus.Succeeded;
 
             var c = continuation;
             continuation = null;
@@ -226,28 +357,43 @@ namespace UniRx.Async
             {
                 c.Invoke();
             }
+        }
 
-            status = AwaiterStatus.Pending;
+        static void CancellationCallback(object state)
+        {
+            var self = (AsyncUnityEventHandler<T>)state;
+            self.Dispose();
+            self.Invoke(default(T)); // call continuation if exists yet(GetResult -> throw OperationCanceledException).
         }
 
         public void Dispose()
         {
-            if (unityEvent != null)
+            if (!isDisposed)
             {
-                unityEvent.RemoveListener(action);
+                isDisposed = true;
+                TaskTracker.RemoveTracking(this);
+                registration.Dispose();
+                if (unityEvent != null)
+                {
+                    unityEvent.RemoveListener(action);
+                }
             }
         }
 
-        bool IAwaiter.IsCompleted => false;
-        AwaiterStatus IAwaiter.Status => status;
+        bool IAwaiter.IsCompleted => isDisposed ? true : false;
+        AwaiterStatus IAwaiter.Status => isDisposed ? AwaiterStatus.Canceled : AwaiterStatus.Pending;
 
         T IAwaiter<T>.GetResult()
         {
+            if (isDisposed) throw new OperationCanceledException();
+            if (callOnce) Dispose();
             return eventValue;
         }
 
         void IAwaiter.GetResult()
         {
+            if (isDisposed) throw new OperationCanceledException();
+            if (callOnce) Dispose();
         }
 
         void INotifyCompletion.OnCompleted(Action action)
@@ -257,8 +403,8 @@ namespace UniRx.Async
 
         void ICriticalNotifyCompletion.UnsafeOnCompleted(Action action)
         {
-            if (continuation != null) throw new InvalidOperationException("can't add multiple continuation(await)");
-            continuation = action;
+            Error.ThrowWhenContinuationIsAlreadyRegistered(this.continuation);
+            this.continuation = action;
         }
 
         // Interface events.
@@ -268,9 +414,19 @@ namespace UniRx.Async
             return OnInvokeAsync();
         }
 
+        UniTask<(bool IsCanceled, T Result)> IAsyncValueChangedEventHandler<T>.OnValueChangedAsyncSuppressCancellationThrow()
+        {
+            return OnInvokeAsyncSuppressCancellationThrow();
+        }
+
         UniTask<T> IAsyncEndEditEventHandler<T>.OnEndEditAsync()
         {
             return OnInvokeAsync();
+        }
+
+        UniTask<(bool IsCanceled, T Result)> IAsyncEndEditEventHandler<T>.OnEndEditAsyncSuppressCancellationThrow()
+        {
+            return OnInvokeAsyncSuppressCancellationThrow();
         }
     }
 }

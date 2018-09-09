@@ -123,7 +123,7 @@ namespace Core.Services.UI
                 PauseResume(true);
 
             Debug.Log($"UI Service: Loaded window - {obj.name}".Colored(Colors.LightBlue));
-            await UniTask.Yield(cancellationToken: cancellationToken);
+            await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
             return obj as T;
         }
 

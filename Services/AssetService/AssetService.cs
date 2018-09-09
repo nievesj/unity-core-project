@@ -115,7 +115,7 @@ namespace Core.Services.Assets
                 if (cancellationToken.IsCancellationRequested)
                     return null;
 
-                await UniTask.Yield(cancellationToken: cancellationToken);
+                await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
 
                 var bundle = await _assetBundlebundleLoader.LoadBundle(request, forceLoadFromStreamingAssets, cancellationToken: cancellationToken);
                 bundles.Add(request.BundleName, bundle);

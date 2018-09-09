@@ -158,7 +158,7 @@ namespace Core.Services.Assets
                 if (cancellationToken.IsCancellationRequested)
                     return null;
 
-                await UniTask.Yield(cancellationToken: cancellationToken);
+                await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
                 progress?.Report(asyncOperation.progress);
                 Debug.Log($"GetBundleFromWebOrCacheAsync {bundleRequest.BundleName} progress: {asyncOperation.progress * 100f}%".Colored(Colors.LightSalmon));
             }
@@ -192,7 +192,7 @@ namespace Core.Services.Assets
                 if (cancellationToken.IsCancellationRequested)
                     return null;
 
-                await UniTask.Yield(cancellationToken: cancellationToken);
+                await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
                 progress?.Report(asyncOperation.progress);
                 Debug.Log($"GetBundleFromStreamingAssetsAsync {bundleRequest.BundleName} progress: {asyncOperation.progress * 100f}%".Colored(Colors.LightSalmon));
             }
