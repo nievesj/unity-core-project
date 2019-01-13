@@ -1,23 +1,23 @@
 using System;
-using ModestTree;
+using System.Diagnostics;
 
 namespace Zenject
 {
-    [System.Diagnostics.DebuggerStepThrough]
+    [DebuggerStepThrough]
     public struct SignalSubscriptionId : IEquatable<SignalSubscriptionId>
     {
-        Type _signalType;
+        BindingId _signalId;
         object _callback;
 
-        public SignalSubscriptionId(Type signalType, object callback)
+        public SignalSubscriptionId(BindingId signalId, object callback)
         {
-            _signalType = signalType;
+            _signalId = signalId;
             _callback = callback;
         }
 
-        public Type SignalType
+        public BindingId SignalId
         {
-            get { return _signalType; }
+            get { return _signalId; }
         }
 
         public object Callback
@@ -30,7 +30,7 @@ namespace Zenject
             unchecked // Overflow is fine, just wrap
             {
                 int hash = 17;
-                hash = hash * 29 + _signalType.GetHashCode();
+                hash = hash * 29 + _signalId.GetHashCode();
                 hash = hash * 29 + _callback.GetHashCode();
                 return hash;
             }
@@ -40,18 +40,16 @@ namespace Zenject
         {
             if (that is SignalSubscriptionId)
             {
-                return this.Equals((SignalSubscriptionId)that);
+                return Equals((SignalSubscriptionId)that);
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public bool Equals(SignalSubscriptionId that)
         {
-            return object.Equals(this.SignalType, that.SignalType)
-                && object.Equals(this.Callback, that.Callback);
+            return Equals(_signalId, that._signalId)
+                && Equals(Callback, that.Callback);
         }
 
         public static bool operator == (SignalSubscriptionId left, SignalSubscriptionId right)

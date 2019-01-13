@@ -3,11 +3,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Zenject.Internal;
 using ModestTree;
 using UnityEngine;
 
 namespace Zenject
 {
+    [NoReflectionBaking]
     public class PrefabInstantiator : IPrefabInstantiator
     {
         readonly IPrefabProvider _prefabProvider;
@@ -21,12 +23,12 @@ namespace Zenject
             DiContainer container,
             GameObjectCreationParameters gameObjectBindInfo,
             Type argumentTarget,
-            List<TypeValuePair> extraArguments,
+            IEnumerable<TypeValuePair> extraArguments,
             IPrefabProvider prefabProvider,
             Action<InjectContext, object> instantiateCallback)
         {
             _prefabProvider = prefabProvider;
-            _extraArguments = extraArguments;
+            _extraArguments = extraArguments.ToList();
             _container = container;
             _gameObjectBindInfo = gameObjectBindInfo;
             _argumentTarget = argumentTarget;
@@ -63,7 +65,10 @@ namespace Zenject
 
             injectAction = () =>
             {
-                var allArgs = _extraArguments.Concat(args).ToList();
+                var allArgs = ZenPools.SpawnList<TypeValuePair>();
+
+                allArgs.AllocFreeAddRange(_extraArguments);
+                allArgs.AllocFreeAddRange(args);
 
                 if (_argumentTarget == null)
                 {
@@ -80,20 +85,22 @@ namespace Zenject
                 }
                 else
                 {
-                    var injectArgs = new InjectArgs()
-                    {
-                        ExtraArgs = allArgs,
-                        Context = context,
-                        ConcreteIdentifier = null
-                    };
-
                     targetComponent = _container.InjectGameObjectForComponentExplicit(
-                        gameObject, _argumentTarget, injectArgs);
+                        gameObject, _argumentTarget, allArgs, context, null);
+
+                    Assert.That(allArgs.Count == 0);
                 }
 
-                if (shouldMakeActive)
+                ZenPools.DespawnList<TypeValuePair>(allArgs);
+
+                if (shouldMakeActive && !_container.IsValidating)
                 {
-                    gameObject.SetActive(true);
+#if ZEN_INTERNAL_PROFILING
+                    using (ProfileTimers.CreateTimedBlock("User Code"))
+#endif
+                    {
+                        gameObject.SetActive(true);
+                    }
                 }
 
                 if (_instantiateCallback != null && _argumentTarget != null)

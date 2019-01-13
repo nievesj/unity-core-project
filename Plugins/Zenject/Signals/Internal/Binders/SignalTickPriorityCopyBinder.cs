@@ -1,8 +1,6 @@
-using System.Collections.Generic;
-using ModestTree;
-
 namespace Zenject
 {
+    [NoReflectionBaking]
     public class SignalTickPriorityCopyBinder : SignalCopyBinder
     {
         public SignalTickPriorityCopyBinder(

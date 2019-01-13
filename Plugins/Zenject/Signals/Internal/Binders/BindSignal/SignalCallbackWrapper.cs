@@ -1,5 +1,4 @@
 using System;
-using ModestTree;
 
 namespace Zenject
 {
@@ -11,17 +10,19 @@ namespace Zenject
         readonly SignalBus _signalBus;
         readonly Action<object> _action;
         readonly Type _signalType;
+        readonly object _identifier;
 
         public SignalCallbackWrapper(
-            Type signalType,
+            SignalBindingBindInfo bindInfo,
             Action<object> action,
             SignalBus signalBus)
         {
-            _signalType = signalType;
+            _signalType = bindInfo.SignalType;
+            _identifier = bindInfo.Identifier;
             _signalBus = signalBus;
             _action = action;
 
-            signalBus.Subscribe(signalType, OnSignalFired);
+            signalBus.Subscribe(bindInfo.SignalType, OnSignalFired, _identifier);
         }
 
         void OnSignalFired(object signal)
@@ -31,7 +32,7 @@ namespace Zenject
 
         public void Dispose()
         {
-            _signalBus.Unsubscribe(_signalType, OnSignalFired);
+            _signalBus.Unsubscribe(_signalType, OnSignalFired, _identifier);
         }
     }
 }

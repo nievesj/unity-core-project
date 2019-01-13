@@ -1,13 +1,18 @@
 using System;
-using ModestTree;
 
 namespace Zenject
 {
+    [NoReflectionBaking]
     public class SignalDeclarationBindInfo
     {
         public SignalDeclarationBindInfo(Type signalType)
         {
             SignalType = signalType;
+        }
+
+        public object Identifier
+        {
+            get; set;
         }
 
         public Type SignalType

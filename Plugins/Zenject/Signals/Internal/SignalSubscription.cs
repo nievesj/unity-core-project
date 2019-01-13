@@ -10,7 +10,7 @@ namespace Zenject
 
         Action<object> _callback;
         SignalDeclaration _declaration;
-        Type _signalType;
+        BindingId _signalId;
 
         public SignalSubscription(Pool pool)
         {
@@ -19,9 +19,9 @@ namespace Zenject
             SetDefaults();
         }
 
-        public Type SignalType
+        public BindingId SignalId
         {
-            get { return _signalType; }
+            get { return _signalId; }
         }
 
         public void OnSpawned(
@@ -31,7 +31,7 @@ namespace Zenject
             _callback = callback;
             _declaration = declaration;
             // Cache this in case OnDeclarationDespawned is called
-            _signalType = declaration.SignalType;
+            _signalId = declaration.BindingId;
 
             declaration.Add(this);
         }
@@ -50,7 +50,7 @@ namespace Zenject
         {
             _callback = null;
             _declaration = null;
-            _signalType = null;
+            _signalId = new BindingId();
         }
 
         public void Dispose()
