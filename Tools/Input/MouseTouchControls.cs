@@ -240,7 +240,6 @@ namespace Core.Services.Input
         protected Vector3 GetPointerLocationWorldPosition(Vector3 pos)
         {
             return MainCamera.ScreenToWorldPoint(pos);
-            ;
         }
 
         /// <summary>
@@ -275,8 +274,7 @@ namespace Core.Services.Input
         }
 
         /// <summary>
-        /// Platform independent ScreenPointToRay Uses current mouse or touch position to calculate
-        /// the ray
+        /// Platform independent ScreenPointToRay Uses current mouse or touch position to calculate ray
         /// </summary>
         /// <returns></returns>
         protected Ray ScreenPointToRay()
