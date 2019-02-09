@@ -11,7 +11,7 @@ namespace Core.Services
         [Inject]
         private SignalBus _signalBus;
 
-        protected override void Awake()
+        private void Awake()
         {
             //Make this object persistent
             DontDestroyOnLoad(gameObject);

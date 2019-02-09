@@ -27,18 +27,14 @@ namespace Core.Services.Levels
         [SerializeField]
         protected AudioMixerGroup AudioMixer;
 
-        protected override void Awake()
+        protected virtual void Awake()
         {
-            base.Awake();
             Debug.Log(("Level: " + name + " loaded").Colored(Colors.LightBlue));
-
             LevelState = LevelState.Loaded;
         }
 
-        protected override void Start()
+        protected virtual void Start()
         {
-            base.Start();
-
             Debug.Log(("Level: " + name + " started").Colored(Colors.LightBlue));
 
             LevelState = LevelState.Started;

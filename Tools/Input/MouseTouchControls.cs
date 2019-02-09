@@ -62,10 +62,8 @@ namespace Core.Services.Input
 
         protected abstract void OnMobilePinch(Touch touch0, Touch touch1);
 
-        protected override void Awake()
+        protected virtual void Awake()
         {
-            base.Awake();
-
             MainCamera = Camera.main;
         }
 

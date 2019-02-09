@@ -31,10 +31,6 @@ namespace Core.Services
 
         private readonly Subject<CoreBehaviour> _onDestroyed = new Subject<CoreBehaviour>();
 
-        protected virtual void Awake() { }
-
-        protected virtual void Start() { }
-
         /// <summary>
         /// Triggered when the object is destroyed
         /// </summary>

@@ -42,10 +42,10 @@ namespace Core.Services.UI
         /// </summary>
         protected abstract void OnElementHide();
 
-        protected override void Start()
-        {
-            base.Start();
+        protected virtual void Awake() { }
 
+        protected virtual void Start()
+        {
             Show().Run();
         }
 
