@@ -114,6 +114,24 @@ public static class UnityComponentExtensions
         return useLocalPosition ? Vector3.Distance(from.transform.localPosition, to.transform.localPosition) : 
             Vector3.Distance(from.transform.position, to.transform.position);
     }
+    
+    /// <summary>
+    /// Distance between two objects. Same as Vector3.Distance
+    /// </summary>
+    /// <param name="from"></param>
+    /// <param name="to"></param>
+    /// <param name="useLocalPosition"></param>
+    /// <returns></returns>
+    public static float Distance(this Component from, Vector3 to, bool useLocalPosition = false)
+    {
+        return useLocalPosition ? Vector3.Distance(from.transform.localPosition, to) : 
+            Vector3.Distance(from.transform.position, to);
+    }
+
+    public static Vector3 Position(this Component comp, bool useLocalPosition = false)
+    {
+        return useLocalPosition ? comp.transform.localPosition : comp.transform.position;
+    }
 
     /// <summary>
     /// Distance between two objects 2D. Same as Vector2.Distance.
@@ -127,4 +145,23 @@ public static class UnityComponentExtensions
         return useLocalPosition ? Vector2.Distance(from.transform.localPosition, to.transform.localPosition) : 
             Vector2.Distance(from.transform.position, to.transform.position);
     }
+    
+    /// <summary>
+    /// Distance between two objects 2D. Same as Vector2.Distance.
+    /// </summary>
+    /// <param name="from"></param>
+    /// <param name="to"></param>
+    /// <param name="useLocalPosition"></param>
+    /// <returns></returns>
+    public static float Distance2D(this Component from, Vector2 to, bool useLocalPosition = false)
+    {
+        return useLocalPosition ? Vector2.Distance(from.transform.localPosition, to) : 
+            Vector2.Distance(from.transform.position, to);
+    }
+    
+    public static Vector3 Position2D(this Component comp, bool useLocalPosition = false)
+    {
+        return useLocalPosition ? comp.transform.localPosition : comp.transform.position;
+    }
+    
 }
