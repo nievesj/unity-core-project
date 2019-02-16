@@ -12,12 +12,14 @@ namespace Core.Services
         private SignalBus _signalBus;
 
         protected virtual void Awake()
-        {
-            //Make this object persistent
-            // DontDestroyOnLoad(gameObject);
-            
-            //Trigger OnGameStartedSignal
+        {      
+            //Listen to game lifetime events
             _signalBus.Subscribe<OnGameStartedSignal>(OnGameStart);
+            _signalBus.Subscribe<OnGamePaused>(OnGamePausedInternal);
+            _signalBus.Subscribe<OnGameResumed>(OnGameResumedInternal);
+            _signalBus.Subscribe<OnGameLostFocus>(OnGameLostFocusInternal);
+            _signalBus.Subscribe<OnGameGotFocus>(OnGameGotFocusInternal);
+            _signalBus.Subscribe<OnGameQuit>(OnGameQuitInternal);
         }
 
         /// <summary>
@@ -27,5 +29,34 @@ namespace Core.Services
         {
             Debug.Log("Game Started".Colored(Colors.Lime));
         }
+
+        private void OnGamePausedInternal()
+        {
+            OnGamePaused(true);
+        }
+
+        private void OnGameResumedInternal()
+        {
+            OnGamePaused(false);
+        }
+        
+        private void OnGameLostFocusInternal()
+        {
+            OnGameFocusChange(false);
+        }
+        
+        private void OnGameGotFocusInternal()
+        {
+            OnGameFocusChange(true);
+        }
+        
+        private void OnGameQuitInternal()
+        {
+            OnGameQuit();
+        }
+
+        protected abstract void OnGamePaused(bool isPaused);
+        protected abstract void OnGameFocusChange(bool hasFocus);
+        protected abstract void OnGameQuit();
     }
 }
