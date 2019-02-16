@@ -14,7 +14,7 @@ namespace Core.Services
         protected virtual void Awake()
         {
             //Make this object persistent
-            DontDestroyOnLoad(gameObject);
+            // DontDestroyOnLoad(gameObject);
             
             //Trigger OnGameStartedSignal
             _signalBus.Subscribe<OnGameStartedSignal>(OnGameStart);

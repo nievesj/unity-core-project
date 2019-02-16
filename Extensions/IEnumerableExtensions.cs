@@ -16,4 +16,11 @@ public static class IEnumerableExtensions
         Random.InitState(DateTime.Now.Millisecond);
         return source.ElementAt(Random.Range(0, source.Count()));
     }
+
+    public static List<T> ToList<T>(this IEnumerable<T> arr)
+    {
+        var list = new List<T>();
+        list.AddRange(arr);
+        return list;
+    }
 }
