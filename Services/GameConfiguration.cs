@@ -30,12 +30,12 @@ namespace Core.Services
 			SignalBusInstaller.Install(Container); //This allows SignalBus to be injected in any class instantiated here, or any of its children.
 			
 			//Add Game Scoped Signals
-			Container.DeclareSignal<OnGameStartedSignal>();
-			Container.DeclareSignal<OnGamePaused>();
-			Container.DeclareSignal<OnGameResumed>();
-			Container.DeclareSignal<OnGameGotFocus>();
-			Container.DeclareSignal<OnGameLostFocus>();
-			Container.DeclareSignal<OnGameQuit>();
+			Container.DeclareSignal<OnGameStartedSignal>().OptionalSubscriber();
+			Container.DeclareSignal<OnGamePaused>().OptionalSubscriber();
+			Container.DeclareSignal<OnGameResumed>().OptionalSubscriber();
+			Container.DeclareSignal<OnGameGotFocus>().OptionalSubscriber();
+			Container.DeclareSignal<OnGameLostFocus>().OptionalSubscriber();
+			Container.DeclareSignal<OnGameQuit>().OptionalSubscriber();
 			
 			Debug.Log(("GameConfiguration: Starting Services").Colored(Colors.Lime));
 			foreach (var service in services)

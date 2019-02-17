@@ -27,6 +27,8 @@ namespace Core.Services
         /// </summary>
         protected virtual void OnGameStart()
         {
+            _signalBus.TryUnsubscribe<OnGameStartedSignal>(OnGameStart);
+
             Debug.Log("Game Started".Colored(Colors.Lime));
         }
 
@@ -52,6 +54,8 @@ namespace Core.Services
         
         private void OnGameQuitInternal()
         {
+            _signalBus.TryUnsubscribe<OnGameQuit>(OnGameStart);
+
             OnGameQuit();
         }
 
