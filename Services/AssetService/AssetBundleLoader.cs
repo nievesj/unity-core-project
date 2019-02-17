@@ -115,7 +115,10 @@ namespace Core.Services.Assets
                 return bundle.SceneAsset;
             }
 #endif
-            return bundle.Bundle.GetAllScenePaths().Length > 0 ? bundle.Bundle : null;
+            if(bundle.Bundle.GetAllScenePaths().Length == 0)
+                throw new Exception($"AssetBundleLoader: Tried to load a scene from {bundleRequest.BundleName}, and this bundle does not contains a scene.");
+                
+            return bundle.Bundle;  //.GetAllScenePaths().Length > 0 ? bundle.Bundle : null;
         }
 
         /// <summary>
