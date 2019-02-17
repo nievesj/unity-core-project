@@ -6,6 +6,7 @@ using UniRx.Async;
 using UnityEngine;
 using UnityEngine.Networking;
 using Zenject;
+using Object = UnityEngine.Object;
 #if UNITY_EDITOR
 using UnityEditor;
 
@@ -74,8 +75,18 @@ namespace Core.Services.Assets
                         }
                     }
 
-                    var asset = AssetDatabase.LoadAssetAtPath<GameObject>(theone);
-                    _loadedBundles.Add(bundleRequest.BundleName, new LoadedBundle(asset));
+                    Object asset;
+
+                    if (bundleRequest.AssetCategory == AssetCategoryRoot.Scenes)
+                    {
+                        asset = AssetDatabase.LoadAssetAtPath<Object>(theone);
+                        _loadedBundles.Add(bundleRequest.BundleName, new LoadedBundle(asset as SceneAsset));
+                    }
+                    else
+                    {
+                        asset = AssetDatabase.LoadAssetAtPath<Object>(theone);
+                        _loadedBundles.Add(bundleRequest.BundleName, new LoadedBundle(asset as GameObject));
+                    }
 
                     return _loadedBundles[bundleRequest.BundleName];
                 }
@@ -97,6 +108,13 @@ namespace Core.Services.Assets
             IProgress<float> progress = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var bundle = await LoadBundle(bundleRequest, forceLoadFromStreamingAssets, progress, cancellationToken);
+            
+#if UNITY_EDITOR
+            if (EditorPreferences.EditorprefSimulateAssetBundles)
+            {
+                return bundle.SceneAsset;
+            }
+#endif
             return bundle.Bundle.GetAllScenePaths().Length > 0 ? bundle.Bundle : null;
         }
 

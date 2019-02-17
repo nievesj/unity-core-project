@@ -41,6 +41,8 @@ namespace Core.Services.UI
 
         private readonly Subject<bool> _onGamePaused = new Subject<bool>();
 
+        public RectTransform MainUICanvas => _mainCanvas;
+
         public UIService(ServiceConfiguration config)
         {
             _configuration = config as UIServiceConfiguration;
@@ -59,8 +61,6 @@ namespace Core.Services.UI
 
                 _mainCanvas = canvas.GetComponent<RectTransform>();
                 _uiScreenBlocker = _factoryService.Instantiate(_configuration.UIScreenBlocker, _mainCanvas.transform);
-
-                // UnityEngine.Object.DontDestroyOnLoad(_mainCanvas);
 
                 var canvasElem = canvas.GetComponent<Canvas>();
 

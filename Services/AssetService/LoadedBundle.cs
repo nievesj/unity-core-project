@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using UniRx.Async;
+using UnityEditor;
 using UnityEngine;
 
 namespace Core.Services.Assets
@@ -11,7 +12,10 @@ namespace Core.Services.Assets
     public class LoadedBundle
     {
         private readonly GameObject _simulatedAsset;
+        private readonly UnityEngine.Object _simulatedAssetObject;
+
         internal AssetBundle Bundle { get; }
+        internal SceneAsset SceneAsset { get; }
 
         public LoadedBundle(AssetBundle asset)
         {
@@ -21,6 +25,11 @@ namespace Core.Services.Assets
         public LoadedBundle(GameObject asset)
         {
             _simulatedAsset = asset;
+        }
+        
+        public LoadedBundle(SceneAsset asset)
+        {
+            SceneAsset = asset;
         }
 
         /// <summary>

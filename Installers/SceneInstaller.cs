@@ -3,20 +3,15 @@ using Zenject;
 namespace Core.Services
 {
     /// <summary>
-    /// Entry point for the game.
+    /// Setup Scene
     /// </summary>
-    public class GameInstaller : MonoInstaller<GameInstaller>
+    public class SceneInstaller : MonoInstaller<SceneInstaller>
     {
         [Inject]
         private SignalBus _signalBus;
 
-        // private readonly Subject<Unit> _onGameStart = new Subject<Unit>();
-        // private IObservable<Unit> OnGameStarted => _onGameStart;
 
-        public override void InstallBindings()
-        {
-            // Container.BindInstance(OnGameStarted).AsSingle();
-        }
+        public override void InstallBindings(){ }
 
         public override void Start()
         {

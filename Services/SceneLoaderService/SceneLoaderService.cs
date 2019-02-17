@@ -37,7 +37,7 @@ namespace Core.Services.Scenes
         /// <returns></returns>
         public async UniTask<UnityEngine.Object> LoadScene(string scene, LoadSceneMode mode = LoadSceneMode.Single,
             bool forceLoadFromStreamingAssets = false, IProgress<float> progress = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             return await GetScene(scene, mode, forceLoadFromStreamingAssets, progress, cancellationToken);
         }
@@ -84,6 +84,18 @@ namespace Core.Services.Scenes
             Debug.Log(("SceneLoaderService: Unloaded scene - " + scene).Colored(Colors.LightBlue));
 
             await _assetService.UnloadAsset(scene, true);
+        }
+
+        public Scene GetLoadedScene(string sceneName)
+        {
+            for (var i = 0; i < SceneManager.sceneCount; i++)
+            {
+                var scene = SceneManager.GetSceneAt(i);
+                if (scene.name == sceneName)
+                    return scene;
+            }
+
+            return default;
         }
     }
 }
