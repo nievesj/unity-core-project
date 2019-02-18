@@ -51,10 +51,8 @@ namespace Core.Services.UI
             _renderPriorityCanvas = new Dictionary<UIType, RectTransform>();
         }
 
-        public override void Initialize()
+        public void CreateMainCanvas()
         {
-            base.Initialize();
-
             if (_configuration.MainCanvas)
             {
                 var canvas = _factoryService.Instantiate(_configuration.MainCanvas);
@@ -71,6 +69,22 @@ namespace Core.Services.UI
                 _renderPriorityCanvas.Add(UIType.Panel, canvas.PanelContainer);
                 _renderPriorityCanvas.Add(UIType.Widget, canvas.WidgetContainer);
             }
+        }
+
+        public void CreateMainCanvas(UICanvas canvas)
+        {
+            _mainCanvas = canvas.GetComponent<RectTransform>();
+            _uiScreenBlocker = _factoryService.Instantiate(_configuration.UIScreenBlocker, _mainCanvas.transform);
+            var canvasElem = canvas.GetComponent<Canvas>();
+
+            if (canvasElem.renderMode == RenderMode.ScreenSpaceCamera)
+                canvasElem.worldCamera = Camera.main;
+            
+            _renderPriorityCanvas.Clear();
+
+            _renderPriorityCanvas.Add(UIType.Dialog, canvas.DialogContainer);
+            _renderPriorityCanvas.Add(UIType.Panel, canvas.PanelContainer);
+            _renderPriorityCanvas.Add(UIType.Widget, canvas.WidgetContainer);
         }
 
         /// <summary>
