@@ -1,7 +1,6 @@
 ﻿using System;
 using Core.Services.Audio;
 using UniRx;
-using UniRx.Async;
 using UnityEngine;
 using Zenject;
 
@@ -22,12 +21,18 @@ namespace Core.Services.UI
 
         public UIType UIType => _UiType;
 
-        [SerializeField]
+        [SerializeField] 
         protected UIElementTransitionOptions inTransition, outTransition;
+
+        [SerializeField]
+        protected bool startHidden = true;
 
         private readonly Subject<UIElement> _onClosed = new Subject<UIElement>();
 
         public RectTransform RectTransform => transform as RectTransform;
+
+        protected Canvas MainCanvas => UiService.MainCanvas;
+        protected TransitionParams TranParams;
 
         [Inject]
         protected AudioService AudioService;
@@ -42,11 +47,23 @@ namespace Core.Services.UI
         /// </summary>
         protected abstract void OnElementHide();
 
-        protected virtual void Awake() { }
+        protected virtual void Awake()
+        {
+
+        }
 
         protected virtual void Start()
         {
-            Show().Run();
+            TranParams = new TransitionParams
+            {
+                Canvas = MainCanvas,
+                UiElement = this,
+                IsOutTransition = false,
+                CanvasRecTransform = MainCanvas.GetComponent<RectTransform>()
+            };
+            
+            if(startHidden)
+                Hide(true);
         }
 
         public IObservable<UIElement> OnClosed()
@@ -58,39 +75,39 @@ namespace Core.Services.UI
         /// Shows the UI Element and performs any transition 
         /// </summary>
         /// <returns></returns>
-        public virtual async UniTask Show()
+        public virtual void Show(bool ignoreTransitionTime = false)
         {
+            TranParams.IsOutTransition = false;
+
             if (inTransition.transitionSound)
                 AudioService.PlayClip(inTransition.transitionSound);
 
             if (inTransition != null && inTransition.transitionType != TransitionType.NotUsed)
-                await inTransition.PlayTransition(this);
-            else
-                OnElementShow();
+                inTransition.PlayTransition(TranParams, ignoreTransitionTime, OnElementShow);
         }
 
         /// <summary>
         /// Hides the UI Element after playing the out transition. 
         /// </summary>
         /// <returns></returns>
-        public virtual async UniTask Hide(bool isClose = false)
+        public virtual void Hide(bool ignoreTransitionTime = false)
         {
+            TranParams.IsOutTransition = true;
+
             if (outTransition.transitionSound)
                 AudioService.PlayClip(outTransition.transitionSound);
 
             if (outTransition != null && outTransition.transitionType != TransitionType.NotUsed)
-                await outTransition.PlayTransition(this, true);
-            else
-                OnElementHide();
+                outTransition.PlayTransition(TranParams, ignoreTransitionTime, OnElementHide);
         }
 
         /// <summary>
         /// Close window and tells iservice to destroy the uielement and unload the asset 
         /// </summary>
         /// <returns> Observable </returns>
-        public virtual async UniTask Close()
+        public virtual void Close()
         {
-            await Hide(true);
+            Hide(true);
 
             _onClosed.OnNext(this);
             _onClosed.OnCompleted();

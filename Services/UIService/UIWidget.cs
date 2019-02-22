@@ -22,9 +22,9 @@
                 IsTransitioning = true;
 
                 if (IsShowing)
-                    Hide().Run();
+                    Hide();
                 else
-                    Show().Run();
+                    Show();
             }
         }
 

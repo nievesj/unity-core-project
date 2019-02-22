@@ -31,9 +31,9 @@ namespace Core.Services.UI
                 isTransitioning = true;
 
                 if (isShowing)
-                    Hide().Run();
+                    Hide();
                 else
-                    Show().Run();
+                    Show();
             }
         }
 

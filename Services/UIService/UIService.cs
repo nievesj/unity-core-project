@@ -41,6 +41,8 @@ namespace Core.Services.UI
 
         private readonly Subject<bool> _onGamePaused = new Subject<bool>();
 
+        public Canvas MainCanvas { get; private set; }
+
         public RectTransform MainUICanvas => _mainCanvas;
 
         public UIService(ServiceConfiguration config)
@@ -60,10 +62,10 @@ namespace Core.Services.UI
                 _mainCanvas = canvas.GetComponent<RectTransform>();
                 _uiScreenBlocker = _factoryService.Instantiate(_configuration.UIScreenBlocker, _mainCanvas.transform);
 
-                var canvasElem = canvas.GetComponent<Canvas>();
-
-                if (canvasElem.renderMode == RenderMode.ScreenSpaceCamera)
-                    canvasElem.worldCamera = Camera.main;
+                MainCanvas = canvas.GetComponent<Canvas>();
+                
+                if (MainCanvas.renderMode == RenderMode.ScreenSpaceCamera)
+                    MainCanvas.worldCamera = Camera.main;
 
                 _renderPriorityCanvas.Add(UIType.Dialog, canvas.DialogContainer);
                 _renderPriorityCanvas.Add(UIType.Panel, canvas.PanelContainer);
@@ -75,10 +77,10 @@ namespace Core.Services.UI
         {
             _mainCanvas = canvas.GetComponent<RectTransform>();
             _uiScreenBlocker = _factoryService.Instantiate(_configuration.UIScreenBlocker, _mainCanvas.transform);
-            var canvasElem = canvas.GetComponent<Canvas>();
+            MainCanvas = canvas.GetComponent<Canvas>();
 
-            if (canvasElem.renderMode == RenderMode.ScreenSpaceCamera)
-                canvasElem.worldCamera = Camera.main;
+            if (MainCanvas.renderMode == RenderMode.ScreenSpaceCamera)
+                MainCanvas.worldCamera = Camera.main;
             
             _renderPriorityCanvas.Clear();
 

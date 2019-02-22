@@ -29,11 +29,11 @@ namespace Core.Services.UI
             if (isblock)
             {
                 _image.raycastTarget = true;
-                await Show();
+                 Show();
             }
             else
             {
-                await Hide();
+                 Hide();
                 _image.raycastTarget = false;
             }
         }
