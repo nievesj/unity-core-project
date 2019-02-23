@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Core.Factory;
+using UnityEngine;
 using Zenject;
 
 namespace Core.Services.Factory
@@ -32,9 +33,9 @@ namespace Core.Services.Factory
             return _diContainer.InstantiatePrefab(original, transform);
         }
 
-        public Pooler<T> CreatePool<T>(Component prefab, int amount, Transform poolTransform = null) where T : Component
+        public Pool<T> CreatePool<T>(Component prefab, int amount, Transform poolTransform = null) where T : Component
         {
-            return new Pooler<T>(prefab, amount, _diContainer, poolTransform);
+            return new Pool<T>(prefab, amount, _diContainer, poolTransform);
         }
     }
 }

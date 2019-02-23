@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Core.Factory;
 using Core.Services.Data;
 using Core.Services.Factory;
 using UniRx.Async;
@@ -19,7 +20,7 @@ namespace Core.Services.Audio
         [InjectOptional]
         private PersistentDataService _persistentData;
 
-        private Pooler<AudioSource> _pooler;
+        private Pool<AudioSource> _pooler;
         private readonly AudioServiceConfiguration _configuration;
         private readonly List<AudioPlayer> _activeAudioPlayers;
         private readonly List<AudioPlayer> _activeBackgroundMusicPlayers;

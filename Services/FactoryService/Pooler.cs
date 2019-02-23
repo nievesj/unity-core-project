@@ -2,9 +2,9 @@
 using UnityEngine;
 using Zenject;
 
-namespace Core.Services.Factory
+namespace Core.Factory
 {
-    public class Pooler<T> where T : Component
+    public class Pool<T> where T : Component
     {
         public Transform PoolerTransform { get; }
 
@@ -23,7 +23,7 @@ namespace Core.Services.Factory
         /// <param name="amount"> Pool size </param>
         /// <param name="container"></param>
         /// <param name="poolTransform"></param>
-        public Pooler(Component prefab, int amount, DiContainer container, Transform poolTransform = null)
+        public Pool(Component prefab, int amount, DiContainer container, Transform poolTransform = null)
         {
             if (poolTransform)
                 PoolerTransform = poolTransform;
