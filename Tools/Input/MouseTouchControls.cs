@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace Core.Services.Input
 {
@@ -282,6 +285,21 @@ namespace Core.Services.Input
 #elif UNITY_WEBGL || UNITY_EDITOR || UNITY_STANDALONE || UNITY_FACEBOOK
             return MainCamera.ScreenPointToRay(UnityEngine.Input.mousePosition);
 #endif
+        }
+
+        protected bool IsPointerOverUI(GraphicRaycaster graphicRaycaster)
+        {
+            var results = new List<RaycastResult>();
+            var pointerEventData = new PointerEventData(EventSystem.current);
+
+#if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
+			pointerEventData.position = UnityEngine.Input.GetTouch(0).position;
+#elif UNITY_WEBGL || UNITY_EDITOR || UNITY_STANDALONE || UNITY_FACEBOOK
+            pointerEventData.position = UnityEngine.Input.mousePosition; 
+#endif        
+            graphicRaycaster.Raycast(pointerEventData, results);
+            
+            return results.Count > 0;
         }
     }
 }
