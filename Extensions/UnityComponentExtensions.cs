@@ -22,6 +22,14 @@ public static class UnityComponentExtensions
     }
 
     /// <summary>
+    /// Destroy gameObject
+    /// </summary>
+    public static void DestroyGameObject(this Component component)
+    {
+        Object.Destroy(component.gameObject);
+    }
+
+    /// <summary>
     /// Same as GameObject.SetActive(), but applied from a component
     /// </summary>
     /// <param name="component"></param>
