@@ -17,8 +17,7 @@ public static class IEnumerableExtensions
     
     public static IEnumerable<T> GetRandomElements<T>(this IEnumerable<T> list, int elementsCount)
     {
-        return list.OrderBy(x => Random.Range(0, 9999)).Take(elementsCount);
-        // return list.OrderBy(arg => Guid.NewGuid()).Take(elementsCount).ToList();
+        return list.OrderBy(x => Random.Range(0, list.Count())).Take(elementsCount);
     }
 
     public static List<T> ToList<T>(this IEnumerable<T> arr)
