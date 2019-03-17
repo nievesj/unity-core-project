@@ -11,6 +11,11 @@ public static class UnityComponentExtensions
     {
         Object.Destroy(component);
     }
+    
+    public static void DestroyImmediate(this Component component)
+    {
+        Object.DestroyImmediate(component);
+    }
 
     /// <summary>
     /// Destroy gameObject
@@ -20,6 +25,11 @@ public static class UnityComponentExtensions
     {
         Object.Destroy(gameObject);
     }
+    
+    public static void DestroyImmediate(this GameObject gameObject)
+    {
+        Object.DestroyImmediate(gameObject);
+    }
 
     /// <summary>
     /// Destroy gameObject
@@ -27,6 +37,11 @@ public static class UnityComponentExtensions
     public static void DestroyGameObject(this Component component)
     {
         Object.Destroy(component.gameObject);
+    }
+    
+    public static void DestroyImmediateGameObject(this Component component)
+    {
+        Object.DestroyImmediate(component.gameObject);
     }
 
     /// <summary>
@@ -139,6 +154,21 @@ public static class UnityComponentExtensions
     public static Vector3 Position(this Component comp, bool useLocalPosition = false)
     {
         return useLocalPosition ? comp.transform.localPosition : comp.transform.position;
+    }
+
+    public static IEnumerable<Vector3> RadiusPoints(this Component from, float radius, float angle, int segments)
+    {
+        var ret = new List<Vector3>();
+        for (var i = 0; i < segments; i++)
+        {
+            var x = from.Position().x + Mathf.Sin(Mathf.Deg2Rad * angle) * radius;
+            var z = from.Position().z + Mathf.Cos(Mathf.Deg2Rad * angle) * radius;
+
+            ret.Add(new Vector3(x, from.transform.position.y, z));
+            angle += (360f / segments);
+        }
+
+        return ret;
     }
 
     /// <summary>

@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Threading;
 using UniRx.Async;
-using UnityEditor;
 using UnityEngine;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 
 namespace Core.Services.Assets
 {
@@ -15,7 +19,10 @@ namespace Core.Services.Assets
         private readonly UnityEngine.Object _simulatedAssetObject;
 
         internal AssetBundle Bundle { get; }
+        
+#if UNITY_EDITOR
         internal SceneAsset SceneAsset { get; }
+#endif
 
         public LoadedBundle(AssetBundle asset)
         {
@@ -27,10 +34,12 @@ namespace Core.Services.Assets
             _simulatedAsset = asset;
         }
         
+#if UNITY_EDITOR
         public LoadedBundle(SceneAsset asset)
         {
             SceneAsset = asset;
         }
+#endif
 
         /// <summary>
         /// Unload bundle. Only use this when the bundle is no longer needed.
