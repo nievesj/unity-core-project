@@ -9,6 +9,7 @@ namespace Core.Services.Input
     {
         public const string MouseAxisX = "Mouse X";
         public const string MouseAxisY = "Mouse Y";
+        public const string MouseScrollWheel = "Mouse ScrollWheel";
     }
 
     public enum ControlState
@@ -65,6 +66,8 @@ namespace Core.Services.Input
 
         protected abstract void OnMobilePinch(Touch touch0, Touch touch1);
 
+        protected abstract void OnScrollWheelMove(float value);
+
         protected virtual void Awake()
         {
             MainCamera = Camera.main;
@@ -108,6 +111,11 @@ namespace Core.Services.Input
             if (UnityEngine.Input.GetMouseButtonUp(0))
             {
                 MouseUp(CurrentTouchMousePosition);
+            }
+
+            if (UnityEngine.Input.GetAxis(Constants.MouseScrollWheel) != 0)
+            {
+                OnScrollWheelMove(UnityEngine.Input.GetAxis(Constants.MouseScrollWheel));
             }
         }
 
@@ -263,6 +271,11 @@ namespace Core.Services.Input
             position.y = UnityEngine.Input.GetAxis(Constants.MouseAxisX);
 #endif
             return position;
+        }
+
+        protected Vector2 GetMouseScrollDeltaChange()
+        {
+            return UnityEngine.Input.mouseScrollDelta;
         }
 
         protected Vector3 ScreenToViewportPoint()
