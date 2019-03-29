@@ -4,6 +4,7 @@ using System.Diagnostics;
 using Core.Animation;
 using UniRx;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 namespace Core.AI
 {
