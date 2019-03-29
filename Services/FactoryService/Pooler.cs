@@ -12,6 +12,8 @@ namespace Core.Factory
 
         public int ActiveElements { get; private set; } = 0;
 
+        public bool HasElements => _pool.Count > 0;
+
         private Stack<T> _pool;
         private readonly Component _prefab;
         private readonly DiContainer _diContainer;

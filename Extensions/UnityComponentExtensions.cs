@@ -11,7 +11,7 @@ public static class UnityComponentExtensions
     {
         Object.Destroy(component);
     }
-    
+
     public static void DestroyImmediate(this Component component)
     {
         Object.DestroyImmediate(component);
@@ -25,7 +25,7 @@ public static class UnityComponentExtensions
     {
         Object.Destroy(gameObject);
     }
-    
+
     public static void DestroyImmediate(this GameObject gameObject)
     {
         Object.DestroyImmediate(gameObject);
@@ -38,7 +38,7 @@ public static class UnityComponentExtensions
     {
         Object.Destroy(component.gameObject);
     }
-    
+
     public static void DestroyImmediateGameObject(this Component component)
     {
         Object.DestroyImmediate(component.gameObject);
@@ -62,7 +62,7 @@ public static class UnityComponentExtensions
     /// <param name="worldPositionStays">If true, the parent-relative position, scale and
     /// rotation are modified such that the object keeps the same world space position,
     /// rotation and scale as before.</param>
-    public static void AddChild(this GameObject gameObject, GameObject other,bool worldPositionStays = true)
+    public static void AddChild(this GameObject gameObject, GameObject other, bool worldPositionStays = true)
     {
         gameObject.transform.AddChild(other.transform, worldPositionStays);
     }
@@ -101,7 +101,7 @@ public static class UnityComponentExtensions
     public static List<Transform> GetAllChildren(this Transform transform)
     {
         var children = new List<Transform>();
-        foreach(Transform child in transform)
+        foreach (Transform child in transform)
             children.Add(child);
 
         return children;
@@ -115,7 +115,7 @@ public static class UnityComponentExtensions
     {
         gameObject.transform.parent = null;
     }
-    
+
     /// <summary>
     /// Detach component from parent
     /// </summary>
@@ -134,10 +134,11 @@ public static class UnityComponentExtensions
     /// <returns></returns>
     public static float Distance(this Component from, Component to, bool useLocalPosition = false)
     {
-        return useLocalPosition ? Vector3.Distance(from.transform.localPosition, to.transform.localPosition) : 
+        return useLocalPosition ?
+            Vector3.Distance(from.transform.localPosition, to.transform.localPosition) :
             Vector3.Distance(from.transform.position, to.transform.position);
     }
-    
+
     /// <summary>
     /// Distance between two objects. Same as Vector3.Distance
     /// </summary>
@@ -147,8 +148,23 @@ public static class UnityComponentExtensions
     /// <returns></returns>
     public static float Distance(this Component from, Vector3 to, bool useLocalPosition = false)
     {
-        return useLocalPosition ? Vector3.Distance(from.transform.localPosition, to) : 
+        return useLocalPosition ?
+            Vector3.Distance(from.transform.localPosition, to) :
             Vector3.Distance(from.transform.position, to);
+    }
+
+    public static Vector3 Direction(this Component from, Component to, bool useLocalPosition = false)
+    {
+        return useLocalPosition ?
+            to.transform.localPosition - from.transform.localPosition :
+            to.transform.position - from.transform.position;
+    }
+
+    public static Vector3 Direction(this Component from, Vector3 to, bool useLocalPosition = false)
+    {
+        return useLocalPosition ?
+            to - from.transform.localPosition :
+            to - from.transform.position;
     }
 
     public static Vector3 Position(this Component comp, bool useLocalPosition = false)
@@ -165,7 +181,7 @@ public static class UnityComponentExtensions
             var z = from.Position().z + Mathf.Cos(Mathf.Deg2Rad * angle) * radius;
 
             ret.Add(new Vector3(x, from.transform.position.y, z));
-            angle += (360f / segments);
+            angle += 360f / segments;
         }
 
         return ret;
@@ -180,10 +196,11 @@ public static class UnityComponentExtensions
     /// <returns></returns>
     public static float Distance2D(this Component from, Component to, bool useLocalPosition = false)
     {
-        return useLocalPosition ? Vector2.Distance(from.transform.localPosition, to.transform.localPosition) : 
+        return useLocalPosition ?
+            Vector2.Distance(from.transform.localPosition, to.transform.localPosition) :
             Vector2.Distance(from.transform.position, to.transform.position);
     }
-    
+
     /// <summary>
     /// Distance between two objects 2D. Same as Vector2.Distance.
     /// </summary>
@@ -193,13 +210,13 @@ public static class UnityComponentExtensions
     /// <returns></returns>
     public static float Distance2D(this Component from, Vector2 to, bool useLocalPosition = false)
     {
-        return useLocalPosition ? Vector2.Distance(from.transform.localPosition, to) : 
+        return useLocalPosition ?
+            Vector2.Distance(from.transform.localPosition, to) :
             Vector2.Distance(from.transform.position, to);
     }
-    
+
     public static Vector3 Position2D(this Component comp, bool useLocalPosition = false)
     {
         return useLocalPosition ? comp.transform.localPosition : comp.transform.position;
     }
-    
 }

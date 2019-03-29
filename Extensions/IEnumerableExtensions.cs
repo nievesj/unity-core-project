@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
+using Random = UnityEngine.Random;
 
 public static class IEnumerableExtensions
 {
@@ -14,7 +15,7 @@ public static class IEnumerableExtensions
     {
         return source.ElementAt(Random.Range(0, source.Count()));
     }
-    
+
     public static IEnumerable<T> GetRandomElements<T>(this IEnumerable<T> list, int elementsCount)
     {
         return list.OrderBy(x => Random.Range(0, list.Count())).Take(elementsCount);
@@ -25,5 +26,20 @@ public static class IEnumerableExtensions
         var list = new List<T>();
         list.AddRange(arr);
         return list;
+    }
+
+    public static IEnumerable<T> Do<T>(this IEnumerable<T> enumerable, Action<T> action)
+    {
+        foreach (var item in enumerable)
+        {
+            action?.Invoke(item);
+            yield return item;
+        }
+    }
+
+    public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T> action)
+    {
+        if (enumerable == null || action == null) return;
+        foreach (var item in enumerable) action(item);
     }
 }
