@@ -1,13 +1,12 @@
 {
-    "name": "CoreFramework-ASM",
+    "name": "xNode.Editor",
     "references": [
-        "Zenject",
-        "UniRx",
-        "UniRx.Async",
         "xNode"
     ],
     "optionalUnityReferences": [],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
