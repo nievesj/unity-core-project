@@ -14,10 +14,7 @@ namespace Core.AI
 
     public abstract class NodeBlueprint : XNode.Node
     {
-        public abstract IEntityData GetInputValue();
-        public abstract IEntityData GetOutputValue();
-
-        public abstract Node CreateNodeInstance(NodeBlueprint node);
+        public abstract Node CreateNodeInstance(IEntityData data);
     }
 
     public abstract class Node

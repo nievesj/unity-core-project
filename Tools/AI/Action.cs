@@ -11,19 +11,6 @@
     {
         [Input(ShowBackingValue.Always)]
         public EntityData input;
-
-        [Output]
-        public EntityData output;
-
-        public override IEntityData GetInputValue()
-        {
-            return input;
-        }
-
-        public override IEntityData GetOutputValue()
-        {
-            return output;
-        }
     }
 
     public abstract class Action : Node

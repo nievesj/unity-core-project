@@ -35,18 +35,8 @@ namespace Core.AI
             this.triggerName = name;
             this.set = set;
         }
-        
-        public override IEntityData GetInputValue()
-        {
-            return null;
-        }
-        
-        public override IEntityData GetOutputValue()
-        {
-            return null;
-        }
 
-        public override Node CreateNodeInstance(NodeBlueprint node)
+        public override Node CreateNodeInstance(IEntityData data)
         {
             throw new System.NotImplementedException();
         }

@@ -7,13 +7,13 @@ namespace Core.AI
         [Input(ShowBackingValue.Always)]
         public EntityData input;
         
-        public override Node CreateNodeInstance(NodeBlueprint node)
+        public override Node CreateNodeInstance(IEntityData data)
         {
             //also add all children here
             return new Selector();
         }
 
-        public override Branch CreateBranchInstance(List<BranchBlueprint> nodes)
+        public override Branch CreateBranchInstance(List<Node> nodes)
         {
             throw new System.NotImplementedException();
         }

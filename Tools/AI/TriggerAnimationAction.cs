@@ -15,80 +15,71 @@ namespace Core.AI
         OnEnter,
         OnExit
     }
+
+    [System.Serializable]
+    public struct AnimationActionData
+    {
+        public string animationTrigger;
+
+        public AnimationActionOption animationActionOption;
+
+        public CoreAnimationEvent animationEventEnter;
+
+        public CoreAnimationEvent animationEventExit;
+    }
     
     public class TriggerAnimationActionBlueprint : ActionBlueprint
     {
         [SerializeField]
-        private string animationTrigger;
+        private AnimationActionData animationActionData;
 
-        [SerializeField]
-        private AnimationActionOption animationActionOption;
-
-        [SerializeField]
-        private CoreAnimationEvent animationEventEnter;
-
-        [SerializeField]
-        private CoreAnimationEvent animationEventExit;
-        
-        public override IEntityData GetInputValue()
-        {
-            return null;
-        }
-        
-        public override IEntityData GetOutputValue()
-        {
-            return null;
-        }
-
-        public override Node CreateNodeInstance(NodeBlueprint node)
+        public override Node CreateNodeInstance(IEntityData data)
         {
             //pass on all arguments on the blueprint
-            return new TriggerAnimationAction();
+            return new TriggerAnimationAction(data, animationActionData);
         }
     }
 
     public class TriggerAnimationAction : Action
     {
-        [SerializeField]
-        private string animationTrigger;
+        private AnimationActionData _animationActionData;
 
-        [SerializeField]
-        private AnimationActionOption animationActionOption;
-
-        [SerializeField]
-        private CoreAnimationEvent animationEventEnter;
-
-        [SerializeField]
-        private CoreAnimationEvent animationEventExit;
+        private IEntityData _data;
 
         private List<IDisposable> _subscriptions;
+
+        public TriggerAnimationAction(IEntityData data, AnimationActionData animationData)
+        {
+            _animationActionData = animationData;
+            _data = data;
+        }
         
         protected override void StartAction()
         {
-            // _subscriptions = new List<IDisposable>
-            // {
-            //     input.AnimationController.OnEnterStateEvent().Subscribe(OnEnterStateEvent),
-            //     input.AnimationController.OnExitStateEvent().Subscribe(OnExitStateEvent),
-            // };
-            //
-            // input.AnimationController.TriggerAnimation(animationTrigger);
+            _subscriptions = new List<IDisposable>
+            {
+                _data.AnimationController.OnEnterStateEvent().Subscribe(OnEnterStateEvent),
+                _data.AnimationController.OnExitStateEvent().Subscribe(OnExitStateEvent),
+            };
+            
+            _data.AnimationController.TriggerAnimation(_animationActionData.animationTrigger);
         }
 
         private void Complete()
         {
-            // actionState = ActionState.Completed;
+            actionState = ActionState.Completed;
             _subscriptions.ForEach(x => x.Dispose());
         }
 
         private void OnEnterStateEvent(CoreAnimationEvent value)
         {
-            if (animationEventEnter && value.name == animationEventEnter.name && animationActionOption == AnimationActionOption.OnEnter)
+            if (_animationActionData.animationEventEnter && value.name == _animationActionData.animationEventEnter.name && _animationActionData.animationActionOption == AnimationActionOption.OnEnter)
                 Complete();
         }
 
         private void OnExitStateEvent(CoreAnimationEvent value )
         {
-            if (animationEventExit && value.name == animationEventExit.name && (animationActionOption == AnimationActionOption.OnExit || animationActionOption == AnimationActionOption.Both))
+            if (_animationActionData.animationEventExit && value.name == _animationActionData.animationEventExit.name && (_animationActionData.animationActionOption == AnimationActionOption.OnExit || _animationActionData.animationActionOption == AnimationActionOption.Both))
                 Complete();
         }
     }

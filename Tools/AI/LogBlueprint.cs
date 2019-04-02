@@ -9,18 +9,8 @@ namespace Core.AI
         
         [SerializeField]
         private string message;
-        
-        public override IEntityData GetInputValue()
-        {
-            return null;
-        }
-        
-        public override IEntityData GetOutputValue()
-        {
-            return null;
-        }
 
-        public override Node CreateNodeInstance(NodeBlueprint node)
+        public override Node CreateNodeInstance(IEntityData data)
         {
             return new Log(message);
         }
@@ -32,7 +22,7 @@ namespace Core.AI
         
         public Log(string msg)
         {
-            msg = _message;
+            _message = msg;
         }
         
         public override BehaviorTreeState Tick()

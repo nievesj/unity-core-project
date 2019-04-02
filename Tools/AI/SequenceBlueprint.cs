@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Core.AI
 {
@@ -7,20 +8,24 @@ namespace Core.AI
         [Input(ShowBackingValue.Always)]
         public EntityData input;
         
-        public override Node CreateNodeInstance(NodeBlueprint node)
+        public override Node CreateNodeInstance(IEntityData data)
         {
-            //also add all children here
-            return new Sequence();
+            return null;
         }
 
-        public override Branch CreateBranchInstance(List<BranchBlueprint> nodes)
+        public override Branch CreateBranchInstance(List<Node> nodes)
         {
-            throw new System.NotImplementedException();
+           return new Sequence(nodes);
         }
     }
 
     public class Sequence : Branch
     {
+        public Sequence(List<Node> nodes)
+        {
+            children = nodes;
+        }
+        
         public override BehaviorTreeState Tick()
         {
             var childState = children[activeChildIndex].Tick();

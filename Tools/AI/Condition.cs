@@ -2,19 +2,9 @@
 {
     public class ConditionBlueprint : NodeBlueprint
     {
-        public override Node CreateNodeInstance(NodeBlueprint node)
+        public override Node CreateNodeInstance(IEntityData data)
         {
             return new Condition();
-        }
-        
-        public override IEntityData GetOutputValue()
-        {
-            return null;
-        }
-        
-        public override IEntityData GetInputValue()
-        {
-            return null;
         }
     }
 

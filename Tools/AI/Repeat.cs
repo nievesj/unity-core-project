@@ -4,12 +4,12 @@ namespace Core.AI
 {
     public class RepeatBlueprint : BlockBlueprint
     {
-        public override Node CreateNodeInstance(NodeBlueprint node)
+        public override Node CreateNodeInstance(IEntityData data)
         {
             return new Repeat();
         }
 
-        public override Branch CreateBranchInstance(List<BranchBlueprint> nodes)
+        public override Branch CreateBranchInstance(List<Node> nodes)
         {
             throw new System.NotImplementedException();
         }

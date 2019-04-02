@@ -8,20 +8,25 @@ namespace Core.AI
 {
     public class RootBlueprint : BlockBlueprint
     {
-        public override Node CreateNodeInstance(NodeBlueprint node)
+        public override Node CreateNodeInstance(IEntityData data)
         {
-            return new Root();
+            return null;
         }
 
-        public override Branch CreateBranchInstance(List<BranchBlueprint> nodes)
+        public override Branch CreateBranchInstance(List<Node> nodes)
         {
-            throw new System.NotImplementedException();
+            return new Root(nodes);
         }
     }
     
     public class Root : Block
     {        
         public bool IsTerminated { get; set;}
+
+        public Root(List<Node> nodes)
+        {
+            children = nodes;
+        }
 
         public void Init(IEntityData data)
         {
