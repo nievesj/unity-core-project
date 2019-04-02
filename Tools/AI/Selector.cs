@@ -1,16 +1,24 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
 
 namespace Core.AI
 {
     public class SelectorBlueprint : BranchBlueprint
     {
-        public override Node CreateInstance(NodeBlueprint node)
+        [Input(ShowBackingValue.Always)]
+        public EntityData input;
+        
+        public override Node CreateNodeInstance(NodeBlueprint node)
         {
             //also add all children here
             return new Selector();
         }
+
+        public override Branch CreateBranchInstance(List<BranchBlueprint> nodes)
+        {
+            throw new System.NotImplementedException();
+        }
     }
-    
+
     public class Selector : Branch
     {
         public override BehaviorTreeState Tick()

@@ -1,12 +1,18 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace Core.AI
 {
     public class RandomSequenceBlueprint : BlockBlueprint
     {
-        public override Node CreateInstance(NodeBlueprint node)
+        public override Node CreateNodeInstance(NodeBlueprint node)
         {
             return new RandomSequence();
+        }
+
+        public override Branch CreateBranchInstance(List<BranchBlueprint> nodes)
+        {
+            throw new System.NotImplementedException();
         }
     }
 

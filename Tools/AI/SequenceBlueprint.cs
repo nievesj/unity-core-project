@@ -1,11 +1,21 @@
-﻿namespace Core.AI
+﻿using System.Collections.Generic;
+
+namespace Core.AI
 {
     public class SequenceBlueprint : BranchBlueprint
     {
-        public override Node CreateInstance(NodeBlueprint node)
+        [Input(ShowBackingValue.Always)]
+        public EntityData input;
+        
+        public override Node CreateNodeInstance(NodeBlueprint node)
         {
             //also add all children here
             return new Sequence();
+        }
+
+        public override Branch CreateBranchInstance(List<BranchBlueprint> nodes)
+        {
+            throw new System.NotImplementedException();
         }
     }
 

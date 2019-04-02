@@ -2,7 +2,7 @@
 {
     public class ConditionBlueprint : NodeBlueprint
     {
-        public override Node CreateInstance(NodeBlueprint node)
+        public override Node CreateNodeInstance(NodeBlueprint node)
         {
             return new Condition();
         }

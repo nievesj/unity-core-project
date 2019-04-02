@@ -12,7 +12,7 @@
             return null;
         }
 
-        public override Node CreateInstance(NodeBlueprint node)
+        public override Node CreateNodeInstance(NodeBlueprint node)
         {
             throw new System.NotImplementedException();
         }

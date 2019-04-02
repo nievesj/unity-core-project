@@ -1,11 +1,22 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
+using XNode;
 
 namespace Core.AI
 {
     public abstract class BranchBlueprint : NodeBlueprint
     {
-        protected int activeChildIndex;
-        protected List<NodeBlueprint> children = new List<NodeBlueprint>();
+        [Output(connectionType = ConnectionType.Multiple)]
+        public EntityData output;
+
+        public List<NodeBlueprint> Children { get; protected set; }
+
+        public override Node CreateNodeInstance(NodeBlueprint node)
+        {
+            return null;
+        }
+
+        public abstract Branch CreateBranchInstance(List<BranchBlueprint> nodes);
 
         public override IEntityData GetInputValue()
         {
@@ -15,6 +26,37 @@ namespace Core.AI
         public override IEntityData GetOutputValue()
         {
             return null;
+        }
+
+        public virtual List<BranchBlueprint> GetChildren()
+        {
+            var port = GetOutputPort("output");
+            var children = GetConnectedNodes(port.GetConnections());
+
+            return null;
+        }
+
+        
+        public virtual List<NodeBlueprint> GetConnectedNodes(List<NodePort> connections)
+        {
+            var nodes = new List<NodeBlueprint>();
+            for (var i = 0; i < connections.Count; i++)
+            {
+                var node = connections[i].node;
+
+                if (node is BranchBlueprint)
+                {
+                    var branch = node as BranchBlueprint;
+                    var port = branch.GetOutputPort("output");
+                    branch.Children = GetConnectedNodes(port.GetConnections());
+                    nodes.Add(branch);
+                }
+                else
+                {
+                    nodes.Add(node as NodeBlueprint);
+                }
+            }
+            return nodes;
         }
     }
 

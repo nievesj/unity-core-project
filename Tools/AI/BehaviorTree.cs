@@ -33,13 +33,16 @@ namespace Core.AI
     {
         public bool isTerminated = false;
         public int activeChild;
-        private RootBlueprint _rootBlueprint;
 
-        public void Init(EntityData entity)
+        public void CreateBehaviourTreeInstance(EntityData entity)
         {
             //Find the first node without any inputs. This is the starting node.
-            _rootBlueprint = nodes.Find(x => x is NodeBlueprint && x.Inputs.All(y => !y.IsConnected)) as RootBlueprint;
-            // _rootBlueprint?.Init(entity);
+            var root = nodes.Find(x => x is RootBlueprint) as RootBlueprint;
+            
+            var port = root.GetOutputPort("output");
+            var children = root.GetConnectedNodes(port.GetConnections());
+            
+            var pon = root.CreateNodeInstance(root);
         }
     }
 }

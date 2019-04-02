@@ -1,10 +1,17 @@
-﻿namespace Core.AI
+﻿using System.Collections.Generic;
+
+namespace Core.AI
 {
     public class ConditionalBranchBlueprint : BlockBlueprint
     {
-        public override Node CreateInstance(NodeBlueprint node)
+        public override Node CreateNodeInstance(NodeBlueprint node)
         {
             return new ConditionalBranch();
+        }
+
+        public override Branch CreateBranchInstance(List<BranchBlueprint> nodes)
+        {
+            throw new System.NotImplementedException();
         }
     }
 

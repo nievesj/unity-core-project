@@ -1,9 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Dynamic;
-using UnityEngine;
 using XNode;
-using Zenject;
 
 namespace Core.AI
 {
@@ -20,13 +17,13 @@ namespace Core.AI
         public abstract IEntityData GetInputValue();
         public abstract IEntityData GetOutputValue();
 
-        public abstract Node CreateInstance(NodeBlueprint node);
+        public abstract Node CreateNodeInstance(NodeBlueprint node);
     }
-    
+
     public abstract class Node
     {
         protected EntityData EntityData;
-        
+
         public abstract BehaviorTreeState Tick();
     }
 }

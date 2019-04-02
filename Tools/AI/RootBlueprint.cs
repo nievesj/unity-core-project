@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
 using XNode;
@@ -7,14 +8,14 @@ namespace Core.AI
 {
     public class RootBlueprint : BlockBlueprint
     {
-        [SerializeField][Output]
-        private EntityData output;
-
-
-        public override Node CreateInstance(NodeBlueprint node)
+        public override Node CreateNodeInstance(NodeBlueprint node)
         {
-            //also add all children here
             return new Root();
+        }
+
+        public override Branch CreateBranchInstance(List<BranchBlueprint> nodes)
+        {
+            throw new System.NotImplementedException();
         }
     }
     

@@ -40,7 +40,7 @@ namespace Core.AI
             return null;
         }
 
-        public override Node CreateInstance(NodeBlueprint node)
+        public override Node CreateNodeInstance(NodeBlueprint node)
         {
             //pass on all arguments on the blueprint
             return new TriggerAnimationAction();

@@ -1,10 +1,17 @@
-﻿namespace Core.AI
+﻿using System.Collections.Generic;
+
+namespace Core.AI
 {
     public class WhileBlueprint : BlockBlueprint
     {
-        public override Node CreateInstance(NodeBlueprint node)
+        public override Node CreateNodeInstance(NodeBlueprint node)
         {
             return new While();
+        }
+
+        public override Branch CreateBranchInstance(List<BranchBlueprint> nodes)
+        {
+            throw new System.NotImplementedException();
         }
     }
     
