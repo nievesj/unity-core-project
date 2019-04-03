@@ -21,5 +21,10 @@
         {
             return fn() ? BehaviorTreeState.Success : BehaviorTreeState.Failure;
         }
+
+        public override void Reset()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

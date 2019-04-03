@@ -18,6 +18,11 @@ namespace Core.AI
 
             return BehaviorTreeState.Success;
         }
+
+        public override void Reset()
+        {
+            throw new System.NotImplementedException();
+        }
     }
     
     public class TriggerBlueprint : NodeBlueprint

@@ -15,14 +15,14 @@
 
     public abstract class Action : Node
     {
-        protected ActionState actionState = ActionState.NotStarted;
+        protected ActionState ActionState = ActionState.NotStarted;
 
         public override BehaviorTreeState Tick()
         {
-            switch (actionState)
+            switch (ActionState)
             {
                 case ActionState.NotStarted:
-                    actionState = ActionState.NotStarted;
+                    ActionState = ActionState.Started;
                     StartAction();
                     return BehaviorTreeState.Continue;
                 case ActionState.Started:

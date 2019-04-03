@@ -53,7 +53,7 @@ namespace Core.AI
             _animationActionData = animationData;
             _data = data;
         }
-        
+       
         protected override void StartAction()
         {
             _subscriptions = new List<IDisposable>
@@ -67,7 +67,7 @@ namespace Core.AI
 
         private void Complete()
         {
-            actionState = ActionState.Completed;
+            ActionState = ActionState.Completed;
             _subscriptions.ForEach(x => x.Dispose());
         }
 
@@ -81,6 +81,11 @@ namespace Core.AI
         {
             if (_animationActionData.animationEventExit && value.name == _animationActionData.animationEventExit.name && (_animationActionData.animationActionOption == AnimationActionOption.OnExit || _animationActionData.animationActionOption == AnimationActionOption.Both))
                 Complete();
+        }
+
+        public override void Reset()
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Core.AI
 {
@@ -30,6 +31,7 @@ namespace Core.AI
         {
             var childState = children[activeChildIndex].Tick();
             var ret = BehaviorTreeState.Failure;
+
             switch (childState)
             {
                 case BehaviorTreeState.Success:
@@ -57,6 +59,11 @@ namespace Core.AI
             }
 
             return ret;
+        }
+
+        public override void Reset()
+        {
+            throw new NotImplementedException();
         }
     }
 }

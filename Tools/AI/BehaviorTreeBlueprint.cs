@@ -10,6 +10,7 @@ namespace Core.AI
     {
         AnimationController AnimationController { get; }
         NavMeshAgent NavMeshAgent { get; }
+        Transform Self { get; }
         Transform Target { get; }
 
         void SetTarget(Transform transform);
@@ -20,6 +21,7 @@ namespace Core.AI
     {
         public AnimationController AnimationController { get; set; }
         public NavMeshAgent NavMeshAgent { get; set; }
+        public Transform Self { get; set; }
         public Transform Target { get; private set; }
 
         public void SetTarget(Transform transform)
@@ -29,18 +31,18 @@ namespace Core.AI
     }
 
     [CreateAssetMenu(menuName = "AI/BehaviorTree", fileName = "New BehaviorTree")]
-    public class BehaviorTree : NodeGraph
+    public class BehaviorTreeBlueprint : NodeGraph
     {
         public bool isTerminated = false;
         public int activeChild;
 
-        public Tree CreateBehaviourTree(IEntityData data)
+        public BehaviorTree CreateBehaviourTree(IEntityData data)
         {
             var blueprintHierarchy = CreateBlueprintHierarchy();
             return CreateTree(data, blueprintHierarchy);
         }
 
-        private IEnumerable<NodeBlueprint> CreateBlueprintHierarchy()
+        private List<NodeBlueprint> CreateBlueprintHierarchy()
         {
             //Find Root
             var root = nodes.Find(x => x is RootBlueprint) as RootBlueprint;
@@ -49,21 +51,21 @@ namespace Core.AI
             return root.GetConnectedNodes(port.GetConnections());
         }
 
-        private Tree CreateTree(IEntityData data, IEnumerable<NodeBlueprint> blueprints)
+        private BehaviorTree CreateTree(IEntityData data, List<NodeBlueprint> blueprints)
         {
-            return new Tree(data, blueprints);
+            return new BehaviorTree(data, blueprints);
         }
     }
 
-    public class Tree
+    public class BehaviorTree
     {
         private Root _root;
         private IEntityData _data;
 
-        public Tree(IEntityData data, IEnumerable<NodeBlueprint> blueprints)
+        public BehaviorTree(IEntityData data, List<NodeBlueprint> blueprints)
         {
             _data = data;
-            var nodes = CreateHierarchy(blueprints.ToList());
+            var nodes = CreateHierarchy(blueprints);
             _root = new Root(nodes);
         }
 
@@ -80,9 +82,9 @@ namespace Core.AI
             {
                 if (blueprints[i] is BranchBlueprint)
                 {
-                    var branch = blueprints[i] as BranchBlueprint;
+                    var branch = (BranchBlueprint) blueprints[i];
                     var children = CreateHierarchy(branch.Children);
-                        
+                    
                     var node = branch.CreateBranchInstance(children);
                     nodes.Add(node);
                 }

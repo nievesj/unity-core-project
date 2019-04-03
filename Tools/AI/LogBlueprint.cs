@@ -30,5 +30,10 @@ namespace Core.AI
             Debug.Log(_message);
             return BehaviorTreeState.Success;
         }
+
+        public override void Reset()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

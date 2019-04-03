@@ -63,5 +63,10 @@ namespace Core.AI
                 }
             }
         }
+
+        public override void Reset()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

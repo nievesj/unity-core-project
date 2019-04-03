@@ -32,5 +32,10 @@ namespace Core.AI
             else
                 return BehaviorTreeState.Continue;
         }
+
+        public override void Reset()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

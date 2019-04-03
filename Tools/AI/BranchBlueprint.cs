@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using XNode;
 
 namespace Core.AI
@@ -29,14 +30,6 @@ namespace Core.AI
 
         public abstract Branch CreateBranchInstance(List<Node> nodes);
 
-        public virtual List<BranchBlueprint> GetChildren()
-        {
-            var port = GetOutputPort("output");
-            var children = GetConnectedNodes(port.GetConnections());
-
-            return null;
-        }
-
         public virtual List<NodeBlueprint> GetConnectedNodes(List<NodePort> connections)
         {
             var nodes = new List<NodeBlueprint>();
@@ -49,6 +42,7 @@ namespace Core.AI
                     var branch = node as BranchBlueprint;
                     var port = branch.GetOutputPort("output");
                     branch.Children = GetConnectedNodes(port.GetConnections());
+                    branch.Children = branch.Children.OrderBy(x => x.sequenceOrder).ToList();
                     nodes.Add(branch);
                 }
                 else

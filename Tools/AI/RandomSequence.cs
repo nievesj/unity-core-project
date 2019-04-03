@@ -38,6 +38,11 @@ namespace Core.AI
             }
         }
 
+        public override void Reset()
+        {
+            throw new System.NotImplementedException();
+        }
+
         private void PickNewChild()
         {
             var choice = Random.Range(0, m_AddedWeight[m_AddedWeight.Length - 1]);
