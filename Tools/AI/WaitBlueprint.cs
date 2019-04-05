@@ -3,26 +3,33 @@
 namespace Core.AI
 {
     public class WaitBlueprint : NodeBlueprint
-    { 
+    {
+        [Input(ShowBackingValue.Always)]
+        public EntityData input;
+        
+        [SerializeField]
+        private float secondsToWait;
+        
         public override Node CreateNodeInstance(IEntityData data)
         {
-            return new Wait();
+            return new Wait(secondsToWait);
         }
     }
     
     public class Wait : Node
     {
-        public float seconds = 0;
+        private float _seconds = 0;
         float future = -1;
-        // public Wait(float seconds)
-        // {
-        //     this.seconds = seconds;
-        // }
+
+        public Wait(float seconds)
+        {
+            _seconds = seconds;
+        }
 
         public override BehaviorTreeState Tick()
         {
             if (future < 0)
-                future = Time.time + seconds;
+                future = Time.time + _seconds;
 
             if (Time.time >= future)
             {
@@ -35,7 +42,7 @@ namespace Core.AI
 
         public override void Reset()
         {
-            throw new System.NotImplementedException();
+            future = -1;
         }
     }
 }

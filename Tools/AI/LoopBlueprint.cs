@@ -39,30 +39,6 @@ namespace Core.AI
             children = nodes;
             _options = options;
         }
-
-        // public override BehaviorTreeState Tick()
-        // {
-        //     if ((_options.numberOfTimesToLoop > 0 && currentCount < _options.numberOfTimesToLoop) || _options.loopForever)
-        //     {
-        //         var result = base.Tick();
-        //         switch (result)
-        //         {
-        //             case BehaviorTreeState.Continue:
-        //                 return BehaviorTreeState.Continue;
-        //             default:
-        //                 currentCount++;
-        //                 if (currentCount == _options.numberOfTimesToLoop)
-        //                 {
-        //                     currentCount = 0;
-        //                     return BehaviorTreeState.Success;
-        //                 }
-        //
-        //                 return BehaviorTreeState.Continue;
-        //         }
-        //     }
-        //
-        //     return BehaviorTreeState.Success;
-        // }
         
         public override void Reset()
         {
@@ -82,28 +58,17 @@ namespace Core.AI
                         result = BehaviorTreeState.Continue;
                         break;
                     case BehaviorTreeState.Success:
+                        activeChildIndex++;
+                        
+                        if (activeChildIndex == children.Count)
+                            activeChildIndex = 0;
+                        
                         if (_options.loopForever || currentCount < _options.numberOfTimesToLoop)
                         {
                             currentCount++;
                             children[activeChildIndex].Reset();
-                            result = BehaviorTreeState.Continue;
-                        }
-                        else
-                        {
                             result = BehaviorTreeState.Success;
                         }
-                        break;
-                    default:
-                        activeChildIndex++;
-                        if (activeChildIndex == children.Count)
-                        {
-                            activeChildIndex = 0;
-                            Debug.LogError("paap");
-
-                            result = _options.loopForever ? BehaviorTreeState.Continue : BehaviorTreeState.Success;
-                        }
-
-                        result = BehaviorTreeState.Continue;
                         break;
                 }
             }
