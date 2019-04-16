@@ -33,9 +33,6 @@ namespace Core.AI
     [CreateAssetMenu(menuName = "AI/BehaviorTree", fileName = "New BehaviorTree")]
     public class BehaviorTreeBlueprint : NodeGraph
     {
-        public bool isTerminated = false;
-        public int activeChild;
-
         public BehaviorTree CreateBehaviourTree(IEntityData data)
         {
             var blueprintHierarchy = CreateBlueprintHierarchy();
