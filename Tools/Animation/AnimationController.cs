@@ -60,6 +60,11 @@ namespace Core.Animation
         {
             _animator.SetTrigger(attacktriggers.GetRandomElement());
         }
+        
+        public virtual void Attack(bool isLoop)
+        {
+            _animator.SetBool("IsAttackLoop", isLoop);
+        }
 
         public virtual void TriggerAnimation(string trigger)
         {
