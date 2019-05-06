@@ -22,8 +22,11 @@ namespace Core.Animation
         protected float _movementSpeed;
         protected StateMachineAnimationTrigger[] _animationTriggers;
         
-        private readonly Subject<CoreAnimationEvent> _onStateEnter = new Subject<CoreAnimationEvent>();
-        private readonly Subject<CoreAnimationEvent> _onStateExit = new Subject<CoreAnimationEvent>();
+        // private readonly Subject<CoreAnimationEvent> _onStateEnter = new Subject<CoreAnimationEvent>();
+        // private readonly Subject<CoreAnimationEvent> _onStateExit = new Subject<CoreAnimationEvent>();
+        
+        public ReactiveProperty<CoreAnimationEvent> OnEnterEvent { get; private set; } = new ReactiveProperty<CoreAnimationEvent>();
+        public ReactiveProperty<CoreAnimationEvent> OnExitEvent { get; private set; } = new ReactiveProperty<CoreAnimationEvent>();
         
         protected virtual void Awake()
         {
@@ -35,8 +38,8 @@ namespace Core.Animation
             _animationTriggers = _animator.GetBehaviours<StateMachineAnimationTrigger>();
             foreach (var trigger in _animationTriggers)
             {
-                trigger.OnEnterStateEvent().Subscribe(OnEnterStateEvent);
-                trigger.OnExitStateEvent().Subscribe(OnExitStateEvent);
+                trigger.OnEnterEvent.Subscribe(OnEnterStateEvent);
+                trigger.OnExitEvent.Subscribe(OnExitStateEvent);
             }
         }
         
@@ -73,22 +76,22 @@ namespace Core.Animation
 
         protected virtual void OnEnterStateEvent(CoreAnimationEvent value)
         {
-            _onStateEnter.OnNext(value);
+            OnEnterEvent.SetValueAndForceNotify(value);
         }
 
         protected virtual void OnExitStateEvent(CoreAnimationEvent value)
         {
-            _onStateExit.OnNext(value);
+            OnExitEvent.SetValueAndForceNotify(value);
         }
         
-        public IObservable<CoreAnimationEvent> OnEnterStateEvent()
-        {
-            return _onStateEnter;
-        }
-        
-        public IObservable<CoreAnimationEvent> OnExitStateEvent()
-        {
-            return _onStateExit;
-        }
+        // public IObservable<CoreAnimationEvent> OnEnterStateEvent()
+        // {
+        //     return _onStateEnter;
+        // }
+        //
+        // public IObservable<CoreAnimationEvent> OnExitStateEvent()
+        // {
+        //     return _onStateExit;
+        // }
     }
 }
