@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Core.Services;
-using UnityEngine;
 using UniRx;
+using UnityEngine;
 
 namespace Core.Animation
 {
@@ -11,23 +9,20 @@ namespace Core.Animation
     {
         [SerializeField]
         protected List<string> deathTriggers;
-        
+
         [SerializeField]
         protected List<string> attacktriggers;
-        
+
         [SerializeField]
         protected List<string> damageTriggers;
-        
+
         protected Animator _animator;
         protected float _movementSpeed;
         protected StateMachineAnimationTrigger[] _animationTriggers;
-        
-        // private readonly Subject<CoreAnimationEvent> _onStateEnter = new Subject<CoreAnimationEvent>();
-        // private readonly Subject<CoreAnimationEvent> _onStateExit = new Subject<CoreAnimationEvent>();
-        
+
         public ReactiveProperty<CoreAnimationEvent> OnEnterEvent { get; private set; } = new ReactiveProperty<CoreAnimationEvent>();
         public ReactiveProperty<CoreAnimationEvent> OnExitEvent { get; private set; } = new ReactiveProperty<CoreAnimationEvent>();
-        
+
         protected virtual void Awake()
         {
             _animator = GetComponent<Animator>();
@@ -42,18 +37,18 @@ namespace Core.Animation
                 trigger.OnExitEvent.Subscribe(OnExitStateEvent);
             }
         }
-        
+
         public virtual void SetMovementSpeed(float value)
         {
             _movementSpeed = value;
             _animator.SetFloat("MovementSpeed", _movementSpeed);
         }
-        
+
         public virtual void TriggerDeath()
         {
             _animator.SetTrigger(deathTriggers.GetRandomElement());
         }
-        
+
         public virtual void TakeDamage()
         {
             _animator.SetTrigger(damageTriggers.GetRandomElement());
@@ -63,7 +58,7 @@ namespace Core.Animation
         {
             _animator.SetTrigger(attacktriggers.GetRandomElement());
         }
-        
+
         public virtual void Attack(bool isLoop)
         {
             _animator.SetBool("IsAttackLoop", isLoop);
@@ -83,7 +78,7 @@ namespace Core.Animation
         {
             OnExitEvent.SetValueAndForceNotify(value);
         }
-        
+
         // public IObservable<CoreAnimationEvent> OnEnterStateEvent()
         // {
         //     return _onStateEnter;

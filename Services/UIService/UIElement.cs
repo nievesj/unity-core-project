@@ -21,7 +21,7 @@ namespace Core.Services.UI
 
         public UIType UIType => _UiType;
 
-        [SerializeField] 
+        [SerializeField]
         protected UIElementTransitionOptions inTransition, outTransition;
 
         [SerializeField]
@@ -31,7 +31,7 @@ namespace Core.Services.UI
 
         public RectTransform RectTransform => transform as RectTransform;
 
-        protected Canvas MainCanvas => UiService.MainCanvas;
+        protected Canvas MainCanvas { get; set; }
         protected TransitionParams TranParams;
 
         [Inject]
@@ -47,13 +47,11 @@ namespace Core.Services.UI
         /// </summary>
         protected abstract void OnElementHide();
 
-        protected virtual void Awake()
-        {
-
-        }
+        protected virtual void Awake() { }
 
         protected virtual void Start()
         {
+            if (!MainCanvas) return;
             TranParams = new TransitionParams
             {
                 Canvas = MainCanvas,
@@ -61,8 +59,8 @@ namespace Core.Services.UI
                 IsOutTransition = false,
                 CanvasRecTransform = MainCanvas.GetComponent<RectTransform>()
             };
-            
-            if(startHidden)
+
+            if (startHidden)
                 Hide(true);
         }
 
