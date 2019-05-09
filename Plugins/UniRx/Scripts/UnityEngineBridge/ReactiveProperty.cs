@@ -188,9 +188,8 @@ namespace UniRx
                 return Disposable.Empty;
             }
 
-            //JMN: This is a non desired behavior. When subscribing to a ReactiveProperty it should not emit the current value
             // raise latest value on subscribe
-            // observer.OnNext(value);
+            observer.OnNext(value);
 
             // subscribe node, node as subscription.
             var next = new ObserverNode<T>(this, observer);

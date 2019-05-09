@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Core.Reactive;
 using Core.Services;
 using UniRx;
 using UnityEngine;
@@ -20,8 +21,8 @@ namespace Core.Animation
         protected float _movementSpeed;
         protected StateMachineAnimationTrigger[] _animationTriggers;
 
-        public ReactiveProperty<CoreAnimationEvent> OnEnterEvent { get; private set; } = new ReactiveProperty<CoreAnimationEvent>();
-        public ReactiveProperty<CoreAnimationEvent> OnExitEvent { get; private set; } = new ReactiveProperty<CoreAnimationEvent>();
+        public CoreReactiveProperty<CoreAnimationEvent> OnEnterEvent { get; private set; } = new CoreReactiveProperty<CoreAnimationEvent>();
+        public CoreReactiveProperty<CoreAnimationEvent> OnExitEvent { get; private set; } = new CoreReactiveProperty<CoreAnimationEvent>();
 
         protected virtual void Awake()
         {
@@ -71,12 +72,12 @@ namespace Core.Animation
 
         protected virtual void OnEnterStateEvent(CoreAnimationEvent value)
         {
-            OnEnterEvent.SetValueAndForceNotify(value);
+            OnEnterEvent.Value = value;
         }
 
         protected virtual void OnExitStateEvent(CoreAnimationEvent value)
         {
-            OnExitEvent.SetValueAndForceNotify(value);
+            OnExitEvent.Value = value;
         }
 
         // public IObservable<CoreAnimationEvent> OnEnterStateEvent()
