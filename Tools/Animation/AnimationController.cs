@@ -39,6 +39,9 @@ namespace Core.Animation
             }
         }
 
+        public abstract void Init();
+        public abstract void DeInit();
+
         public virtual void SetMovementSpeed(float value)
         {
             _movementSpeed = value;
@@ -79,15 +82,5 @@ namespace Core.Animation
         {
             OnExitEvent.Value = value;
         }
-
-        // public IObservable<CoreAnimationEvent> OnEnterStateEvent()
-        // {
-        //     return _onStateEnter;
-        // }
-        //
-        // public IObservable<CoreAnimationEvent> OnExitStateEvent()
-        // {
-        //     return _onStateExit;
-        // }
     }
 }

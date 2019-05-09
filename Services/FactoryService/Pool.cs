@@ -4,7 +4,13 @@ using Zenject;
 
 namespace Core.Factory
 {
-    public class Pool<T> where T : Component
+    public interface IPoolElement
+    {
+        void PoolElementWakeUp();
+        void PoolElementSleep();
+    }
+    
+    public class Pool<T> where T : Component, IPoolElement
     {
         public Transform PoolerTransform { get; }
 
@@ -97,7 +103,10 @@ namespace Core.Factory
         {
             obj.gameObject.SetActive(false);
             if (_pool.Count + ActiveElements <= SizeLimit)
+            {
+                obj.PoolElementSleep();
                 _pool.Push(obj);
+            }
             else
                 Object.Destroy(obj.gameObject);
 
@@ -120,6 +129,8 @@ namespace Core.Factory
             var obj = _pool.Pop();
             obj.gameObject.SetActive(true);
             ActiveElements++;
+            
+            obj.PoolElementWakeUp();
 
             return obj;
         }

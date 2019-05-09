@@ -33,7 +33,7 @@ namespace Core.Services.Factory
             return _diContainer.InstantiatePrefab(original, transform);
         }
 
-        public Pool<T> CreatePool<T>(Component prefab, int amount, Transform poolTransform = null) where T : Component
+        public Pool<T> CreatePool<T>(Component prefab, int amount, Transform poolTransform = null) where T : Component, IPoolElement
         {
             return new Pool<T>(prefab, amount, _diContainer, poolTransform);
         }
