@@ -69,4 +69,16 @@ public static class ObservableExtensions
             }
         );
     }
+    
+    /// <summary>
+    /// Simpler delay extension that just receives a float
+    /// </summary>
+    /// <param name="source"></param>
+    /// <param name="seconds"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static IObservable<T> Delay<T>(this IObservable<T> source, float seconds)
+    {
+        return source.Delay(TimeSpan.FromSeconds(seconds), Scheduler.DefaultSchedulers.TimeBasedOperations);
+    }
 }
