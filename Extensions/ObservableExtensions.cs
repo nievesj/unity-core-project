@@ -88,10 +88,10 @@ public static class ObservableExtensions
     /// </summary>
     /// <param name="particle"></param>
     /// <returns></returns>
-    public static IObservable<Unit> PlayRx(this ParticleSystem particle)
+    public static IObservable<ParticleSystem> PlayRx(this ParticleSystem particle)
     {
         particle.Play();
-        return Observable.FromCoroutine<Unit>(observer => OnParticleStopAsync(observer, particle));
+        return Observable.FromCoroutine<ParticleSystem>(observer => OnParticleStopAsync(observer, particle));
     }
 
     /// <summary>
@@ -100,22 +100,22 @@ public static class ObservableExtensions
     /// <param name="particle"></param>
     /// <param name="seconds"></param>
     /// <returns></returns>
-    public static IObservable<Unit> PlayRx(this ParticleSystem particle, float seconds)
+    public static IObservable<ParticleSystem> PlayRx(this ParticleSystem particle, float seconds)
     {
         particle.Play();
-        return Observable.FromCoroutine<Unit>(observer => OnParticleStopAsync(observer, particle, seconds));
+        return Observable.FromCoroutine<ParticleSystem>(observer => OnParticleStopAsync(observer, particle, seconds));
     }
 
-    private static IEnumerator OnParticleStopAsync(IObserver<Unit> observer, ParticleSystem particle)
+    private static IEnumerator OnParticleStopAsync(IObserver<ParticleSystem> observer, ParticleSystem particle)
     {
         while (particle.isPlaying)
             yield return null;
 
-        observer.OnNext(Unit.Default);
+        observer.OnNext(particle);
         observer.OnCompleted();
     }
 
-    private static IEnumerator OnParticleStopAsync(IObserver<Unit> observer, ParticleSystem particle, float seconds)
+    private static IEnumerator OnParticleStopAsync(IObserver<ParticleSystem> observer, ParticleSystem particle, float seconds)
     {
         yield return new WaitForSeconds(seconds);
 
@@ -123,7 +123,7 @@ public static class ObservableExtensions
 
         yield return new WaitForSeconds(1.5f);
 
-        observer.OnNext(Unit.Default);
+        observer.OnNext(particle);
         observer.OnCompleted();
     }
 }
