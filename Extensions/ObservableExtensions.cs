@@ -3,6 +3,7 @@ using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
 using UniRx;
+using UnityEngine;
 
 public static class ObservableExtensions
 {
@@ -69,7 +70,7 @@ public static class ObservableExtensions
             }
         );
     }
-    
+
     /// <summary>
     /// Simpler delay extension that just receives a float
     /// </summary>
@@ -80,5 +81,49 @@ public static class ObservableExtensions
     public static IObservable<T> Delay<T>(this IObservable<T> source, float seconds)
     {
         return source.Delay(TimeSpan.FromSeconds(seconds), Scheduler.DefaultSchedulers.TimeBasedOperations);
+    }
+
+    /// <summary>
+    /// Starts a particle system, then observe when a it stops playing
+    /// </summary>
+    /// <param name="particle"></param>
+    /// <returns></returns>
+    public static IObservable<Unit> PlayRx(this ParticleSystem particle)
+    {
+        particle.Play();
+        return Observable.FromCoroutine<Unit>(observer => OnParticleStopAsync(observer, particle));
+    }
+
+    /// <summary>
+    /// Starts a particle system, waits for X seconds then stops it
+    /// </summary>
+    /// <param name="particle"></param>
+    /// <param name="seconds"></param>
+    /// <returns></returns>
+    public static IObservable<Unit> PlayRx(this ParticleSystem particle, float seconds)
+    {
+        particle.Play();
+        return Observable.FromCoroutine<Unit>(observer => OnParticleStopAsync(observer, particle, seconds));
+    }
+
+    private static IEnumerator OnParticleStopAsync(IObserver<Unit> observer, ParticleSystem particle)
+    {
+        while (particle.isPlaying)
+            yield return null;
+
+        observer.OnNext(Unit.Default);
+        observer.OnCompleted();
+    }
+
+    private static IEnumerator OnParticleStopAsync(IObserver<Unit> observer, ParticleSystem particle, float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+
+        particle.Stop();
+
+        yield return new WaitForSeconds(1.5f);
+
+        observer.OnNext(Unit.Default);
+        observer.OnCompleted();
     }
 }
