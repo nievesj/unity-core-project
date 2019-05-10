@@ -27,9 +27,14 @@ namespace Core.Factory
             return _diContainer.InstantiatePrefab(original, transform);
         }
 
-        public Pool<T> CreatePool<T>(Component prefab, int amount, Transform poolTransform = null) where T : Component, IPoolElement
+        public ComponentPool<T> CreateComponentPool<T>(Component prefab, int amount, Transform poolTransform = null) where T : Component
         {
-            return new Pool<T>(prefab, amount, _diContainer, poolTransform);
+            return new ComponentPool<T>(prefab, amount, _diContainer, poolTransform);
+        }
+        
+        public PooledCoreBehaviourPool<T> CreatePooledCoreBehaviourPool<T>(Component prefab, int amount, Transform poolTransform = null) where T : Component, IInitializablePoolElement
+        {
+            return new PooledCoreBehaviourPool<T>(prefab, amount, _diContainer, poolTransform);
         }
     }
 }

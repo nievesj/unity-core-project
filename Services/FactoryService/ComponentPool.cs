@@ -4,34 +4,64 @@ using Zenject;
 
 namespace Core.Factory
 {
-    public interface IPoolElement
+    public interface IInitializablePoolElement
     {
         void PoolElementWakeUp();
         void PoolElementSleep();
     }
     
-    public class Pool<T> where T : Component, IPoolElement
+    public class PooledCoreBehaviourPool<T> : ComponentPool<T> where T : Component, IInitializablePoolElement
+    {
+        public PooledCoreBehaviourPool(Component prefab, int amount, DiContainer container, Transform poolTransform = null) : base(prefab, amount, container, poolTransform) { }
+
+        public override void Push(T obj)
+        {
+            obj.gameObject.SetActive(false);
+            if (_pool.Count + ActiveElements <= SizeLimit)
+            {
+                obj.PoolElementSleep();
+                _pool.Push(obj);
+            }
+            else
+                Object.Destroy(obj.gameObject);
+
+            ActiveElements--;
+        }
+
+        protected override T Get()
+        {
+            var obj = _pool.Pop();
+            obj.gameObject.SetActive(true);
+            ActiveElements++;
+
+            obj.PoolElementWakeUp();
+
+            return obj;
+        }
+    }
+
+    public class ComponentPool<T> where T : Component
     {
         public Transform PoolerTransform { get; }
 
-        public int SizeLimit { get; private set; }
+        public int SizeLimit { get; protected set; }
 
-        public int ActiveElements { get; private set; } = 0;
-
+        public int ActiveElements { get; protected set; } = 0;
+        public IEnumerable<T> PoolElements => _pool;
         public bool HasElements => _pool.Count > 0;
 
-        private Stack<T> _pool;
-        private readonly Component _prefab;
-        private readonly DiContainer _diContainer;
+        protected Stack<T> _pool;
+        protected readonly Component _prefab;
+        protected readonly DiContainer _diContainer;
 
         /// <summary>
-        /// Initialize pooler
+        /// Initialize pool
         /// </summary>
         /// <param name="prefab"> Gameobject to be pooled </param>
         /// <param name="amount"> Pool size </param>
         /// <param name="container"></param>
         /// <param name="poolTransform"></param>
-        public Pool(Component prefab, int amount, DiContainer container, Transform poolTransform = null)
+        public ComponentPool(Component prefab, int amount, DiContainer container, Transform poolTransform = null)
         {
             if (poolTransform)
                 PoolerTransform = poolTransform;
@@ -99,14 +129,11 @@ namespace Core.Factory
         /// Return element to the _pool
         /// </summary>
         /// <param name="obj"></param>
-        public void Push(T obj)
+        public virtual void Push(T obj)
         {
             obj.gameObject.SetActive(false);
             if (_pool.Count + ActiveElements <= SizeLimit)
-            {
-                obj.PoolElementSleep();
                 _pool.Push(obj);
-            }
             else
                 Object.Destroy(obj.gameObject);
 
@@ -124,18 +151,16 @@ namespace Core.Factory
                 Object.Destroy(PoolerTransform.gameObject);
         }
 
-        private T Get()
+        protected virtual T Get()
         {
             var obj = _pool.Pop();
             obj.gameObject.SetActive(true);
             ActiveElements++;
-            
-            obj.PoolElementWakeUp();
 
             return obj;
         }
 
-        private void CreatePool(int amount)
+        protected void CreatePool(int amount)
         {
             if (_pool != null)
                 DestroyPool();
@@ -147,14 +172,14 @@ namespace Core.Factory
                 _pool.Push(CreateObject(_prefab));
         }
 
-        private T CreateObject(Object prefab)
+        protected T CreateObject(Object prefab)
         {
             var go = _diContainer.InstantiatePrefab(prefab, PoolerTransform);
             go.SetActive(false);
             return go.GetComponent<T>() as T;
         }
 
-        private void DestroyPool()
+        protected void DestroyPool()
         {
             foreach (var obj in _pool)
             {

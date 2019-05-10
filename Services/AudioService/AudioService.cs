@@ -20,7 +20,7 @@ namespace Core.Services.Audio
         [InjectOptional]
         private PersistentDataService _persistentData;
 
-        private Pool<CoreAudioSource> _pooler;
+        private ComponentPool<AudioSource> _pooler;
         private readonly AudioServiceConfiguration _configuration;
         private readonly List<AudioPlayer> _activeAudioPlayers;
         private readonly List<AudioPlayer> _activeBackgroundMusicPlayers;
@@ -34,8 +34,8 @@ namespace Core.Services.Audio
             set
             {
                 _mute = value;
-                foreach (var ap in _activeBackgroundMusicPlayers) ap.Player.AudioSource.mute = _mute;
-                foreach (var ap in _activeAudioPlayers) ap.Player.AudioSource.mute = _mute;
+                foreach (var ap in _activeBackgroundMusicPlayers) ap.Player.mute = _mute;
+                foreach (var ap in _activeAudioPlayers) ap.Player.mute = _mute;
             }
         }
 
@@ -48,7 +48,7 @@ namespace Core.Services.Audio
             set
             {
                 _musicVolume = value;
-                foreach (var ap in _activeBackgroundMusicPlayers) ap.Player.AudioSource.volume = _musicVolume;
+                foreach (var ap in _activeBackgroundMusicPlayers) ap.Player.volume = _musicVolume;
             }
         }
 
@@ -60,7 +60,7 @@ namespace Core.Services.Audio
             set
             {
                 _fxVolume = value;
-                foreach (var ap in _activeAudioPlayers) ap.Player.AudioSource.volume = _fxVolume;
+                foreach (var ap in _activeAudioPlayers) ap.Player.volume = _fxVolume;
             }
         }
 
@@ -76,7 +76,7 @@ namespace Core.Services.Audio
             base.Initialize();
 
             if (_configuration.AudioSourcePrefab)
-                _pooler = _factoryService.CreatePool<CoreAudioSource>(_configuration.AudioSourcePrefab, _configuration.PoolAmount);
+                _pooler = _factoryService.CreateComponentPool<AudioSource>(_configuration.AudioSourcePrefab, _configuration.PoolAmount);
             else
                 Debug.LogError("AudioService : PlayClip - Failed to create pool. Configuration is missing the AudioSource prefab.");
 
@@ -123,10 +123,10 @@ namespace Core.Services.Audio
                 Debug.Log(("AudioService: Playing Clip - " + ap.Clip.name).Colored(Colors.Magenta));
                 var audioSource = _pooler.PopResize();
                 ap.Player = _pooler.PopResize();
-                ap.Player.AudioSource.volume = _fxVolume;
-                ap.Player.AudioSource.mute = _mute;
-                ap.Player.AudioSource.outputAudioMixerGroup = mixerGroup;
-                ap.Player.AudioSource.Play();
+                ap.Player.volume = _fxVolume;
+                ap.Player.mute = _mute;
+                ap.Player.outputAudioMixerGroup = mixerGroup;
+                ap.Player.Play();
             }
         }
 
@@ -145,7 +145,7 @@ namespace Core.Services.Audio
 
             _activeAudioPlayers.Remove(ap);
             _pooler.Push(ap.Player);
-            ap.Player.AudioSource.clip = null;
+            ap.Player.clip = null;
             ap.Player = null;
         }
 
@@ -154,24 +154,24 @@ namespace Core.Services.Audio
             var volume = 0f;
             var audioPlayer = new AudioPlayer(clip) {Player = _pooler.PopResize()};
 
-            audioPlayer.Player.AudioSource.outputAudioMixerGroup = mixerGroup;
+            audioPlayer.Player.outputAudioMixerGroup = mixerGroup;
 
             FadeMusicOut();
 
             //wait a tiny bit
             await UniTask.Yield();
 
-            audioPlayer.Player.AudioSource.clip = clip;
-            audioPlayer.Player.AudioSource.loop = true;
-            audioPlayer.Player.AudioSource.volume = 0;
-            audioPlayer.Player.AudioSource.mute = _mute;
+            audioPlayer.Player.clip = clip;
+            audioPlayer.Player.loop = true;
+            audioPlayer.Player.volume = 0;
+            audioPlayer.Player.mute = _mute;
 
             _activeBackgroundMusicPlayers.Add(audioPlayer);
-            audioPlayer.Player.AudioSource.Play();
+            audioPlayer.Player.Play();
             while (volume <= _musicVolume)
             {
                 volume += _musicVolume * Time.deltaTime / _configuration.CrossfadeWait;
-                audioPlayer.Player.AudioSource.volume = volume;
+                audioPlayer.Player.volume = volume;
                 await UniTask.Yield();
             }
         }
@@ -190,23 +190,23 @@ namespace Core.Services.Audio
                 while (volume > 0)
                 {
                     volume -= _musicVolume * Time.deltaTime / _configuration.CrossfadeWait;
-                    aPlayer.Player.AudioSource.volume = volume;
+                    aPlayer.Player.volume = volume;
                     await UniTask.Yield();
                 }
 
-                aPlayer.Player.AudioSource.Stop();
+                aPlayer.Player.Stop();
                 _pooler.Push(aPlayer.Player);
-                aPlayer.Player.AudioSource.clip = null;
+                aPlayer.Player.clip = null;
                 aPlayer.Player = null;
             }
         }
 
         private async UniTask WaitUntilDonePlaying(AudioPlayer ap)
         {
-            CustomYieldInstruction wait = new WaitUntil(() => ap.Player.AudioSource.clip.loadState == AudioDataLoadState.Loaded);
+            CustomYieldInstruction wait = new WaitUntil(() => ap.Player.clip.loadState == AudioDataLoadState.Loaded);
             await wait;
 
-            wait = new WaitWhile(() => ap.Player.AudioSource.isPlaying);
+            wait = new WaitWhile(() => ap.Player.isPlaying);
             await wait;
 
             if (ap.Clip)

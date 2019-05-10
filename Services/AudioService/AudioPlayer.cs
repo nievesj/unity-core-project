@@ -18,9 +18,9 @@ namespace Core.Services.Audio
         public float Pitch { get; set; }
 
         [SerializeField]
-        private CoreAudioSource audioSource;
+        private AudioSource audioSource;
 
-        public CoreAudioSource Player
+        public AudioSource Player
         {
             get => audioSource;
             set
@@ -28,8 +28,8 @@ namespace Core.Services.Audio
                 audioSource = value;
                 if (audioSource)
                 {
-                    audioSource.AudioSource.clip = _clip;
-                    SetUpOptions(audioSource.AudioSource);
+                    audioSource.clip = _clip;
+                    SetUpOptions(audioSource);
                 }
             }
         }
