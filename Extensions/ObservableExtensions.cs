@@ -106,6 +106,11 @@ public static class ObservableExtensions
         return Observable.FromCoroutine<ParticleSystem>(observer => OnParticleStopAsync(observer, particle, seconds));
     }
 
+    public static IObservable<ParticleSystem> StopRx(this ParticleSystem particle, float burnOutTime = 1.5f)
+    {
+        return Observable.FromCoroutine<ParticleSystem>(observer => OnParticleStopAsync(observer, particle, 0, burnOutTime));
+    }
+
     private static IEnumerator OnParticleStopAsync(IObserver<ParticleSystem> observer, ParticleSystem particle)
     {
         while (particle.isPlaying)
@@ -115,13 +120,14 @@ public static class ObservableExtensions
         observer.OnCompleted();
     }
 
-    private static IEnumerator OnParticleStopAsync(IObserver<ParticleSystem> observer, ParticleSystem particle, float seconds)
+    private static IEnumerator OnParticleStopAsync(IObserver<ParticleSystem> observer, ParticleSystem particle, float seconds, float burnOutTime = 1.5f)
     {
-        yield return new WaitForSeconds(seconds);
+        if (seconds > 0)
+            yield return new WaitForSeconds(seconds);
 
         particle.Stop();
 
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(burnOutTime);
 
         observer.OnNext(particle);
         observer.OnCompleted();
