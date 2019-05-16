@@ -8,17 +8,17 @@ namespace Core.Animation
         [SerializeField]
         private CoreAnimationEvent coreAnimationEvent;
 
-        public CoreReactiveProperty<CoreAnimationEvent> OnEnterEvent { get; private set; } = new CoreReactiveProperty<CoreAnimationEvent>();
-        public CoreReactiveProperty<CoreAnimationEvent> OnExitEvent { get; private set; } = new CoreReactiveProperty<CoreAnimationEvent>();
+        public CoreEvent<CoreAnimationEvent> OnEnterEvent { get; private set; } = new CoreEvent<CoreAnimationEvent>();
+        public CoreEvent<CoreAnimationEvent> OnExitEvent { get; private set; } = new CoreEvent<CoreAnimationEvent>();
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            OnEnterEvent.Value = coreAnimationEvent;
+            OnEnterEvent.Broadcast(coreAnimationEvent);
         }
 
         public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {
-            OnExitEvent.Value = coreAnimationEvent;
+            OnExitEvent.Broadcast(coreAnimationEvent);
         }
     }
 }

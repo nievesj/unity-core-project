@@ -13,7 +13,7 @@ namespace Core.Reactive
             _observable = new Observer<T>(observer);
             return _observable;
         }
-        
+
         public void Broadcast(T value)
         {
             RaiseOnNext(ref value);
@@ -28,7 +28,7 @@ namespace Core.Reactive
         {
             _observable?.OnNext(value);
         }
-        
+
         public bool IsRequiredSubscribeOnCurrentThread()
         {
             return false;

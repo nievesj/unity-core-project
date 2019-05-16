@@ -20,27 +20,37 @@ namespace Core.Animation
         protected Animator _animator;
         protected float _movementSpeed;
         protected StateMachineAnimationTrigger[] _animationTriggers;
+        protected CompositeDisposable _subscriptions;
 
-        public CoreReactiveProperty<CoreAnimationEvent> OnEnterEvent { get; private set; } = new CoreReactiveProperty<CoreAnimationEvent>();
-        public CoreReactiveProperty<CoreAnimationEvent> OnExitEvent { get; private set; } = new CoreReactiveProperty<CoreAnimationEvent>();
+        public CoreEvent<CoreAnimationEvent> OnEnterEvent { get; private set; } = new CoreEvent<CoreAnimationEvent>();
+        public CoreEvent<CoreAnimationEvent> OnExitEvent { get; private set; } = new CoreEvent<CoreAnimationEvent>();
 
         protected virtual void Awake()
         {
+            _subscriptions = new CompositeDisposable();
             _animator = GetComponent<Animator>();
+            _animationTriggers = _animator.GetBehaviours<StateMachineAnimationTrigger>();
         }
-
-        protected virtual void Start()
+        
+        public virtual void Init()
         {
             _animationTriggers = _animator.GetBehaviours<StateMachineAnimationTrigger>();
             foreach (var trigger in _animationTriggers)
             {
-                trigger.OnEnterEvent.Subscribe(OnEnterStateEvent);
-                trigger.OnExitEvent.Subscribe(OnExitStateEvent);
+                trigger.OnEnterEvent
+                    .Subscribe(OnEnterStateEvent)
+                    .AddTo(_subscriptions);
+                
+                trigger.OnExitEvent
+                    .Subscribe(OnExitStateEvent)
+                    .AddTo(_subscriptions);
             }
         }
 
-        public abstract void Init();
-        public abstract void DeInit();
+        public virtual void DeInit()
+        {
+            _subscriptions.Clear();
+        }
 
         public virtual void SetMovementSpeed(float value)
         {
@@ -75,12 +85,12 @@ namespace Core.Animation
 
         protected virtual void OnEnterStateEvent(CoreAnimationEvent value)
         {
-            OnEnterEvent.Value = value;
+            OnEnterEvent.Broadcast(value);
         }
 
         protected virtual void OnExitStateEvent(CoreAnimationEvent value)
         {
-            OnExitEvent.Value = value;
+            OnExitEvent.Broadcast(value);
         }
     }
 }
