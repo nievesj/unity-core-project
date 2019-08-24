@@ -134,7 +134,7 @@ namespace Core.Services.UI
             var ttime = transitionTime;
             if (_bypassTransitionTime)
                 ttime = 0;
-            
+
             transform.DOScale(start, 0);
             transform.DOScale(end, ttime)
                 .SetEase(tweenType)
@@ -165,7 +165,7 @@ namespace Core.Services.UI
             var ttime = transitionTime;
             if (_bypassTransitionTime)
                 ttime = 0;
-            
+
             var images = transform.GetComponentsInChildren<Image>();
             var completed = 0;
 

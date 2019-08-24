@@ -56,7 +56,10 @@ namespace Core.Services.Assets
         /// </summary>
         /// <param name="assetCatRoot"></param>
         /// <param name="assetName">Bundle name and asset name are the same</param>
-        /// <param name="forceLoadFromStreamingAssets">Forces loading from StreamingAssets folder. Useful for when including assets with the build</param>
+        /// <param name="forceLoadFromStreamingAssets">
+        /// Forces loading from StreamingAssets folder. Useful for when including assets
+        /// with the build
+        /// </param>
         /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <returns> Observable </returns>
@@ -75,7 +78,10 @@ namespace Core.Services.Assets
         /// <param name="assetCatRoot"></param>
         /// <param name="bundleName"></param>
         /// <param name="assetName">Bundle name and asset name are the same</param>
-        /// <param name="forceLoadFromStreamingAssets">Forces loading from StreamingAssets folder. Useful for when including assets with the build</param>
+        /// <param name="forceLoadFromStreamingAssets">
+        /// Forces loading from StreamingAssets folder. Useful for when including assets
+        /// with the build
+        /// </param>
         /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <returns> Observable </returns>
@@ -96,7 +102,7 @@ namespace Core.Services.Assets
         }
 
         /// <summary>
-        /// Utility method to request multiple assets. 
+        /// Utility method to request multiple assets.
         /// </summary>
         /// <param name="requests">Bundle requests</param>
         /// <param name="progress">Reports loading progress percentage</param>

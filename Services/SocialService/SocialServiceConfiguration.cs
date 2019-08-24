@@ -7,7 +7,7 @@ namespace Core.Services.Social
     {
         [SerializeField]
         private string _LeaderboardID = "com.domain.app.leaderboardid"; //Same as Leaderboard ID you setup in iTunes Connect.
-        
+
         [SerializeField]
         private List<string> _achievementIDs;
 

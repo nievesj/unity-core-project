@@ -25,7 +25,7 @@ namespace Core.Services.UI
         {
             Close();
         }
-        
+
         protected override void OnElementHide() { }
 
         protected override void OnElementShow() { }

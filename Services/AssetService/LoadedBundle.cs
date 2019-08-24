@@ -2,9 +2,9 @@
 using System.Threading;
 using UniRx.Async;
 using UnityEngine;
-
 #if UNITY_EDITOR
 using UnityEditor;
+
 #endif
 
 
@@ -19,7 +19,7 @@ namespace Core.Services.Assets
         private readonly UnityEngine.Object _simulatedAssetObject;
 
         internal AssetBundle Bundle { get; }
-        
+
 #if UNITY_EDITOR
         internal SceneAsset SceneAsset { get; }
 #endif
@@ -33,7 +33,7 @@ namespace Core.Services.Assets
         {
             _simulatedAsset = asset;
         }
-        
+
 #if UNITY_EDITOR
         public LoadedBundle(SceneAsset asset)
         {

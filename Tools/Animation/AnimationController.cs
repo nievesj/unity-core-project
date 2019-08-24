@@ -31,7 +31,7 @@ namespace Core.Animation
             _animator = GetComponent<Animator>();
             _animationTriggers = _animator.GetBehaviours<StateMachineAnimationTrigger>();
         }
-        
+
         public virtual void Init()
         {
             _animationTriggers = _animator.GetBehaviours<StateMachineAnimationTrigger>();
@@ -40,7 +40,7 @@ namespace Core.Animation
                 trigger.OnEnterEvent
                     .Subscribe(OnEnterStateEvent)
                     .AddTo(_subscriptions);
-                
+
                 trigger.OnExitEvent
                     .Subscribe(OnExitStateEvent)
                     .AddTo(_subscriptions);

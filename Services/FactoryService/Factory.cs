@@ -31,7 +31,7 @@ namespace Core.Factory
         {
             return new ComponentPool<T>(prefab, amount, _diContainer, poolTransform);
         }
-        
+
         public PooledCoreBehaviourPool<T> CreatePooledCoreBehaviourPool<T>(Component prefab, int amount, Transform poolTransform = null) where T : Component, IInitializablePoolElement
         {
             return new PooledCoreBehaviourPool<T>(prefab, amount, _diContainer, poolTransform);

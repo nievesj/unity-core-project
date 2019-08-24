@@ -7,9 +7,9 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Zenject;
 using Object = UnityEngine.Object;
-
 #if UNITY_EDITOR
 using UnityEditor;
+
 #endif
 
 namespace Core.Services.Assets
@@ -40,7 +40,10 @@ namespace Core.Services.Assets
         /// it from the asset database. Asset simulation is only available on editor.
         /// </summary>
         /// <param name="bundleRequest"> Bundle to request </param>
-        /// <param name="forceLoadFromStreamingAssets">Forces loading from StreamingAssets folder. Useful for when including assets with the build</param>
+        /// <param name="forceLoadFromStreamingAssets">
+        /// Forces loading from StreamingAssets folder. Useful for when including assets
+        /// with the build
+        /// </param>
         /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <returns> Observable </returns>
@@ -108,17 +111,17 @@ namespace Core.Services.Assets
             IProgress<float> progress = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             var bundle = await LoadBundle(bundleRequest, forceLoadFromStreamingAssets, progress, cancellationToken);
-            
+
 #if UNITY_EDITOR
             if (EditorPreferences.EditorprefSimulateAssetBundles)
             {
                 return bundle.SceneAsset;
             }
 #endif
-            if(bundle.Bundle.GetAllScenePaths().Length == 0)
+            if (bundle.Bundle.GetAllScenePaths().Length == 0)
                 throw new Exception($"AssetBundleLoader: Tried to load a scene from {bundleRequest.BundleName}, and this bundle does not contains a scene.");
-                
-            return bundle.Bundle;  //.GetAllScenePaths().Length > 0 ? bundle.Bundle : null;
+
+            return bundle.Bundle; //.GetAllScenePaths().Length > 0 ? bundle.Bundle : null;
         }
 
         /// <summary>

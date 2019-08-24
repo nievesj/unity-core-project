@@ -4,7 +4,8 @@ using UniRx;
 namespace Core.Reactive
 {
     /// <summary>
-    /// Custom implementation of ReactiveProperty. Noticed that the UniRx version is kinda funky, so I created a trimmed down version.
+    /// Custom implementation of ReactiveProperty. Noticed that the UniRx version is kinda funky, so I created a trimmed down
+    /// version.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public interface IReactiveProperty<T>
@@ -47,7 +48,11 @@ namespace Core.Reactive
         private T _value;
         private Observer<T> _observable;
 
-        public T Value { get => _value; set => SetValue(value); }
+        public T Value
+        {
+            get => _value;
+            set => SetValue(value);
+        }
 
         public CoreReactiveProperty()
             : this(default) { }

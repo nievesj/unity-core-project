@@ -9,7 +9,7 @@ namespace Core.Factory
         void PoolElementWakeUp();
         void PoolElementSleep();
     }
-    
+
     public class PooledCoreBehaviourPool<T> : ComponentPool<T> where T : Component, IInitializablePoolElement
     {
         public PooledCoreBehaviourPool(Component prefab, int amount, DiContainer container, Transform poolTransform = null) : base(prefab, amount, container, poolTransform) { }

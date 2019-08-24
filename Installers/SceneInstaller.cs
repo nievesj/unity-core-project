@@ -11,7 +11,7 @@ namespace Core.Services
         private SignalBus _signalBus;
 
 
-        public override void InstallBindings(){ }
+        public override void InstallBindings() { }
 
         public override void Start()
         {

@@ -63,7 +63,7 @@ namespace Core.Services.UI
                 _uiScreenBlocker = _factoryService.Instantiate(_configuration.UIScreenBlocker, _mainCanvas.transform);
 
                 MainCanvas = canvas.GetComponent<Canvas>();
-                
+
                 if (MainCanvas.renderMode == RenderMode.ScreenSpaceCamera)
                     MainCanvas.worldCamera = Camera.main;
 
@@ -81,7 +81,7 @@ namespace Core.Services.UI
 
             if (MainCanvas.renderMode == RenderMode.ScreenSpaceCamera)
                 MainCanvas.worldCamera = Camera.main;
-            
+
             _renderPriorityCanvas.Clear();
 
             _renderPriorityCanvas.Add(UIType.Dialog, canvas.DialogContainer);

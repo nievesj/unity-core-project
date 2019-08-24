@@ -7,7 +7,7 @@ using Zenject;
 namespace Core.Services.UI
 {
     /// <summary>
-    /// UIElement is the base class for any UI element that is controlled by the _uiService. 
+    /// UIElement is the base class for any UI element that is controlled by the _uiService.
     /// </summary>
     public abstract class UIElement : CoreBehaviour
     {
@@ -38,12 +38,12 @@ namespace Core.Services.UI
         protected AudioService AudioService;
 
         /// <summary>
-        /// Triggers after the transition on Show ends. 
+        /// Triggers after the transition on Show ends.
         /// </summary>
         protected abstract void OnElementShow();
 
         /// <summary>
-        /// Triggers after the transition on Hide ends. 
+        /// Triggers after the transition on Hide ends.
         /// </summary>
         protected abstract void OnElementHide();
 
@@ -70,7 +70,7 @@ namespace Core.Services.UI
         }
 
         /// <summary>
-        /// Shows the UI Element and performs any transition 
+        /// Shows the UI Element and performs any transition
         /// </summary>
         /// <returns></returns>
         public virtual void Show(bool ignoreTransitionTime = false)
@@ -85,7 +85,7 @@ namespace Core.Services.UI
         }
 
         /// <summary>
-        /// Hides the UI Element after playing the out transition. 
+        /// Hides the UI Element after playing the out transition.
         /// </summary>
         /// <returns></returns>
         public virtual void Hide(bool ignoreTransitionTime = false)
@@ -100,7 +100,7 @@ namespace Core.Services.UI
         }
 
         /// <summary>
-        /// Close window and tells iservice to destroy the uielement and unload the asset 
+        /// Close window and tells iservice to destroy the uielement and unload the asset
         /// </summary>
         /// <returns> Observable </returns>
         public virtual void Close()

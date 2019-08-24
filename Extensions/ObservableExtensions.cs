@@ -12,13 +12,13 @@ public static class ObservableExtensions
     /// </summary>
     /// <param name="asyncOperation"></param>
     /// <returns></returns>
-    public static IObservable<UnityEngine.Object> ToObservable(this UnityEngine.AssetBundleRequest asyncOperation)
+    public static IObservable<UnityEngine.Object> ToObservable(this AssetBundleRequest asyncOperation)
     {
         if (asyncOperation == null) throw new ArgumentNullException(nameof(asyncOperation));
         return Observable.FromCoroutine<UnityEngine.Object>((observer, cancellationToken) => RunAssetBundleRequestOperation(asyncOperation, observer, cancellationToken));
     }
 
-    private static IEnumerator RunAssetBundleRequestOperation(UnityEngine.AssetBundleRequest asyncOperation, IObserver<UnityEngine.Object> observer, CancellationToken cancellationToken)
+    private static IEnumerator RunAssetBundleRequestOperation(AssetBundleRequest asyncOperation, IObserver<UnityEngine.Object> observer, CancellationToken cancellationToken)
     {
         while (!asyncOperation.isDone && !cancellationToken.IsCancellationRequested)
             yield return null;
@@ -51,7 +51,7 @@ public static class ObservableExtensions
     }
 
     /// <summary>
-    /// Converts a Task<T/> to an Observable, runs on main thread.
+    /// Converts a Task<T /> to an Observable, runs on main thread.
     /// </summary>
     /// <param name="task"></param>
     /// <typeparam name="T"></typeparam>

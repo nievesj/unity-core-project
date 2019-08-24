@@ -12,7 +12,7 @@ namespace Core.Services
         private SignalBus _signalBus;
 
         protected virtual void Awake()
-        {      
+        {
             //Listen to game lifetime events
             _signalBus.Subscribe<OnGameStartedSignal>(OnGameStart);
             _signalBus.Subscribe<OnGamePaused>(OnGamePausedInternal);
@@ -41,17 +41,17 @@ namespace Core.Services
         {
             OnGamePaused(false);
         }
-        
+
         private void OnGameLostFocusInternal()
         {
             OnGameFocusChange(false);
         }
-        
+
         private void OnGameGotFocusInternal()
         {
             OnGameFocusChange(true);
         }
-        
+
         private void OnGameQuitInternal()
         {
             _signalBus.TryUnsubscribe<OnGameQuit>(OnGameStart);

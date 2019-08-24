@@ -6,7 +6,6 @@ namespace Core.Services.Assets
     /// <summary>
     /// Attempts to load the file UnityCloudBuildManifest.json. This file is added to the build when
     /// using Unity Cloud Build services.
-    ///
     /// https://docs.unity3d.com/Manual/UnityCloudBuildManifest.html
     /// </summary>
     [System.Serializable]

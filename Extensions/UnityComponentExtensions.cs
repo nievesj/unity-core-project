@@ -59,9 +59,11 @@ public static class UnityComponentExtensions
     /// </summary>
     /// <param name="gameObject"></param>
     /// <param name="other"></param>
-    /// <param name="worldPositionStays">If true, the parent-relative position, scale and
+    /// <param name="worldPositionStays">
+    /// If true, the parent-relative position, scale and
     /// rotation are modified such that the object keeps the same world space position,
-    /// rotation and scale as before.</param>
+    /// rotation and scale as before.
+    /// </param>
     public static void AddChild(this GameObject gameObject, GameObject other, bool worldPositionStays = true)
     {
         gameObject.transform.AddChild(other.transform, worldPositionStays);
@@ -72,9 +74,11 @@ public static class UnityComponentExtensions
     /// </summary>
     /// <param name="gameObject"></param>
     /// <param name="other"></param>
-    /// <param name="worldPositionStays">If true, the parent-relative position, scale and
+    /// <param name="worldPositionStays">
+    /// If true, the parent-relative position, scale and
     /// rotation are modified such that the object keeps the same world space position,
-    /// rotation and scale as before.</param>
+    /// rotation and scale as before.
+    /// </param>
     public static void AddChild(this GameObject gameObject, Component other, bool worldPositionStays = true)
     {
         gameObject.transform.AddChild(other, worldPositionStays);
@@ -85,9 +89,11 @@ public static class UnityComponentExtensions
     /// </summary>
     /// <param name="component"></param>
     /// <param name="other"></param>
-    /// <param name="worldPositionStays">If true, the parent-relative position, scale and
+    /// <param name="worldPositionStays">
+    /// If true, the parent-relative position, scale and
     /// rotation are modified such that the object keeps the same world space position,
-    /// rotation and scale as before.</param>
+    /// rotation and scale as before.
+    /// </param>
     public static void AddChild(this Component component, Component other, bool worldPositionStays = true)
     {
         other.transform.SetParent(component.transform, worldPositionStays);
@@ -134,9 +140,7 @@ public static class UnityComponentExtensions
     /// <returns></returns>
     public static float Distance(this Component from, Component to, bool useLocalPosition = false)
     {
-        return useLocalPosition ?
-            Vector3.Distance(from.transform.localPosition, to.transform.localPosition) :
-            Vector3.Distance(from.transform.position, to.transform.position);
+        return useLocalPosition ? Vector3.Distance(from.transform.localPosition, to.transform.localPosition) : Vector3.Distance(from.transform.position, to.transform.position);
     }
 
     /// <summary>
@@ -148,23 +152,17 @@ public static class UnityComponentExtensions
     /// <returns></returns>
     public static float Distance(this Component from, Vector3 to, bool useLocalPosition = false)
     {
-        return useLocalPosition ?
-            Vector3.Distance(from.transform.localPosition, to) :
-            Vector3.Distance(from.transform.position, to);
+        return useLocalPosition ? Vector3.Distance(from.transform.localPosition, to) : Vector3.Distance(from.transform.position, to);
     }
 
     public static Vector3 Direction(this Component from, Component to, bool useLocalPosition = false)
     {
-        return useLocalPosition ?
-            to.transform.localPosition - from.transform.localPosition :
-            to.transform.position - from.transform.position;
+        return useLocalPosition ? to.transform.localPosition - from.transform.localPosition : to.transform.position - from.transform.position;
     }
 
     public static Vector3 Direction(this Component from, Vector3 to, bool useLocalPosition = false)
     {
-        return useLocalPosition ?
-            to - from.transform.localPosition :
-            to - from.transform.position;
+        return useLocalPosition ? to - from.transform.localPosition : to - from.transform.position;
     }
 
     public static Vector3 Position(this Component comp, bool useLocalPosition = false)
@@ -196,9 +194,7 @@ public static class UnityComponentExtensions
     /// <returns></returns>
     public static float Distance2D(this Component from, Component to, bool useLocalPosition = false)
     {
-        return useLocalPosition ?
-            Vector2.Distance(from.transform.localPosition, to.transform.localPosition) :
-            Vector2.Distance(from.transform.position, to.transform.position);
+        return useLocalPosition ? Vector2.Distance(from.transform.localPosition, to.transform.localPosition) : Vector2.Distance(from.transform.position, to.transform.position);
     }
 
     /// <summary>
@@ -210,9 +206,7 @@ public static class UnityComponentExtensions
     /// <returns></returns>
     public static float Distance2D(this Component from, Vector2 to, bool useLocalPosition = false)
     {
-        return useLocalPosition ?
-            Vector2.Distance(from.transform.localPosition, to) :
-            Vector2.Distance(from.transform.position, to);
+        return useLocalPosition ? Vector2.Distance(from.transform.localPosition, to) : Vector2.Distance(from.transform.position, to);
     }
 
     public static Vector3 Position2D(this Component comp, bool useLocalPosition = false)
