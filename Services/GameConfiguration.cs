@@ -9,6 +9,7 @@ using Core.Services.UI;
 using UnityEngine;
 using Zenject;
 using Logger = UnityLogger.Logger;
+using LogType = UnityLogger.LogType;
 
 namespace Core.Services
 {
@@ -25,9 +26,6 @@ namespace Core.Services
         public override void InstallBindings()
         {
             Logger.LogLevel = debugLevel;
-            if(debugLevel == UnityLogger.LogType.None)
-                Debug.unityLogger.logEnabled = false;
-
 
             //Initialize SignalBus
             SignalBusInstaller.Install(Container); //This allows SignalBus to be injected in any class instantiated here, or any of its children.
