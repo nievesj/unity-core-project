@@ -7,6 +7,7 @@ using UniRx;
 using UniRx.Async;
 using UnityEngine;
 using Zenject;
+using Logger = UnityLogger.Logger;
 
 namespace Core.Services.UI
 {
@@ -138,7 +139,7 @@ namespace Core.Services.UI
             if (obj.PauseGameWhenOpen)
                 PauseResume(true);
 
-            Debug.Log($"UI Service: Loaded window - {obj.name}".Colored(Colors.LightBlue));
+            Logger.Log($"UI Service: Loaded window - {obj.name}".Colored(Colors.LightBlue));
             await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
             return obj as T;
         }
@@ -233,7 +234,7 @@ namespace Core.Services.UI
 
         private async UniTask UIElementClosed(UIElement window)
         {
-            Debug.Log(("UI Service: Closed window - " + window.name).Colored(Colors.LightBlue));
+            Logger.Log(("UI Service: Closed window - " + window.name).Colored(Colors.LightBlue));
 
             _activeUIElements.Remove(window.name);
 

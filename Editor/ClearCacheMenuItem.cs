@@ -2,6 +2,7 @@
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using Logger = UnityLogger.Logger;
 
 /// <summary>
 /// Basic menu to clear cache
@@ -19,16 +20,16 @@ public class ClearCacheMenuItem
         {
             var cache = Caching.GetCacheByPath(cachePaths[0]);
 
-            Debug.Log(("Cache location: " + s).Colored(Colors.Yellow));
-            Debug.Log(("Cache was using: " + cache.spaceOccupied / 1024f / 1024f + " MB").Colored(Colors.Yellow));
+            Logger.Log(("Cache location: " + s).Colored(Colors.Yellow));
+            Logger.Log(("Cache was using: " + cache.spaceOccupied / 1024f / 1024f + " MB").Colored(Colors.Yellow));
 
             cache.ClearCache();
 
-            Debug.Log("Cache cleared.".Colored(Colors.Yellow));
+            Logger.Log("Cache cleared.".Colored(Colors.Yellow));
         }
 
         if (cachePaths.Count < 1)
-            Debug.Log("Cache was empty.".Colored(Colors.Yellow));
+            Logger.Log("Cache was empty.".Colored(Colors.Yellow));
     }
 
     [MenuItem("Core Framework / Delete Persistent Data Directory (Also deletes any saved data files)")]
@@ -36,7 +37,7 @@ public class ClearCacheMenuItem
     {
         //Delete Application.persistentDataPath
         Directory.Delete(Application.persistentDataPath, true);
-        Debug.Log(("Deleting persistent data directory " + Application.persistentDataPath).Colored(Colors.Yellow));
+        Logger.Log(("Deleting persistent data directory " + Application.persistentDataPath).Colored(Colors.Yellow));
     }
 
     [MenuItem("Core Framework / Enable Simulate Asset Bundles")]
@@ -45,7 +46,7 @@ public class ClearCacheMenuItem
         ClearAssetBundleCache();
 
         EditorPreferences.EditorprefSimulateAssetBundles = true;
-        Debug.Log("Enabled asset bundle simulation mode.".Colored(Colors.Yellow));
+        Logger.Log("Enabled asset bundle simulation mode.".Colored(Colors.Yellow));
     }
 
     [MenuItem("Core Framework / Enable Simulate Asset Bundles", true)]
@@ -60,7 +61,7 @@ public class ClearCacheMenuItem
         ClearAssetBundleCache();
 
         EditorPreferences.EditorprefSimulateAssetBundles = false;
-        Debug.Log("Disabled asset bundle simulation mode.".Colored(Colors.Yellow));
+        Logger.Log("Disabled asset bundle simulation mode.".Colored(Colors.Yellow));
     }
 
     [MenuItem("Core Framework / Disable Simulate Asset Bundles", true)]

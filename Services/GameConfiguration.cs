@@ -8,6 +8,7 @@ using Core.Services.Social;
 using Core.Services.UI;
 using UnityEngine;
 using Zenject;
+using Logger = UnityLogger.Logger;
 
 namespace Core.Services
 {
@@ -37,11 +38,10 @@ namespace Core.Services
             Container.DeclareSignal<OnGameLostFocus>().OptionalSubscriber();
             Container.DeclareSignal<OnGameQuit>().OptionalSubscriber();
 
-            Debug.Log("GameConfiguration: Starting Services".Colored(Colors.Lime));
+            Logger.Log("GameConfiguration: Starting Services".Colored(Colors.Lime));
             foreach (var service in services)
             {
-                Debug.Log($"--- Starting: {service.name}".Colored(Colors.Cyan));
-
+                Logger.Log($"--- Starting: {service.name}".Colored(Colors.Cyan));
                 if (service is AssetServiceConfiguration)
                 {
                     Container.BindInterfacesAndSelfTo<AssetService>().AsSingle().WithArguments(service).NonLazy();

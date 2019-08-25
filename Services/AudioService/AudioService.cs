@@ -6,6 +6,7 @@ using UniRx.Async;
 using UnityEngine;
 using UnityEngine.Audio;
 using Zenject;
+using Logger = UnityLogger.Logger;
 
 namespace Core.Services.Audio
 {
@@ -78,7 +79,7 @@ namespace Core.Services.Audio
             if (_configuration.AudioSourcePrefab)
                 _pooler = _factoryService.CreateComponentPool<AudioSource>(_configuration.AudioSourcePrefab, _configuration.PoolAmount);
             else
-                Debug.LogError("AudioService : PlayClip - Failed to create pool. Configuration is missing the AudioSource prefab.");
+                Logger.LogError("AudioService : PlayClip - Failed to create pool. Configuration is missing the AudioSource prefab.");
 
             GetPreferences();
         }
@@ -120,7 +121,7 @@ namespace Core.Services.Audio
                     ap.Player.transform.localPosition = Vector3.zero;
                 }
 
-                Debug.Log(("AudioService: Playing Clip - " + ap.Clip.name).Colored(Colors.Magenta));
+                Logger.Log(("AudioService: Playing Clip - " + ap.Clip.name).Colored(Colors.Magenta));
                 var audioSource = _pooler.PopResize();
                 ap.Player = _pooler.PopResize();
                 ap.Player.volume = _fxVolume;
@@ -210,7 +211,7 @@ namespace Core.Services.Audio
             await wait;
 
             if (ap.Clip)
-                Debug.Log(("AudioService: Done Playing Clip - " + ap.Clip.name).Colored(Colors.Magenta));
+                Logger.Log(("AudioService: Done Playing Clip - " + ap.Clip.name).Colored(Colors.Magenta));
 
             PushAudioSource(ap);
         }
@@ -222,7 +223,7 @@ namespace Core.Services.Audio
             var preferences = await _persistentData.Load<UserPreferences>();
             if (preferences.Equals(default(UserPreferences)))
             {
-                Debug.Log("AudioService: No UserPreferences set. Creating default.".Colored(Colors.Magenta));
+                Logger.Log("AudioService: No UserPreferences set. Creating default.".Colored(Colors.Magenta));
                 SaveInitialPreferences();
             }
             else

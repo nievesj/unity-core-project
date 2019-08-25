@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using Zenject;
+using Logger = UnityLogger.Logger;
 
 namespace Core.Services
 {
@@ -29,7 +30,7 @@ namespace Core.Services
         {
             _signalBus.TryUnsubscribe<OnGameStartedSignal>(OnGameStart);
 
-            Debug.Log("Game Started".Colored(Colors.Lime));
+            Logger.Log("Game Started".Colored(Colors.Lime));
         }
 
         private void OnGamePausedInternal()

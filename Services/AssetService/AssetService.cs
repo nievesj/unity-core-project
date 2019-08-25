@@ -4,6 +4,7 @@ using System.Threading;
 using UniRx.Async;
 using UnityEngine;
 using Zenject;
+using Logger = UnityLogger.Logger;
 
 namespace Core.Services.Assets
 {
@@ -36,12 +37,12 @@ namespace Core.Services.Assets
             var cloudManifest = await UnityCloufBuildManifestLoader.LoadBuildManifest();
             if (cloudManifest != null)
             {
-                Debug.Log(("---- AssetService: Unity Cloud Build Manifest present. Build Version: " + cloudManifest.buildNumber).Colored(Colors.Aqua));
+                Logger.Log(("---- AssetService: Unity Cloud Build Manifest present. Build Version: " + cloudManifest.buildNumber).Colored(Colors.Aqua));
                 _cloudBuildManifest = cloudManifest;
             }
             else
             {
-                Debug.Log("---- AssetService: Unity Cloud Build Manifest missing. This is ok. Ignoring.".Colored(Colors.Aqua));
+                Logger.Log("---- AssetService: Unity Cloud Build Manifest missing. This is ok. Ignoring.".Colored(Colors.Aqua));
             }
         }
 
@@ -129,7 +130,7 @@ namespace Core.Services.Assets
                 tempCount++;
                 progress?.Report(tempCount * 100 / total);
 
-                Debug.Log($"LoadMultipleAssets: {tempCount} of {total} | {tempCount * 100 / total}%".Colored(Colors.Aquamarine));
+                Logger.Log($"LoadMultipleAssets: {tempCount} of {total} | {tempCount * 100 / total}%".Colored(Colors.Aquamarine));
             }
 
             return bundles;

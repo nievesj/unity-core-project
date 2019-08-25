@@ -2,9 +2,9 @@
 using System.Threading;
 using UniRx.Async;
 using UnityEngine;
+using Logger = UnityLogger.Logger;
 #if UNITY_EDITOR
 using UnityEditor;
-
 #endif
 
 
@@ -64,14 +64,14 @@ namespace Core.Services.Assets
 #if UNITY_EDITOR
             if (EditorPreferences.EditorprefSimulateAssetBundles)
             {
-                Debug.Log(("LoadAssetAsync Simulated: loading asset: " + name).Colored(Colors.Yellow));
+                Logger.Log(("LoadAssetAsync Simulated: loading asset: " + name).Colored(Colors.Yellow));
                 var comp = _simulatedAsset.GetComponent<T>();
                 await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
                 return comp;
             }
 #endif
 
-            Debug.Log(("LoadAssetAsync: loading asset: " + name).Colored(Colors.Yellow));
+            Logger.Log(("LoadAssetAsync: loading asset: " + name).Colored(Colors.Yellow));
             return await GetAssetComponentAsync<T>(Bundle.LoadAssetAsync(name), progress, cancellationToken);
         }
 
@@ -93,7 +93,7 @@ namespace Core.Services.Assets
                 await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
                 //Supressing this so it doesnt step over GetBundleFromStreamingAssetsAsync or GetBundleFromWebOrCacheAsync
                 //progress?.Report(asyncOperation.progress);
-                Debug.Log($"GetAssetComponentAsync {Bundle.name} progress: {asyncOperation.progress * 100f}%".Colored(Colors.LightSalmon));
+                Logger.Log($"GetAssetComponentAsync {Bundle.name} progress: {asyncOperation.progress * 100f}%".Colored(Colors.LightSalmon));
             }
 
             if (!asyncOperation.asset)
