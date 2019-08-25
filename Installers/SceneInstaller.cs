@@ -1,4 +1,6 @@
+using UnityEngine;
 using Zenject;
+using LogType = UnityLogger.LogType;
 
 namespace Core.Services
 {
@@ -9,10 +11,9 @@ namespace Core.Services
     {
         [Inject]
         private SignalBus _signalBus;
-
-
+        
         public override void InstallBindings() { }
-
+        
         public override void Start()
         {
             _signalBus.Fire<OnGameStartedSignal>();

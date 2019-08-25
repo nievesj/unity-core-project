@@ -5,6 +5,7 @@ using UniRx.Async;
 using UnityEngine;
 using Zenject;
 using Logger = UnityLogger.Logger;
+using LogType = UnityLogger.LogType;
 
 namespace Core.Services.Assets
 {

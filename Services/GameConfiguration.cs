@@ -19,13 +19,15 @@ namespace Core.Services
     [CreateAssetMenu(fileName = "Game Configuration", menuName = "Installers/Core Framework Settings/Game Configuration")]
     public class GameConfiguration : ScriptableObjectInstaller<GameConfiguration>
     {
-        public bool DisableLogging;
+        public UnityLogger.LogType debugLevel = UnityLogger.LogType.All;
         public List<ServiceConfiguration> services = new List<ServiceConfiguration>();
 
         public override void InstallBindings()
         {
-            if (DisableLogging)
+            Logger.LogLevel = debugLevel;
+            if(debugLevel == UnityLogger.LogType.None)
                 Debug.unityLogger.logEnabled = false;
+
 
             //Initialize SignalBus
             SignalBusInstaller.Install(Container); //This allows SignalBus to be injected in any class instantiated here, or any of its children.
