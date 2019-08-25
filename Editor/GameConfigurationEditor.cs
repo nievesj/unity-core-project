@@ -26,10 +26,10 @@ namespace Core.Services
 
         private void OnEnable()
         {
-            Color backColor = GUI.backgroundColor;
-            Color contentColor = GUI.contentColor;
-            float line = EditorGUIUtility.singleLineHeight;
-            SerializedProperty property = serializedObject.FindProperty("services");
+            var backColor = GUI.backgroundColor;
+            var contentColor = GUI.contentColor;
+            var line = EditorGUIUtility.singleLineHeight;
+            var property = serializedObject.FindProperty("services");
             _services = new ReorderableList(serializedObject, property);
             _services.showDefaultBackground = true;
             _services.elementHeight = line + 6;
@@ -38,12 +38,12 @@ namespace Core.Services
 
             _services.drawElementCallback = (Rect rect, int index, bool active, bool focused) =>
             {
-                float width = rect.width - 22;
-                SerializedProperty element = _services.serializedProperty.GetArrayElementAtIndex(index);
+                var width = rect.width - 22;
+                var element = _services.serializedProperty.GetArrayElementAtIndex(index);
 
                 if (GUI.Button(new Rect(rect.x + rect.width - 20, rect.y + 4, 18, line), EditorGUIUtility.IconContent("_Popup").image, GUIStyle.none))
                 {
-                    GenericMenu menu = new GenericMenu();
+                    var menu = new GenericMenu();
                     menu.AddItem(new GUIContent("Edit"), false, delegate() { Selection.activeObject = element.objectReferenceValue; });
 
                     menu.AddItem(new GUIContent("Remove"), false, delegate()
@@ -69,12 +69,12 @@ namespace Core.Services
 
             _services.onAddCallback = (list) =>
             {
-                Type[] allServiceTypes = GetAllServiceTypes();
-                GenericMenu servicesMenu = new GenericMenu();
+                var allServiceTypes = GetAllServiceTypes();
+                var servicesMenu = new GenericMenu();
                 foreach (var serviceType in allServiceTypes)
                     servicesMenu.AddItem(new GUIContent(ObjectNames.NicifyVariableName(serviceType.Name)), false, delegate(object service)
                     {
-                        Type styp = service as Type;
+                        var styp = service as Type;
                         foreach (var assy in AppDomain.CurrentDomain.GetAssemblies())
                         foreach (var typ in assy.GetTypes())
                             if (typ.Name == styp.Name + "Config" || typ.Name == styp.Name + "Configuration")
@@ -83,7 +83,7 @@ namespace Core.Services
                                 object so = ScriptableObject.CreateInstance(typ);
                                 if (so == null || so as ServiceConfiguration == null) return;
                                 serializedObject.ApplyModifiedProperties();
-                                string path = AssetDatabase.GetAssetOrScenePath(serializedObject.targetObject);
+                                var path = AssetDatabase.GetAssetOrScenePath(serializedObject.targetObject);
                                 path = Path.GetDirectoryName(path) + Path.DirectorySeparatorChar + styp.Name + ".asset";
                                 AssetDatabase.CreateAsset(so as ServiceConfiguration, path);
                                 if (so != null)
