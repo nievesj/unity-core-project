@@ -37,10 +37,10 @@ namespace Core.Services
             Container.DeclareSignal<OnGameLostFocus>().OptionalSubscriber();
             Container.DeclareSignal<OnGameQuit>().OptionalSubscriber();
 
-            Logger.Log("GameConfiguration: Starting Services".Colored(Colors.Lime));
+            Logger.Log("GameConfiguration: Starting Services",Colors.Lime);
             foreach (var service in services)
             {
-                Logger.Log($"--- Starting: {service.name}".Colored(Colors.Cyan));
+                Logger.Log($"--- Starting: {service.name}",Colors.Cyan);
                 if (service is AssetServiceConfiguration)
                 {
                     Container.BindInterfacesAndSelfTo<AssetService>().AsSingle().WithArguments(service).NonLazy();

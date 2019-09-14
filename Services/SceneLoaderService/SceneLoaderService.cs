@@ -64,10 +64,10 @@ namespace Core.Services.Scenes
 
             if (sceneObject && !cancellationToken.IsCancellationRequested)
             {
-                Logger.Log(("SceneLoaderService: Loaded scene - " + scene).Colored(Colors.LightBlue));
+                Logger.Log(("SceneLoaderService: Loaded scene - " + scene),Colors.LightBlue);
 
                 await SceneManager.LoadSceneAsync(scene, mode);
-                Logger.Log(("SceneLoaderService: Opened scene - " + scene).Colored(Colors.LightBlue));
+                Logger.Log(("SceneLoaderService: Opened scene - " + scene),Colors.LightBlue);
             }
 
             return sceneObject;
@@ -82,7 +82,7 @@ namespace Core.Services.Scenes
         {
             await SceneManager.UnloadSceneAsync(scene);
             await _assetService.UnloadAsset(scene, true);
-            Logger.Log(("SceneLoaderService: Unloaded scene - " + scene).Colored(Colors.LightBlue));
+            Logger.Log(("SceneLoaderService: Unloaded scene - " + scene),Colors.LightBlue);
         }
 
         public Scene GetLoadedScene(string sceneName)

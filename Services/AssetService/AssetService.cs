@@ -38,12 +38,12 @@ namespace Core.Services.Assets
             var cloudManifest = await UnityCloufBuildManifestLoader.LoadBuildManifest();
             if (cloudManifest != null)
             {
-                Logger.Log(("---- AssetService: Unity Cloud Build Manifest present. Build Version: " + cloudManifest.buildNumber).Colored(Colors.Aqua));
+                Logger.Log(("---- AssetService: Unity Cloud Build Manifest present. Build Version: " + cloudManifest.buildNumber),Colors.Aqua);
                 _cloudBuildManifest = cloudManifest;
             }
             else
             {
-                Logger.Log("---- AssetService: Unity Cloud Build Manifest missing. This is ok. Ignoring.".Colored(Colors.Aqua));
+                Logger.Log("---- AssetService: Unity Cloud Build Manifest missing. This is ok. Ignoring.",Colors.Aqua);
             }
         }
 
@@ -131,7 +131,7 @@ namespace Core.Services.Assets
                 tempCount++;
                 progress?.Report(tempCount * 100 / total);
 
-                Logger.Log($"LoadMultipleAssets: {tempCount} of {total} | {tempCount * 100 / total}%".Colored(Colors.Aquamarine));
+                Logger.Log($"LoadMultipleAssets: {tempCount} of {total} | {tempCount * 100 / total}%",Colors.Aquamarine);
             }
 
             return bundles;

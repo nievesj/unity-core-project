@@ -49,7 +49,7 @@ namespace Core.Services.Data
             {
                 if (data is MonoBehaviour)
                 {
-                    Logger.LogError($"Persistent Data Service: Monobehaviours cannot be serialized. Aborting.".Colored(Colors.LightPink));
+                    Logger.LogError($"Persistent Data Service: Monobehaviours cannot be serialized. Aborting.");
                     return;
                 }
 
@@ -65,7 +65,7 @@ namespace Core.Services.Data
                         file.Flush();
                         file.Close();
 
-                        Logger.Log($"Persistent Data Service: Saving to - {_dataDirectory + "/" + filename}".Colored(Colors.LightPink));
+                        Logger.Log($"Persistent Data Service: Saving to - {_dataDirectory + "/" + filename}",Colors.LightPink);
                     }
                 }
                 catch (Exception e)
@@ -105,7 +105,7 @@ namespace Core.Services.Data
                         var data = (T) bf.Deserialize(file); //todo: need to find an async way of doing this
                         file.Close();
 
-                        Logger.Log($"Persistent Data Service: Reading from - {_dataDirectory + "/" + filename}".Colored(Colors.LightPink));
+                        Logger.Log($"Persistent Data Service: Reading from - {_dataDirectory + "/" + filename}",Colors.LightPink);
 
                         return data;
                     }

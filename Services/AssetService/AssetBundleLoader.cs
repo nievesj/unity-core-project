@@ -159,7 +159,7 @@ namespace Core.Services.Assets
         {
             var uwr = new UnityWebRequest();
 
-            Logger.Log($"AssetBundleLoader:  {_assetService.AssetCacheState}  | Requesting:  {bundleRequest.AssetName}  {bundleRequest.BundleName}".Colored(Colors.Aqua));
+            Logger.Log($"AssetBundleLoader:  {_assetService.AssetCacheState}  | Requesting:  {bundleRequest.AssetName}  {bundleRequest.BundleName}",Colors.Aqua);
             if (_assetService.CloudBuildManifest != null && _assetService.AssetCacheState == AssetCacheState.Cache)
             {
                 //cache bundles by using Unity Cloud Build manifest
@@ -170,7 +170,7 @@ namespace Core.Services.Assets
             else if (_assetService.CloudBuildManifest == null || _assetService.AssetCacheState == AssetCacheState.NoCache)
             {
                 if (_assetService.AssetCacheState == AssetCacheState.Cache)
-                    Logger.Log("AssetBundleLoader:  Caching is enabled, but Unity Cloud Build Manifest was missing, bundle was not cached.".Colored(Colors.Aqua));
+                    Logger.Log("AssetBundleLoader:  Caching is enabled, but Unity Cloud Build Manifest was missing, bundle was not cached.",Colors.Aqua);
 
                 //No caching, just get the bundle
                 uwr = UnityWebRequestAssetBundle.GetAssetBundle(bundleRequest.GetAssetPath(_assetService.Configuration));
@@ -185,7 +185,7 @@ namespace Core.Services.Assets
 
                 await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
                 progress?.Report(asyncOperation.progress);
-                Logger.Log($"GetBundleFromWebOrCacheAsync {bundleRequest.BundleName} progress: {asyncOperation.progress * 100f}%".Colored(Colors.LightSalmon));
+                Logger.Log($"GetBundleFromWebOrCacheAsync {bundleRequest.BundleName} progress: {asyncOperation.progress * 100f}%",Colors.LightSalmon);
             }
 
             //get bundle
@@ -208,7 +208,7 @@ namespace Core.Services.Assets
         private async UniTask<AssetBundle> GetBundleFromStreamingAssetsAsync(BundleRequest bundleRequest,
             IProgress<float> progress, CancellationToken cancellationToken)
         {
-            Logger.Log($"AssetBundleLoader: Using StreamingAssets -  Requesting: {bundleRequest.AssetCategory}  {bundleRequest.BundleName}".Colored(Colors.Aqua));
+            Logger.Log($"AssetBundleLoader: Using StreamingAssets -  Requesting: {bundleRequest.AssetCategory}  {bundleRequest.BundleName}",Colors.Aqua);
             var path = Path.Combine(Application.streamingAssetsPath, bundleRequest.AssetPathFromLocalStreamingAssets);
 
             var asyncOperation = AssetBundle.LoadFromFileAsync(path);
@@ -219,7 +219,7 @@ namespace Core.Services.Assets
 
                 await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
                 progress?.Report(asyncOperation.progress);
-                Logger.Log($"GetBundleFromStreamingAssetsAsync {bundleRequest.BundleName} progress: {asyncOperation.progress * 100f}%".Colored(Colors.LightSalmon));
+                Logger.Log($"GetBundleFromStreamingAssetsAsync {bundleRequest.BundleName} progress: {asyncOperation.progress * 100f}%",Colors.LightSalmon);
             }
 
             return asyncOperation.assetBundle;

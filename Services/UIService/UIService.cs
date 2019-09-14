@@ -139,7 +139,7 @@ namespace Core.Services.UI
             if (obj.PauseGameWhenOpen)
                 PauseResume(true);
 
-            Logger.Log($"UI Service: Loaded window - {obj.name}".Colored(Colors.LightBlue));
+            Logger.Log($"UI Service: Loaded window - {obj.name}",Colors.LightBlue);
             await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
             return obj as T;
         }
@@ -234,7 +234,7 @@ namespace Core.Services.UI
 
         private async UniTask UIElementClosed(UIElement window)
         {
-            Logger.Log(("UI Service: Closed window - " + window.name).Colored(Colors.LightBlue));
+            Logger.Log(("UI Service: Closed window - " + window.name),Colors.LightBlue);
 
             _activeUIElements.Remove(window.name);
 

@@ -30,7 +30,7 @@ namespace Core.Services
         {
             _signalBus.TryUnsubscribe<OnGameStartedSignal>(OnGameStart);
 
-            Logger.Log("Game Started".Colored(Colors.Lime));
+            Logger.Log("Game Started",Colors.Lime);
         }
 
         private void OnGamePausedInternal()

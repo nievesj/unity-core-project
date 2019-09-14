@@ -121,7 +121,7 @@ namespace Core.Services.Audio
                     ap.Player.transform.localPosition = Vector3.zero;
                 }
 
-                Logger.Log(("AudioService: Playing Clip - " + ap.Clip.name).Colored(Colors.Magenta));
+                Logger.Log(("AudioService: Playing Clip - " + ap.Clip.name),Colors.Magenta);
                 var audioSource = _pooler.PopResize();
                 ap.Player = _pooler.PopResize();
                 ap.Player.volume = _fxVolume;
@@ -211,7 +211,7 @@ namespace Core.Services.Audio
             await wait;
 
             if (ap.Clip)
-                Logger.Log(("AudioService: Done Playing Clip - " + ap.Clip.name).Colored(Colors.Magenta));
+                Logger.Log(("AudioService: Done Playing Clip - " + ap.Clip.name),Colors.Magenta);
 
             PushAudioSource(ap);
         }
@@ -223,7 +223,7 @@ namespace Core.Services.Audio
             var preferences = await _persistentData.Load<UserPreferences>();
             if (preferences.Equals(default(UserPreferences)))
             {
-                Logger.Log("AudioService: No UserPreferences set. Creating default.".Colored(Colors.Magenta));
+                Logger.Log("AudioService: No UserPreferences set. Creating default.",Colors.Magenta);
                 SaveInitialPreferences();
             }
             else

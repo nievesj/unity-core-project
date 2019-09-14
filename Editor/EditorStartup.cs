@@ -13,7 +13,7 @@ namespace Core
             {
                 if (EditorPreferences.EditorprefFirstTimeUse)
                 {
-                    Logger.Log("First time use. Enabling asset bundle simulation mode.".Colored(Colors.Yellow));
+                    Logger.Log("First time use. Enabling asset bundle simulation mode.",Colors.Yellow);
 
                     EditorPreferences.EditorprefSimulateAssetBundles = true;
                     EditorPreferences.EditorprefFirstTimeUse = false;
