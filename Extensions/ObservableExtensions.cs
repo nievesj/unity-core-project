@@ -8,6 +8,19 @@ using UnityEngine;
 public static class ObservableExtensions
 {
     /// <summary>
+    /// Subscribe until a component is disabled. Useful for ReactiveProperties, CoreProperties or CoreEvents
+    /// </summary>
+    /// <param name="source"></param>
+    /// <param name="target"></param>
+    /// <param name="onNext"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static IDisposable SubscribeUntilDisable<T>(this IObservable<T> source, Component target, Action<T> onNext)
+    {
+        return source.TakeUntilDisable(target.gameObject).Subscribe(onNext);
+    }
+
+    /// <summary>
     /// AssetBundleRequest ToObservable extension
     /// </summary>
     /// <param name="asyncOperation"></param>
