@@ -10,6 +10,54 @@ namespace Core.Factory
         void PoolElementSleep();
     }
 
+    public class PoolContainer<T> where T : Component
+    {
+        protected Dictionary<string, ComponentPool<T>> _poolDictionary;
+
+        public PoolContainer()
+        {
+            _poolDictionary = new Dictionary<string, ComponentPool<T>>();
+        }
+
+        public virtual void Add(string name, ComponentPool<T> pool)
+        {
+            if (!_poolDictionary.ContainsKey(name))
+                _poolDictionary.Add(name, pool);
+        }
+
+        public virtual void Remove(string name)
+        {
+            if (_poolDictionary.ContainsKey(name))
+                _poolDictionary.Remove(name);
+        }
+
+        public virtual ComponentPool<T> Get(string name)
+        {
+            if (_poolDictionary.ContainsKey(name))
+                return _poolDictionary[name];
+
+            return null;
+        }
+
+        public virtual TC Pop<TC>(string name) where TC : Component
+        {
+            if (_poolDictionary.ContainsKey(name))
+            {
+                var pop = _poolDictionary[name].Pop();
+                if (pop)
+                    return pop.GetComponent<TC>();
+            }
+
+            return null;
+        }
+
+        public virtual void Push(string name, T component)
+        {
+            if (_poolDictionary.ContainsKey(name))
+                _poolDictionary[name].Push(component);
+        }
+    }
+
     public class PooledCoreBehaviourPool<T> : ComponentPool<T> where T : Component, IInitializablePoolElement
     {
         public PooledCoreBehaviourPool(Component prefab, int amount, DiContainer container, Transform poolTransform = null) : base(prefab, amount, container, poolTransform) { }
