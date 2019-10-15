@@ -16,14 +16,6 @@ namespace Core.Services.UI
         Fade
     }
 
-    public struct TransitionParams
-    {
-        public Canvas Canvas;
-        public UIElement UiElement;
-        public bool IsOutTransition;
-        public RectTransform CanvasRecTransform;
-    }
-
     [System.Serializable]
     public class UIElementTransitionOptions
     {
@@ -32,14 +24,29 @@ namespace Core.Services.UI
         public float transitionTime = 0.5f;
         public AudioClip transitionSound;
 
+        [NonSerialized]
+        public UIElement UiElement;
+
+        [NonSerialized]
+        public bool IsOutTransition;
+
+        [NonSerialized]
+        public Vector3 originalAnchoredPosition;
+
+        [NonSerialized]
+        public float originalHeight;
+
+        [NonSerialized]
+        public float originalWidth;
+
         private bool _transitionCompleted = false;
         private bool _bypassTransitionTime;
 
-        public void PlayTransition(TransitionParams opts, bool ignoreTransitionTime, Action onComplete)
+        public void PlayTransition(bool ignoreTransitionTime, Action onComplete)
         {
             var start = Vector2.zero;
             var end = Vector2.zero;
-            var rtrans = opts.UiElement.RectTransform;
+            var rtrans = UiElement.RectTransform;
             _transitionCompleted = false;
             _bypassTransitionTime = ignoreTransitionTime;
 
@@ -50,7 +57,7 @@ namespace Core.Services.UI
                     end = rtrans.anchoredPosition;
                     end.y -= rtrans.rect.height;
 
-                    if (opts.IsOutTransition)
+                    if (IsOutTransition)
                     {
                         start = end;
                         end = rtrans.anchoredPosition;
@@ -64,7 +71,7 @@ namespace Core.Services.UI
                     end = rtrans.anchoredPosition;
                     end.y += rtrans.rect.height;
 
-                    if (opts.IsOutTransition)
+                    if (IsOutTransition)
                     {
                         start = end;
                         end = rtrans.anchoredPosition;
@@ -78,10 +85,10 @@ namespace Core.Services.UI
                     end = rtrans.anchoredPosition;
                     end.x += rtrans.rect.width;
 
-                    if (opts.IsOutTransition)
+                    if (IsOutTransition)
                     {
                         start = end;
-                        end = rtrans.anchoredPosition;
+                        end = originalAnchoredPosition;
                         end.x -= rtrans.rect.width;
                     }
 
@@ -92,10 +99,10 @@ namespace Core.Services.UI
                     end = rtrans.anchoredPosition;
                     end.x -= rtrans.rect.width;
 
-                    if (opts.IsOutTransition)
+                    if (IsOutTransition)
                     {
                         start = end;
-                        end = rtrans.anchoredPosition;
+                        end = originalAnchoredPosition;
                         end.x += rtrans.rect.width;
                     }
 
@@ -105,7 +112,7 @@ namespace Core.Services.UI
                     start = Vector2.zero;
                     end = new Vector2(1, 1);
 
-                    if (opts.IsOutTransition)
+                    if (IsOutTransition)
                     {
                         start = end;
                         end = Vector2.zero;
@@ -118,7 +125,7 @@ namespace Core.Services.UI
                     float fstart = 0;
                     float fend = 1;
 
-                    if (opts.IsOutTransition)
+                    if (IsOutTransition)
                     {
                         fstart = 1;
                         fend = 0;

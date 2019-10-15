@@ -32,7 +32,6 @@ namespace Core.Services.UI
         public RectTransform RectTransform => transform as RectTransform;
 
         protected Canvas MainCanvas { get; set; }
-        protected TransitionParams TranParams;
 
         [Inject]
         protected AudioService AudioService;
@@ -47,19 +46,22 @@ namespace Core.Services.UI
         /// </summary>
         protected abstract void OnElementHide();
 
-        protected virtual void Awake() { }
+        protected virtual void Awake()
+        {
+            inTransition.UiElement = this;
+            inTransition.originalAnchoredPosition = RectTransform.anchoredPosition;
+            inTransition.originalHeight = RectTransform.rect.height;
+            inTransition.originalWidth = RectTransform.rect.width;
+
+            outTransition.UiElement = this;
+            outTransition.originalAnchoredPosition = RectTransform.anchoredPosition;
+            outTransition.originalHeight = RectTransform.rect.height;
+            outTransition.originalWidth = RectTransform.rect.width;
+            outTransition.IsOutTransition = true;
+        }
 
         protected virtual void Start()
         {
-            if (!MainCanvas) return;
-            TranParams = new TransitionParams
-            {
-                Canvas = MainCanvas,
-                UiElement = this,
-                IsOutTransition = false,
-                CanvasRecTransform = MainCanvas.GetComponent<RectTransform>()
-            };
-
             if (startHidden)
                 Hide(true);
         }
@@ -75,13 +77,11 @@ namespace Core.Services.UI
         /// <returns></returns>
         public virtual void Show(bool ignoreTransitionTime = false)
         {
-            TranParams.IsOutTransition = false;
-
             if (inTransition.transitionSound)
                 AudioService.PlayClip(inTransition.transitionSound);
 
             if (inTransition != null && inTransition.transitionType != TransitionType.NotUsed)
-                inTransition.PlayTransition(TranParams, ignoreTransitionTime, OnElementShow);
+                inTransition.PlayTransition(ignoreTransitionTime, OnElementShow);
         }
 
         /// <summary>
@@ -90,13 +90,11 @@ namespace Core.Services.UI
         /// <returns></returns>
         public virtual void Hide(bool ignoreTransitionTime = false)
         {
-            TranParams.IsOutTransition = true;
-
             if (outTransition.transitionSound)
                 AudioService.PlayClip(outTransition.transitionSound);
 
             if (outTransition != null && outTransition.transitionType != TransitionType.NotUsed)
-                outTransition.PlayTransition(TranParams, ignoreTransitionTime, OnElementHide);
+                outTransition.PlayTransition(ignoreTransitionTime, OnElementHide);
         }
 
         /// <summary>
