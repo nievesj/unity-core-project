@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace Core.Services.Input
 {
@@ -6,6 +9,7 @@ namespace Core.Services.Input
     {
         public const string MouseAxisX = "Mouse X";
         public const string MouseAxisY = "Mouse Y";
+        public const string MouseScrollWheel = "Mouse ScrollWheel";
     }
 
     public enum ControlState
@@ -62,10 +66,10 @@ namespace Core.Services.Input
 
         protected abstract void OnMobilePinch(Touch touch0, Touch touch1);
 
-        protected override void Awake()
-        {
-            base.Awake();
+        protected abstract void OnScrollWheelMove(float value);
 
+        protected virtual void Awake()
+        {
             MainCamera = Camera.main;
         }
 
@@ -107,6 +111,11 @@ namespace Core.Services.Input
             if (UnityEngine.Input.GetMouseButtonUp(0))
             {
                 MouseUp(CurrentTouchMousePosition);
+            }
+
+            if (UnityEngine.Input.GetAxis(Constants.MouseScrollWheel) != 0)
+            {
+                OnScrollWheelMove(UnityEngine.Input.GetAxis(Constants.MouseScrollWheel));
             }
         }
 
@@ -240,7 +249,6 @@ namespace Core.Services.Input
         protected Vector3 GetPointerLocationWorldPosition(Vector3 pos)
         {
             return MainCamera.ScreenToWorldPoint(pos);
-            ;
         }
 
         /// <summary>
@@ -265,6 +273,11 @@ namespace Core.Services.Input
             return position;
         }
 
+        protected Vector2 GetMouseScrollDeltaChange()
+        {
+            return UnityEngine.Input.mouseScrollDelta;
+        }
+
         protected Vector3 ScreenToViewportPoint()
         {
 #if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
@@ -275,8 +288,7 @@ namespace Core.Services.Input
         }
 
         /// <summary>
-        /// Platform independent ScreenPointToRay Uses current mouse or touch position to calculate
-        /// the ray
+        /// Platform independent ScreenPointToRay Uses current mouse or touch position to calculate ray
         /// </summary>
         /// <returns></returns>
         protected Ray ScreenPointToRay()
@@ -286,6 +298,21 @@ namespace Core.Services.Input
 #elif UNITY_WEBGL || UNITY_EDITOR || UNITY_STANDALONE || UNITY_FACEBOOK
             return MainCamera.ScreenPointToRay(UnityEngine.Input.mousePosition);
 #endif
+        }
+
+        protected bool IsPointerOverUI(GraphicRaycaster graphicRaycaster)
+        {
+            var results = new List<RaycastResult>();
+            var pointerEventData = new PointerEventData(EventSystem.current);
+
+#if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
+			pointerEventData.position = UnityEngine.Input.GetTouch(0).position;
+#elif UNITY_WEBGL || UNITY_EDITOR || UNITY_STANDALONE || UNITY_FACEBOOK
+            pointerEventData.position = UnityEngine.Input.mousePosition;
+#endif
+            graphicRaycaster.Raycast(pointerEventData, results);
+
+            return results.Count > 0;
         }
     }
 }

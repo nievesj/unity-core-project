@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UniRx;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
@@ -39,6 +38,7 @@ namespace Core.Services.Social
                         observer.OnNext(isAuthenticated);
                         observer.OnCompleted();
                     }
+
                     UnityEngine.Social.localUser.Authenticate(OnAuthenticate);
                     return Disposable.Empty;
                 });
@@ -83,6 +83,7 @@ namespace Core.Services.Social
                         observer.OnNext(achievements.ToList());
                         observer.OnCompleted();
                     }
+
                     UnityEngine.Social.LoadAchievements(OnLoadedAchievements);
                     return Disposable.Empty;
                 });
@@ -102,6 +103,7 @@ namespace Core.Services.Social
                         observer.OnNext(achievements.ToList());
                         observer.OnCompleted();
                     }
+
                     UnityEngine.Social.LoadAchievementDescriptions(OnLoadedAchievements);
                     return Disposable.Empty;
                 });
@@ -121,6 +123,7 @@ namespace Core.Services.Social
                         observer.OnNext(achievements.ToList());
                         observer.OnCompleted();
                     }
+
                     UnityEngine.Social.LoadScores(_configuration.LeaderboardID, OnLoadedAchievements);
                     return Disposable.Empty;
                 });
@@ -141,6 +144,7 @@ namespace Core.Services.Social
                         observer.OnNext(achievements.ToList());
                         observer.OnCompleted();
                     }
+
                     UnityEngine.Social.LoadUsers(userIds.ToArray(), OnLoadedAchievements);
                     return Disposable.Empty;
                 });
@@ -162,11 +166,12 @@ namespace Core.Services.Social
                         observer.OnNext(success);
                         observer.OnCompleted();
                     }
+
                     UnityEngine.Social.ReportProgress(achievementId, achievementProgress, OnProgressReported);
                     return Disposable.Empty;
                 });
         }
-        
+
         /// <summary>
         /// Report score
         /// </summary>
@@ -182,6 +187,7 @@ namespace Core.Services.Social
                         observer.OnNext(success);
                         observer.OnCompleted();
                     }
+
                     UnityEngine.Social.ReportScore(score, _configuration.LeaderboardID, OnScoreReported);
                     return Disposable.Empty;
                 });

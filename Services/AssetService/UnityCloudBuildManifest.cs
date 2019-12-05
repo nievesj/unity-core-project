@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using UniRx.Async;
+﻿using UniRx.Async;
 using UnityEngine;
 
 namespace Core.Services.Assets
@@ -7,7 +6,6 @@ namespace Core.Services.Assets
     /// <summary>
     /// Attempts to load the file UnityCloudBuildManifest.json. This file is added to the build when
     /// using Unity Cloud Build services.
-    ///
     /// https://docs.unity3d.com/Manual/UnityCloudBuildManifest.html
     /// </summary>
     [System.Serializable]
@@ -30,7 +28,7 @@ namespace Core.Services.Assets
         /// Loads UnityCloudBuildManifest into a structure the rest of the system can use,
         /// </summary>
         /// <returns></returns>
-        public static async Task<UnityCloudBuildManifest> LoadBuildManifest()
+        public static async UniTask<UnityCloudBuildManifest> LoadBuildManifest()
         {
             var res = await Resources.LoadAsync(Constants.UnityBuildManifest);
             UnityCloudBuildManifest manifest = null;

@@ -2,8 +2,8 @@
 
 namespace Core.Services
 {
-	public abstract class ServiceConfiguration : ScriptableObject
-	{
-		public abstract Service ServiceClass { get; }
-	}
+    public abstract class ServiceConfiguration : ScriptableObject
+    {
+        public abstract Service ServiceClass { get; }
+    }
 }

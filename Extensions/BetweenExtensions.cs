@@ -7,7 +7,7 @@
 public static class BetweenExtensions
 {
     /// <summary>
-    /// Between check 
+    /// Between check
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="value">the value to check</param>
@@ -20,7 +20,7 @@ public static class BetweenExtensions
     }
 
     /// <summary>
-    /// Between check 
+    /// Between check
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="value">the value to check</param>
@@ -33,7 +33,7 @@ public static class BetweenExtensions
     }
 
     /// <summary>
-    /// between check 
+    /// between check
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="value">the value to check</param>
@@ -46,7 +46,7 @@ public static class BetweenExtensions
     }
 
     /// <summary>
-    /// between check 
+    /// between check
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="value">the value to check</param>

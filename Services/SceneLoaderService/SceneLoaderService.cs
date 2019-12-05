@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
 using Core.Services.Assets;
 using Core.Services.UI;
 using UniRx.Async;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
+using Logger = UnityLogger.Logger;
 
 namespace Core.Services.Scenes
 {
@@ -36,9 +36,9 @@ namespace Core.Services.Scenes
         /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<UnityEngine.Object> LoadScene(string scene, LoadSceneMode mode = LoadSceneMode.Single,
+        public async UniTask<UnityEngine.Object> LoadScene(string scene, LoadSceneMode mode = LoadSceneMode.Single,
             bool forceLoadFromStreamingAssets = false, IProgress<float> progress = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             return await GetScene(scene, mode, forceLoadFromStreamingAssets, progress, cancellationToken);
         }
@@ -52,7 +52,7 @@ namespace Core.Services.Scenes
         /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        private async Task<UnityEngine.Object> GetScene(string scene, LoadSceneMode mode,
+        private async UniTask<UnityEngine.Object> GetScene(string scene, LoadSceneMode mode,
             bool forceLoadFromStreamingAssets, IProgress<float> progress,
             CancellationToken cancellationToken)
         {
@@ -64,10 +64,10 @@ namespace Core.Services.Scenes
 
             if (sceneObject && !cancellationToken.IsCancellationRequested)
             {
-                Debug.Log(("SceneLoaderService: Loaded scene - " + scene).Colored(Colors.LightBlue));
+                Logger.Log(("SceneLoaderService: Loaded scene - " + scene),Colors.LightBlue);
 
                 await SceneManager.LoadSceneAsync(scene, mode);
-                Debug.Log(("SceneLoaderService: Opened scene - " + scene).Colored(Colors.LightBlue));
+                Logger.Log(("SceneLoaderService: Opened scene - " + scene),Colors.LightBlue);
             }
 
             return sceneObject;
@@ -78,13 +78,23 @@ namespace Core.Services.Scenes
         /// </summary>
         /// <param name="scene"></param>
         /// <returns></returns>
-        public async Task UnLoadScene(string scene)
+        public async UniTask UnLoadScene(string scene)
         {
             await SceneManager.UnloadSceneAsync(scene);
-
-            Debug.Log(("SceneLoaderService: Unloaded scene - " + scene).Colored(Colors.LightBlue));
-
             await _assetService.UnloadAsset(scene, true);
+            Logger.Log(("SceneLoaderService: Unloaded scene - " + scene),Colors.LightBlue);
+        }
+
+        public Scene GetLoadedScene(string sceneName)
+        {
+            for (var i = 0; i < SceneManager.sceneCount; i++)
+            {
+                var scene = SceneManager.GetSceneAt(i);
+                if (scene.name == sceneName)
+                    return scene;
+            }
+
+            return default;
         }
     }
 }

@@ -1,30 +1,25 @@
-using System;
-using UniRx;
 using Zenject;
 
 namespace Core.Services
 {
     public class OnGameStartedSignal { }
-      
+
+    public class OnGamePaused { }
+
+    public class OnGameResumed { }
+
+    public class OnGameGotFocus { }
+
+    public class OnGameLostFocus { }
+
+    public class OnGameQuit { }
+
+
     /// <summary>
     /// Entry point for the game.
     /// </summary>
-    public class CoreFrameworkInstaller : MonoInstaller<CoreFrameworkInstaller>
+    public class CoreFrameworkInstaller : CoreGameSceneInstaller
     {
-        [Inject]
-        private SignalBus _signalBus;
-        
-        private readonly Subject<Unit> _onGameStart = new Subject<Unit>();
-        private IObservable<Unit> OnGameStarted => _onGameStart;
-
-        public override void InstallBindings()
-        {
-            Container.BindInstance(OnGameStarted).AsSingle();
-        }
-
-        public override void Start()
-        {
-            _signalBus.Fire<OnGameStartedSignal>();
-        }
+        public override void InstallBindings() { }
     }
 }

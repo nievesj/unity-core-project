@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
 using UniRx.Async;
 using UnityEngine;
+using Logger = UnityLogger.Logger;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 
 namespace Core.Services.Assets
 {
@@ -12,7 +16,13 @@ namespace Core.Services.Assets
     public class LoadedBundle
     {
         private readonly GameObject _simulatedAsset;
+        private readonly UnityEngine.Object _simulatedAssetObject;
+
         internal AssetBundle Bundle { get; }
+
+#if UNITY_EDITOR
+        internal SceneAsset SceneAsset { get; }
+#endif
 
         public LoadedBundle(AssetBundle asset)
         {
@@ -23,6 +33,13 @@ namespace Core.Services.Assets
         {
             _simulatedAsset = asset;
         }
+
+#if UNITY_EDITOR
+        public LoadedBundle(SceneAsset asset)
+        {
+            SceneAsset = asset;
+        }
+#endif
 
         /// <summary>
         /// Unload bundle. Only use this when the bundle is no longer needed.
@@ -41,20 +58,20 @@ namespace Core.Services.Assets
         /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<T> LoadAssetAsync<T>(string name, IProgress<float> progress,
+        public async UniTask<T> LoadAssetAsync<T>(string name, IProgress<float> progress,
             CancellationToken cancellationToken) where T : UnityEngine.Object
         {
 #if UNITY_EDITOR
             if (EditorPreferences.EditorprefSimulateAssetBundles)
             {
-                Debug.Log(("LoadAssetAsync Simulated: loading asset: " + name).Colored(Colors.Yellow));
+                Logger.Log(("LoadAssetAsync Simulated: loading asset: " + name),Colors.Yellow);
                 var comp = _simulatedAsset.GetComponent<T>();
-                await UniTask.Yield(cancellationToken: cancellationToken);
+                await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
                 return comp;
             }
 #endif
 
-            Debug.Log(("LoadAssetAsync: loading asset: " + name).Colored(Colors.Yellow));
+            Logger.Log(("LoadAssetAsync: loading asset: " + name),Colors.Yellow);
             return await GetAssetComponentAsync<T>(Bundle.LoadAssetAsync(name), progress, cancellationToken);
         }
 
@@ -65,7 +82,7 @@ namespace Core.Services.Assets
         /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        private async Task<T> GetAssetComponentAsync<T>(AssetBundleRequest asyncOperation, IProgress<float> progress,
+        private async UniTask<T> GetAssetComponentAsync<T>(AssetBundleRequest asyncOperation, IProgress<float> progress,
             CancellationToken cancellationToken) where T : UnityEngine.Object
         {
             while (!asyncOperation.isDone)
@@ -73,10 +90,10 @@ namespace Core.Services.Assets
                 if (cancellationToken.IsCancellationRequested)
                     return null;
 
-                await UniTask.Yield(cancellationToken: cancellationToken);
+                await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
                 //Supressing this so it doesnt step over GetBundleFromStreamingAssetsAsync or GetBundleFromWebOrCacheAsync
                 //progress?.Report(asyncOperation.progress);
-                Debug.Log($"GetAssetComponentAsync {Bundle.name} progress: {asyncOperation.progress * 100f}%".Colored(Colors.LightSalmon));
+                Logger.Log($"GetAssetComponentAsync {Bundle.name} progress: {asyncOperation.progress * 100f}%",Colors.LightSalmon);
             }
 
             if (!asyncOperation.asset)

@@ -2,7 +2,9 @@
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
+using UniRx.Async;
 using UnityEngine;
+using Logger = UnityLogger.Logger;
 
 namespace Core.Services.Data
 {
@@ -41,13 +43,13 @@ namespace Core.Services.Data
         /// <param name="data"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public async Task Save<T>(T data) where T : IStorable
+        public async UniTask Save<T>(T data) where T : IStorable
         {
             await Task.Run(() =>
             {
                 if (data is MonoBehaviour)
                 {
-                    Debug.LogError($"Persistent Data Service: Monobehaviours cannot be serialized. Aborting.".Colored(Colors.LightPink));
+                    Logger.LogError($"Persistent Data Service: Monobehaviours cannot be serialized. Aborting.");
                     return;
                 }
 
@@ -63,17 +65,17 @@ namespace Core.Services.Data
                         file.Flush();
                         file.Close();
 
-                        Debug.Log($"Persistent Data Service: Saving to - {_dataDirectory + "/" + filename}".Colored(Colors.LightPink));
+                        Logger.Log($"Persistent Data Service: Saving to - {_dataDirectory + "/" + filename}",Colors.LightPink);
                     }
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError($"Persistent Data Service: error saving to - {_dataDirectory + "/" + filename}, {e.Message}");
+                    Logger.LogError($"Persistent Data Service: error saving to - {_dataDirectory + "/" + filename}, {e.Message}");
                 }
             });
         }
 
-        public async Task<T> Load<T>() where T : IStorable
+        public async UniTask<T> Load<T>() where T : IStorable
         {
             return await Load<T>(typeof(T).Name);
         }
@@ -84,14 +86,14 @@ namespace Core.Services.Data
         /// <param name="filename"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public async Task<T> Load<T>(string filename) where T : IStorable
+        public async UniTask<T> Load<T>(string filename) where T : IStorable
         {
             return await Task.Run(() =>
             {
                 filename += _configuration.DataFileExtension;
                 if (!File.Exists(_dataDirectory + "/" + filename))
                 {
-                    Debug.LogWarning($"Persistent Data Service: File {_dataDirectory + "/" + filename} does not exists.");
+                    Logger.LogWarning($"Persistent Data Service: File {_dataDirectory + "/" + filename} does not exists.");
                     return default(T);
                 }
 
@@ -103,14 +105,14 @@ namespace Core.Services.Data
                         var data = (T) bf.Deserialize(file); //todo: need to find an async way of doing this
                         file.Close();
 
-                        Debug.Log($"Persistent Data Service: Reading from - {_dataDirectory + "/" + filename}".Colored(Colors.LightPink));
+                        Logger.Log($"Persistent Data Service: Reading from - {_dataDirectory + "/" + filename}",Colors.LightPink);
 
                         return data;
                     }
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError($"Persistent Data Service: Error - {e.Message}");
+                    Logger.LogError($"Persistent Data Service: Error - {e.Message}");
                 }
 
                 return default(T);
