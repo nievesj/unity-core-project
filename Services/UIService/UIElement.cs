@@ -33,6 +33,8 @@ namespace Core.Services.UI
 
         protected Canvas MainCanvas { get; set; }
 
+        public bool IsVisible { get; protected set; }
+
         [Inject]
         protected AudioService AudioService;
 
@@ -58,6 +60,8 @@ namespace Core.Services.UI
             outTransition.originalHeight = RectTransform.rect.height;
             outTransition.originalWidth = RectTransform.rect.width;
             outTransition.IsOutTransition = true;
+
+            IsVisible = true;
         }
 
         protected virtual void Start()
@@ -77,6 +81,9 @@ namespace Core.Services.UI
         /// <returns></returns>
         public virtual void Show(bool ignoreTransitionTime = false)
         {
+            if (IsVisible) return;
+
+            IsVisible = true;
             if (inTransition.transitionSound)
                 AudioService.PlayClip(inTransition.transitionSound);
 
@@ -90,6 +97,9 @@ namespace Core.Services.UI
         /// <returns></returns>
         public virtual void Hide(bool ignoreTransitionTime = false)
         {
+            if (!IsVisible) return;
+            
+            IsVisible = false;
             if (outTransition.transitionSound)
                 AudioService.PlayClip(outTransition.transitionSound);
 

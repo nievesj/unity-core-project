@@ -1,6 +1,5 @@
-﻿using UnityEngine;
+﻿using UnityLogger;
 using Zenject;
-using Logger = UnityLogger.Logger;
 
 namespace Core.Services
 {
@@ -9,7 +8,7 @@ namespace Core.Services
     /// </summary>
     public abstract class Game : CoreBehaviour
     {
-        [Inject]
+        [Inject] //This is set up on SceneInstaller
         private SignalBus _signalBus;
 
         protected virtual void Awake()
@@ -30,7 +29,7 @@ namespace Core.Services
         {
             _signalBus.TryUnsubscribe<OnGameStartedSignal>(OnGameStart);
 
-            Logger.Log("Game Started",Colors.Lime);
+            Logger.Log("Game Started", Colors.Lime);
         }
 
         private void OnGamePausedInternal()

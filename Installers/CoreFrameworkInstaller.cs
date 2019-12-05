@@ -18,7 +18,7 @@ namespace Core.Services
     /// <summary>
     /// Entry point for the game.
     /// </summary>
-    public class CoreFrameworkInstaller : MonoInstaller<CoreFrameworkInstaller>
+    public class CoreFrameworkInstaller : CoreGameSceneInstaller
     {
         public override void InstallBindings() { }
     }
