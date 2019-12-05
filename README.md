@@ -1,8 +1,8 @@
 # Core Framework for Unity
 
-Current Version 2
+Current Version 3
 
-Supported Unity versions: 2018.1.0f2. or latest.
+Supported Unity versions: 2019.1 or latest.
 
 If you need to use the old scripting runtime (.net 3.5) then use the [release-1.3 branch](https://github.com/nievesj/unity-core-project/tree/release-1.3).
 
@@ -27,7 +27,6 @@ Requirements
 ---
 * .Net 4.5.
 * .Net Standard 2.0
-* Incremental Compiler
 
 Demo
 ---
@@ -48,7 +47,7 @@ Dependencies
 ---
 Core Framework depends on the the following components
 * [UniRx](https://github.com/neuecc/UniRx): And UniAsync. 
-* [Zenject](https://github.com/modesttree/Zenject): Core Framework libraries are loaded and used with Dependency Injectiion.
+* [Extenject](https://github.com/svermeulen/Extenject): Core Framework libraries are loaded and used with Dependency Injectiion.
 * [AssetBundles-Browser](https://github.com/Unity-Technologies/AssetBundles-Browser): Unity's tool for building and organizing asset bundles. 
 * [DOTween](https://github.com/Demigiant/dotween): Used in UI transitions.
 
@@ -112,7 +111,8 @@ Console window colors!
 
 This feature allows you to easily colorize debug messages so you can keep track of related events by colors on editor. This functionality is disabled on builds so the console log doesn't become cluttered with color tags. 
 
+By using the logger, device logs are not littered with <color> tags. thus are easier to read.
+
 ![Asset Service Options](http://www.josemnieves.net/unity/images/consolecolors.png)
 
-
-       Debug.Log(("My very awesome lime colored text!").Colored(Colors.Lime));
+       Logger.Log("My very awesome lime colored text!"",Colors.Lime);
