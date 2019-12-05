@@ -7,6 +7,7 @@ using UniRx;
 using UniRx.Async;
 using UnityEngine;
 using Zenject;
+using Logger = UnityLogger.Logger;
 
 namespace Core.Services.UI
 {
@@ -41,6 +42,10 @@ namespace Core.Services.UI
 
         private readonly Subject<bool> _onGamePaused = new Subject<bool>();
 
+        public Canvas MainCanvas { get; private set; }
+
+        public RectTransform MainUICanvas => _mainCanvas;
+
         public UIService(ServiceConfiguration config)
         {
             _configuration = config as UIServiceConfiguration;
@@ -49,10 +54,8 @@ namespace Core.Services.UI
             _renderPriorityCanvas = new Dictionary<UIType, RectTransform>();
         }
 
-        public override void Initialize()
+        public void CreateMainCanvas()
         {
-            base.Initialize();
-
             if (_configuration.MainCanvas)
             {
                 var canvas = _factoryService.Instantiate(_configuration.MainCanvas);
@@ -60,17 +63,31 @@ namespace Core.Services.UI
                 _mainCanvas = canvas.GetComponent<RectTransform>();
                 _uiScreenBlocker = _factoryService.Instantiate(_configuration.UIScreenBlocker, _mainCanvas.transform);
 
-                UnityEngine.Object.DontDestroyOnLoad(_mainCanvas);
+                MainCanvas = canvas.GetComponent<Canvas>();
 
-                var canvasElem = canvas.GetComponent<Canvas>();
-
-                if (canvasElem.renderMode == RenderMode.ScreenSpaceCamera)
-                    canvasElem.worldCamera = Camera.main;
+                if (MainCanvas.renderMode == RenderMode.ScreenSpaceCamera)
+                    MainCanvas.worldCamera = Camera.main;
 
                 _renderPriorityCanvas.Add(UIType.Dialog, canvas.DialogContainer);
                 _renderPriorityCanvas.Add(UIType.Panel, canvas.PanelContainer);
                 _renderPriorityCanvas.Add(UIType.Widget, canvas.WidgetContainer);
             }
+        }
+
+        public void CreateMainCanvas(UICanvas canvas)
+        {
+            _mainCanvas = canvas.GetComponent<RectTransform>();
+            _uiScreenBlocker = _factoryService.Instantiate(_configuration.UIScreenBlocker, _mainCanvas.transform);
+            MainCanvas = canvas.GetComponent<Canvas>();
+
+            if (MainCanvas.renderMode == RenderMode.ScreenSpaceCamera)
+                MainCanvas.worldCamera = Camera.main;
+
+            _renderPriorityCanvas.Clear();
+
+            _renderPriorityCanvas.Add(UIType.Dialog, canvas.DialogContainer);
+            _renderPriorityCanvas.Add(UIType.Panel, canvas.PanelContainer);
+            _renderPriorityCanvas.Add(UIType.Widget, canvas.WidgetContainer);
         }
 
         /// <summary>
@@ -122,7 +139,7 @@ namespace Core.Services.UI
             if (obj.PauseGameWhenOpen)
                 PauseResume(true);
 
-            Debug.Log($"UI Service: Loaded window - {obj.name}".Colored(Colors.LightBlue));
+            Logger.Log($"UI Service: Loaded window - {obj.name}",Colors.LightBlue);
             await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
             return obj as T;
         }
@@ -217,7 +234,7 @@ namespace Core.Services.UI
 
         private async UniTask UIElementClosed(UIElement window)
         {
-            Debug.Log(("UI Service: Closed window - " + window.name).Colored(Colors.LightBlue));
+            Logger.Log(("UI Service: Closed window - " + window.name),Colors.LightBlue);
 
             _activeUIElements.Remove(window.name);
 

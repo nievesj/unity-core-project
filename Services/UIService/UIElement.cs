@@ -1,14 +1,13 @@
 ﻿using System;
 using Core.Services.Audio;
 using UniRx;
-using UniRx.Async;
 using UnityEngine;
 using Zenject;
 
 namespace Core.Services.UI
 {
     /// <summary>
-    /// UIElement is the base class for any UI element that is controlled by the _uiService. 
+    /// UIElement is the base class for any UI element that is controlled by the _uiService.
     /// </summary>
     public abstract class UIElement : CoreBehaviour
     {
@@ -25,28 +24,50 @@ namespace Core.Services.UI
         [SerializeField]
         protected UIElementTransitionOptions inTransition, outTransition;
 
+        [SerializeField]
+        protected bool startHidden = true;
+
         private readonly Subject<UIElement> _onClosed = new Subject<UIElement>();
 
         public RectTransform RectTransform => transform as RectTransform;
+
+        protected Canvas MainCanvas { get; set; }
+
+        public bool IsVisible { get; protected set; }
 
         [Inject]
         protected AudioService AudioService;
 
         /// <summary>
-        /// Triggers after the transition on Show ends. 
+        /// Triggers after the transition on Show ends.
         /// </summary>
         protected abstract void OnElementShow();
 
         /// <summary>
-        /// Triggers after the transition on Hide ends. 
+        /// Triggers after the transition on Hide ends.
         /// </summary>
         protected abstract void OnElementHide();
 
-        protected override void Start()
+        protected virtual void Awake()
         {
-            base.Start();
+            inTransition.UiElement = this;
+            inTransition.originalAnchoredPosition = RectTransform.anchoredPosition;
+            inTransition.originalHeight = RectTransform.rect.height;
+            inTransition.originalWidth = RectTransform.rect.width;
 
-            Show().Run();
+            outTransition.UiElement = this;
+            outTransition.originalAnchoredPosition = RectTransform.anchoredPosition;
+            outTransition.originalHeight = RectTransform.rect.height;
+            outTransition.originalWidth = RectTransform.rect.width;
+            outTransition.IsOutTransition = true;
+
+            IsVisible = true;
+        }
+
+        protected virtual void Start()
+        {
+            if (startHidden)
+                Hide(true);
         }
 
         public IObservable<UIElement> OnClosed()
@@ -55,42 +76,44 @@ namespace Core.Services.UI
         }
 
         /// <summary>
-        /// Shows the UI Element and performs any transition 
+        /// Shows the UI Element and performs any transition
         /// </summary>
         /// <returns></returns>
-        public virtual async UniTask Show()
+        public virtual void Show(bool ignoreTransitionTime = false)
         {
+            if (IsVisible) return;
+
+            IsVisible = true;
             if (inTransition.transitionSound)
                 AudioService.PlayClip(inTransition.transitionSound);
 
             if (inTransition != null && inTransition.transitionType != TransitionType.NotUsed)
-                await inTransition.PlayTransition(this);
-            else
-                OnElementShow();
+                inTransition.PlayTransition(ignoreTransitionTime, OnElementShow);
         }
 
         /// <summary>
-        /// Hides the UI Element after playing the out transition. 
+        /// Hides the UI Element after playing the out transition.
         /// </summary>
         /// <returns></returns>
-        public virtual async UniTask Hide(bool isClose = false)
+        public virtual void Hide(bool ignoreTransitionTime = false)
         {
+            if (!IsVisible) return;
+            
+            IsVisible = false;
             if (outTransition.transitionSound)
                 AudioService.PlayClip(outTransition.transitionSound);
 
             if (outTransition != null && outTransition.transitionType != TransitionType.NotUsed)
-                await outTransition.PlayTransition(this, true);
-            else
-                OnElementHide();
+                outTransition.PlayTransition(ignoreTransitionTime, OnElementHide);
         }
 
         /// <summary>
-        /// Close window and tells iservice to destroy the uielement and unload the asset 
+        /// Close window and tells iservice to destroy the uielement and unload the asset
         /// </summary>
         /// <returns> Observable </returns>
-        public virtual async UniTask Close()
+        public virtual void Close()
         {
-            await Hide(true);
+            Hide(true);
 
             _onClosed.OnNext(this);
             _onClosed.OnCompleted();

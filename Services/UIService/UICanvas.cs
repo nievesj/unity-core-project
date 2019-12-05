@@ -10,4 +10,13 @@ public class UICanvas : MonoBehaviour
 
     [SerializeField]
     internal RectTransform PanelContainer;
+
+    public Canvas MainCanvas { get; private set; }
+    public RectTransform RectTransform { get; private set; }
+
+    private void Awake()
+    {
+        MainCanvas = GetComponent<Canvas>();
+        RectTransform = GetComponent<RectTransform>();
+    }
 }

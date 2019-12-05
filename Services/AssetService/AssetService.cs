@@ -4,6 +4,8 @@ using System.Threading;
 using UniRx.Async;
 using UnityEngine;
 using Zenject;
+using Logger = UnityLogger.Logger;
+using LogType = UnityLogger.LogType;
 
 namespace Core.Services.Assets
 {
@@ -36,12 +38,12 @@ namespace Core.Services.Assets
             var cloudManifest = await UnityCloufBuildManifestLoader.LoadBuildManifest();
             if (cloudManifest != null)
             {
-                Debug.Log(("---- AssetService: Unity Cloud Build Manifest present. Build Version: " + cloudManifest.buildNumber).Colored(Colors.Aqua));
+                Logger.Log(("---- AssetService: Unity Cloud Build Manifest present. Build Version: " + cloudManifest.buildNumber),Colors.Aqua);
                 _cloudBuildManifest = cloudManifest;
             }
             else
             {
-                Debug.Log("---- AssetService: Unity Cloud Build Manifest missing. This is ok. Ignoring.".Colored(Colors.Aqua));
+                Logger.Log("---- AssetService: Unity Cloud Build Manifest missing. This is ok. Ignoring.",Colors.Aqua);
             }
         }
 
@@ -56,7 +58,10 @@ namespace Core.Services.Assets
         /// </summary>
         /// <param name="assetCatRoot"></param>
         /// <param name="assetName">Bundle name and asset name are the same</param>
-        /// <param name="forceLoadFromStreamingAssets">Forces loading from StreamingAssets folder. Useful for when including assets with the build</param>
+        /// <param name="forceLoadFromStreamingAssets">
+        /// Forces loading from StreamingAssets folder. Useful for when including assets
+        /// with the build
+        /// </param>
         /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <returns> Observable </returns>
@@ -75,7 +80,10 @@ namespace Core.Services.Assets
         /// <param name="assetCatRoot"></param>
         /// <param name="bundleName"></param>
         /// <param name="assetName">Bundle name and asset name are the same</param>
-        /// <param name="forceLoadFromStreamingAssets">Forces loading from StreamingAssets folder. Useful for when including assets with the build</param>
+        /// <param name="forceLoadFromStreamingAssets">
+        /// Forces loading from StreamingAssets folder. Useful for when including assets
+        /// with the build
+        /// </param>
         /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <returns> Observable </returns>
@@ -96,7 +104,7 @@ namespace Core.Services.Assets
         }
 
         /// <summary>
-        /// Utility method to request multiple assets. 
+        /// Utility method to request multiple assets.
         /// </summary>
         /// <param name="requests">Bundle requests</param>
         /// <param name="progress">Reports loading progress percentage</param>
@@ -123,7 +131,7 @@ namespace Core.Services.Assets
                 tempCount++;
                 progress?.Report(tempCount * 100 / total);
 
-                Debug.Log($"LoadMultipleAssets: {tempCount} of {total} | {tempCount * 100 / total}%".Colored(Colors.Aquamarine));
+                Logger.Log($"LoadMultipleAssets: {tempCount} of {total} | {tempCount * 100 / total}%",Colors.Aquamarine);
             }
 
             return bundles;

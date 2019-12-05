@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
+using Core.Factory;
 using Core.Services.Data;
 using Core.Services.Factory;
 using UniRx.Async;
 using UnityEngine;
 using UnityEngine.Audio;
 using Zenject;
+using Logger = UnityLogger.Logger;
 
 namespace Core.Services.Audio
 {
@@ -19,7 +21,7 @@ namespace Core.Services.Audio
         [InjectOptional]
         private PersistentDataService _persistentData;
 
-        private Pooler<AudioSource> _pooler;
+        private ComponentPool<AudioSource> _pooler;
         private readonly AudioServiceConfiguration _configuration;
         private readonly List<AudioPlayer> _activeAudioPlayers;
         private readonly List<AudioPlayer> _activeBackgroundMusicPlayers;
@@ -75,9 +77,9 @@ namespace Core.Services.Audio
             base.Initialize();
 
             if (_configuration.AudioSourcePrefab)
-                _pooler = _factoryService.CreatePool<AudioSource>(_configuration.AudioSourcePrefab, _configuration.PoolAmount);
+                _pooler = _factoryService.CreateComponentPool<AudioSource>(_configuration.AudioSourcePrefab, _configuration.PoolAmount);
             else
-                Debug.LogError("AudioService : PlayClip - Failed to create pool. Configuration is missing the AudioSource prefab.");
+                Logger.LogError("AudioService : PlayClip - Failed to create pool. Configuration is missing the AudioSource prefab.");
 
             GetPreferences();
         }
@@ -119,9 +121,9 @@ namespace Core.Services.Audio
                     ap.Player.transform.localPosition = Vector3.zero;
                 }
 
-                Debug.Log(("AudioService: Playing Clip - " + ap.Clip.name).Colored(Colors.Magenta));
+                Logger.Log(("AudioService: Playing Clip - " + ap.Clip.name),Colors.Magenta);
+                var audioSource = _pooler.PopResize();
                 ap.Player = _pooler.PopResize();
-
                 ap.Player.volume = _fxVolume;
                 ap.Player.mute = _mute;
                 ap.Player.outputAudioMixerGroup = mixerGroup;
@@ -209,7 +211,7 @@ namespace Core.Services.Audio
             await wait;
 
             if (ap.Clip)
-                Debug.Log(("AudioService: Done Playing Clip - " + ap.Clip.name).Colored(Colors.Magenta));
+                Logger.Log(("AudioService: Done Playing Clip - " + ap.Clip.name),Colors.Magenta);
 
             PushAudioSource(ap);
         }
@@ -221,7 +223,7 @@ namespace Core.Services.Audio
             var preferences = await _persistentData.Load<UserPreferences>();
             if (preferences.Equals(default(UserPreferences)))
             {
-                Debug.Log("AudioService: No UserPreferences set. Creating default.".Colored(Colors.Magenta));
+                Logger.Log("AudioService: No UserPreferences set. Creating default.",Colors.Magenta);
                 SaveInitialPreferences();
             }
             else

@@ -2,10 +2,9 @@
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
-using ModestTree;
 using UniRx.Async;
 using UnityEngine;
-using Assert = UnityEngine.Assertions.Assert;
+using Logger = UnityLogger.Logger;
 
 namespace Core.Services.Data
 {
@@ -50,7 +49,7 @@ namespace Core.Services.Data
             {
                 if (data is MonoBehaviour)
                 {
-                    Debug.LogError($"Persistent Data Service: Monobehaviours cannot be serialized. Aborting.".Colored(Colors.LightPink));
+                    Logger.LogError($"Persistent Data Service: Monobehaviours cannot be serialized. Aborting.");
                     return;
                 }
 
@@ -66,12 +65,12 @@ namespace Core.Services.Data
                         file.Flush();
                         file.Close();
 
-                        Debug.Log($"Persistent Data Service: Saving to - {_dataDirectory + "/" + filename}".Colored(Colors.LightPink));
+                        Logger.Log($"Persistent Data Service: Saving to - {_dataDirectory + "/" + filename}",Colors.LightPink);
                     }
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError($"Persistent Data Service: error saving to - {_dataDirectory + "/" + filename}, {e.Message}");
+                    Logger.LogError($"Persistent Data Service: error saving to - {_dataDirectory + "/" + filename}, {e.Message}");
                 }
             });
         }
@@ -94,7 +93,7 @@ namespace Core.Services.Data
                 filename += _configuration.DataFileExtension;
                 if (!File.Exists(_dataDirectory + "/" + filename))
                 {
-                    Debug.LogWarning($"Persistent Data Service: File {_dataDirectory + "/" + filename} does not exists.");
+                    Logger.LogWarning($"Persistent Data Service: File {_dataDirectory + "/" + filename} does not exists.");
                     return default(T);
                 }
 
@@ -106,14 +105,14 @@ namespace Core.Services.Data
                         var data = (T) bf.Deserialize(file); //todo: need to find an async way of doing this
                         file.Close();
 
-                        Debug.Log($"Persistent Data Service: Reading from - {_dataDirectory + "/" + filename}".Colored(Colors.LightPink));
+                        Logger.Log($"Persistent Data Service: Reading from - {_dataDirectory + "/" + filename}",Colors.LightPink);
 
                         return data;
                     }
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError($"Persistent Data Service: Error - {e.Message}");
+                    Logger.LogError($"Persistent Data Service: Error - {e.Message}");
                 }
 
                 return default(T);
