@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using Core.Common.Extensions.String;
+using UnityEditor;
 using UnityEngine;
 using Logger = UnityLogger.Logger;
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using Core.Common.Extensions.String;
 using UnityEditor;
 using UnityEngine;
 using Logger = UnityLogger.Logger;

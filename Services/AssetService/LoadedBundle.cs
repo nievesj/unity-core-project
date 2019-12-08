@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using Core.Common.Extensions.String;
 using UniRx.Async;
 using UnityEngine;
 using Logger = UnityLogger.Logger;

@@ -1,4 +1,4 @@
-﻿using Core.Reactive;
+﻿using UniRx;
 using UnityEngine;
 
 namespace Core.Animation
@@ -8,8 +8,8 @@ namespace Core.Animation
         [SerializeField]
         private CoreAnimationEvent coreAnimationEvent;
 
-        public CoreEvent<CoreAnimationEvent> OnEnterEvent { get; private set; } = new CoreEvent<CoreAnimationEvent>();
-        public CoreEvent<CoreAnimationEvent> OnExitEvent { get; private set; } = new CoreEvent<CoreAnimationEvent>();
+        public RxEvent<CoreAnimationEvent> OnEnterEvent { get; private set; } = new RxEvent<CoreAnimationEvent>();
+        public RxEvent<CoreAnimationEvent> OnExitEvent { get; private set; } = new RxEvent<CoreAnimationEvent>();
 
         public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
         {

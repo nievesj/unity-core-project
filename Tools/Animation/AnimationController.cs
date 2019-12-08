@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Core.Reactive;
+using Core.Common.Extensions.IEnumerable;
 using Core.Services;
 using UniRx;
 using UnityEngine;
@@ -22,8 +22,8 @@ namespace Core.Animation
         protected StateMachineAnimationTrigger[] _animationTriggers;
         protected CompositeDisposable _subscriptions;
 
-        public CoreEvent<CoreAnimationEvent> OnEnterEvent { get; private set; } = new CoreEvent<CoreAnimationEvent>();
-        public CoreEvent<CoreAnimationEvent> OnExitEvent { get; private set; } = new CoreEvent<CoreAnimationEvent>();
+        public RxEvent<CoreAnimationEvent> OnEnterEvent { get; private set; } = new RxEvent<CoreAnimationEvent>();
+        public RxEvent<CoreAnimationEvent> OnExitEvent { get; private set; } = new RxEvent<CoreAnimationEvent>();
 
         protected virtual void Awake()
         {
