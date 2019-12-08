@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Core.Common.Extensions.UnityComponent;
 using UnityEngine;
 using Zenject;
 
