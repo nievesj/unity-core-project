@@ -2,6 +2,7 @@
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
+using Core.Common.Extensions.String;
 using UniRx.Async;
 using UnityEngine;
 using Logger = UnityLogger.Logger;

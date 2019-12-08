@@ -1,4 +1,5 @@
-﻿using UnityLogger;
+﻿using Core.Common.Extensions.String;
+using UnityLogger;
 using Zenject;
 
 namespace Core.Services
