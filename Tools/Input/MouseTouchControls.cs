@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using Core.Common.Extensions.UnityComponent;
+using Core.Services;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Core.Services.Input
+namespace Core.Tools.Input
 {
     internal static class Constants
     {
@@ -82,7 +84,6 @@ namespace Core.Services.Input
 #elif UNITY_WEBGL || UNITY_EDITOR || UNITY_STANDALONE || UNITY_FACEBOOK
                 MouseControl();
 #endif
-
                 //tap timers
                 if (_tapCount > 0 && _tapTimer > TimeToTriggerTap)
                 {
@@ -102,6 +103,7 @@ namespace Core.Services.Input
         private void MouseControl()
         {
             CurrentTouchMousePosition = UnityEngine.Input.mousePosition;
+            CurrentTouchMousePosition.z = MainCamera.nearClipPlane;
 
             if (UnityEngine.Input.GetMouseButton(0))
             {
@@ -170,8 +172,8 @@ namespace Core.Services.Input
         {
             if (MouseTouchState == MouseTouchState.Nothing)
             {
-                OnMouseFingerDown(mousePosition);
                 StartDragOnMouseDownPosition = mousePosition;
+                OnMouseFingerDown(mousePosition);
                 MouseTouchState = MouseTouchState.MouseDown;
             }
 
@@ -185,7 +187,6 @@ namespace Core.Services.Input
             }
 
             _stationaryTimer += Time.deltaTime;
-
             MouseDrag(mousePosition);
 #endif
         }
@@ -249,6 +250,21 @@ namespace Core.Services.Input
         protected Vector3 GetPointerLocationWorldPosition(Vector3 pos)
         {
             return MainCamera.ScreenToWorldPoint(pos);
+        }
+
+        /// <summary>
+        /// Returns the mouse or finger world position (tracking only one finger) when camera is Perspective
+        /// </summary>
+        /// <param name="pos"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        protected Vector3 GetPointerLocationWorldPosition(Vector3 pos, Vector3 other)
+        {
+            var dist = Vector3.Dot(other - MainCamera.Position(), MainCamera.transform.forward);
+            pos.z = dist;
+            var perspectivePos = GetPointerLocationWorldPosition(pos);
+
+            return perspectivePos;
         }
 
         /// <summary>

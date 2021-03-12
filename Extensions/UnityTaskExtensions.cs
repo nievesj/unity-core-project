@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using UniRx.Async;
+using Cysharp.Threading.Tasks;
 
 namespace Core.Common.Extensions.UnityTask
 {
@@ -42,9 +42,9 @@ namespace Core.Common.Extensions.UnityTask
         /// </summary>
         /// <param name="task"></param>
         /// <param name="onComplete"></param>
-        public static void Run(this UniTask task, Action<object> onComplete = null)
+        public static async void Run(this UniTask task, Action<object> onComplete = null)
         {
-            TaskRunner.RunTask(task, onComplete);
+            await TaskRunner.RunTask(task, onComplete);
         }
 
         /// <summary>
@@ -53,9 +53,9 @@ namespace Core.Common.Extensions.UnityTask
         /// <param name="task"></param>
         /// <param name="onComplete"></param>
         /// <typeparam name="T"></typeparam>
-        public static void Run<T>(this UniTask<T> task, Action<T> onComplete = null)
+        public static async void Run<T>(this UniTask<T> task, Action<T> onComplete = null)
         {
-            TaskRunner<T>.RunTask(task, onComplete);
+            await TaskRunner<T>.RunTask(task, onComplete);
         }
 
         private struct TaskRunner

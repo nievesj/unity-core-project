@@ -2,12 +2,19 @@
     "name": "CoreFrameworkEditor-ASM",
     "references": [
         "CoreFramework-ASM",
-        "Zenject"
+        "Zenject",
+        "UniTask.Editor",
+        "UnityInterfaceSupport.Editor"
     ],
-    "optionalUnityReferences": [],
     "includePlatforms": [
         "Editor"
     ],
     "excludePlatforms": [],
-    "allowUnsafeCode": false
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

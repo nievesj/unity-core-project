@@ -2,9 +2,6 @@
 {
     public class CoreGameSceneInstaller : SceneInstaller
     {
-        public override void InstallBindings()
-        {
-            //nop
-        }
+        public override void InstallBindings() { }
     }
 }

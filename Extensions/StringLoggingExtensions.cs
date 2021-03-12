@@ -1,16 +1,32 @@
-﻿namespace Core.Common.Extensions.String
+﻿using UnityEngine;
+
+namespace Core.Common.Extensions.String
 {
     public static class StringLoggingExtensions
     {
         /// <summary>
-        /// Sets the color of the text according to the parameter value.
+        /// Sets the log color of the text according to the traditional HTML format parameter value.
         /// </summary>
-        /// <param name="message"> Message. </param>
-        /// <param name="color">   Color. </param>
-        public static string Colored(this string message, Colors color)
+        /// <param name="message"> Message </param>
+        /// <param name="colorCode"></param>
+        public static string ColoredLog(this string message, string colorCode)
         {
 #if UNITY_EDITOR
-            return $"<color={color}>{message}</color>";
+            return $"<color={colorCode}>{message}</color>";
+#else
+		return message;
+#endif
+        }
+
+        /// <summary>
+        /// Sets the log color of the text according to the Unity Color parameter value.
+        /// </summary>
+        /// <param name="message"> Message </param>
+        /// <param name="color"></param>
+        public static string ColoredLog(this string message, Color color)
+        {
+#if UNITY_EDITOR
+            return $"<color=#{ColorUtility.ToHtmlStringRGB(color)}>{message}</color>";
 #else
 		return message;
 #endif
@@ -23,11 +39,17 @@
         /// <param name="colorCode"></param>
         public static string Colored(this string message, string colorCode)
         {
-#if UNITY_EDITOR
             return $"<color={colorCode}>{message}</color>";
-#else
-		return message;
-#endif
+        }
+
+        /// <summary>
+        /// Sets the color of the text according to the Unity Color parameter value.
+        /// </summary>
+        /// <param name="message"> Message </param>
+        /// <param name="color"></param>
+        public static string Colored(this string message, Color color)
+        {
+            return $"<color=#{ColorUtility.ToHtmlStringRGB(color)}>{message}</color>";
         }
 
         /// <summary>
@@ -37,11 +59,7 @@
         /// <param name="size">    Size. </param>
         public static string Sized(this string message, int size)
         {
-#if UNITY_EDITOR
             return $"<size={size}>{message}</size>";
-#else
-		return message;
-#endif
         }
 
         /// <summary>
@@ -50,11 +68,7 @@
         /// <param name="message"> Message. </param>
         public static string Bold(this string message)
         {
-#if UNITY_EDITOR
             return $"<b>{message}</b>";
-#else
-		return message;
-#endif
         }
 
         /// <summary>
@@ -63,11 +77,7 @@
         /// <param name="message"> Message. </param>
         public static string Italics(this string message)
         {
-#if UNITY_EDITOR
             return $"<i>{message}</i>";
-#else
-		return message;
-#endif
         }
     }
 
@@ -219,5 +229,10 @@
         public const string LightYellow = "#FFFFE0";
         public const string Ivory = "#FFFFF0";
         public const string White = "#FFFFFF";
+
+        public static Color ToUnityColor(string color)
+        {
+            return ColorUtility.TryParseHtmlString(color, out var unityColor) ? unityColor : Color.black;
+        }
     }
 }

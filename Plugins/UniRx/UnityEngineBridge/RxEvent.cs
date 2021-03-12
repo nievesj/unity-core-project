@@ -17,7 +17,7 @@ namespace UniRx
     public interface IRxEvent<T> : IReadOnlyReactiveProperty<T>
     {
         new T Value { get; }
-        void Broadcast(T val);
+        void Invoke(T val);
     }
 
     /// <summary>
@@ -63,7 +63,7 @@ namespace UniRx
             value = initialValue;
         }
 
-        public void Broadcast(T val)
+        public void Invoke(T val)
         {
             value = val;
             RaiseOnNext(ref value);

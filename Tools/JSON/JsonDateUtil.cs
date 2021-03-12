@@ -1,17 +1,20 @@
 ﻿using System;
 
-internal struct JsonDateTime
+namespace Core.Tools.Json
 {
-    public long Value;
-
-    public static implicit operator DateTime(JsonDateTime jdt)
+    internal struct JsonDateTime
     {
-        return DateTime.FromFileTimeUtc(jdt.Value);
-    }
+        public long Value;
 
-    public static implicit operator JsonDateTime(DateTime dt)
-    {
-        var jdt = new JsonDateTime {Value = dt.ToFileTimeUtc()};
-        return jdt;
+        public static implicit operator DateTime(JsonDateTime jdt)
+        {
+            return DateTime.FromFileTimeUtc(jdt.Value);
+        }
+
+        public static implicit operator JsonDateTime(DateTime dt)
+        {
+            var jdt = new JsonDateTime {Value = dt.ToFileTimeUtc()};
+            return jdt;
+        }
     }
 }

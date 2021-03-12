@@ -21,16 +21,16 @@ public class ClearCacheMenuItem
         {
             var cache = Caching.GetCacheByPath(cachePaths[0]);
 
-            Logger.Log(("Cache location: " + s),Colors.Yellow);
-            Logger.Log(("Cache was using: " + cache.spaceOccupied / 1024f / 1024f + " MB"),Colors.Yellow);
+            Logger.Log("Cache location: " + s, Colors.Yellow);
+            Logger.Log("Cache was using: " + cache.spaceOccupied / 1024f / 1024f + " MB", Colors.Yellow);
 
             cache.ClearCache();
 
-            Logger.Log("Cache cleared.",Colors.Yellow);
+            Logger.Log("Cache cleared.", Colors.Yellow);
         }
 
         if (cachePaths.Count < 1)
-            Logger.Log("Cache was empty.",Colors.Yellow);
+            Logger.Log("Cache was empty.", Colors.Yellow);
     }
 
     [MenuItem("Core Framework / Delete Persistent Data Directory (Also deletes any saved data files)")]
@@ -38,7 +38,7 @@ public class ClearCacheMenuItem
     {
         //Delete Application.persistentDataPath
         Directory.Delete(Application.persistentDataPath, true);
-        Logger.Log(("Deleting persistent data directory " + Application.persistentDataPath),Colors.Yellow);
+        Logger.Log("Deleting persistent data directory " + Application.persistentDataPath, Colors.Yellow);
     }
 
     [MenuItem("Core Framework / Enable Simulate Asset Bundles")]
@@ -47,7 +47,7 @@ public class ClearCacheMenuItem
         ClearAssetBundleCache();
 
         EditorPreferences.EditorprefSimulateAssetBundles = true;
-        Logger.Log("Enabled asset bundle simulation mode.",Colors.Yellow);
+        Logger.Log("Enabled asset bundle simulation mode.", Colors.Yellow);
     }
 
     [MenuItem("Core Framework / Enable Simulate Asset Bundles", true)]
@@ -62,7 +62,7 @@ public class ClearCacheMenuItem
         ClearAssetBundleCache();
 
         EditorPreferences.EditorprefSimulateAssetBundles = false;
-        Logger.Log("Disabled asset bundle simulation mode.",Colors.Yellow);
+        Logger.Log("Disabled asset bundle simulation mode.", Colors.Yellow);
     }
 
     [MenuItem("Core Framework / Disable Simulate Asset Bundles", true)]

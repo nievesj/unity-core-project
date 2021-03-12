@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Core.Common.Extensions.IEnumerable;
 using Core.Services;
 using UniRx;
 using UnityEngine;
 
-namespace Core.Animation
+namespace Core.Tools.Animation
 {
     public abstract class AnimationController : CoreBehaviour
     {
@@ -22,8 +23,11 @@ namespace Core.Animation
         protected StateMachineAnimationTrigger[] _animationTriggers;
         protected CompositeDisposable _subscriptions;
 
-        public RxEvent<CoreAnimationEvent> OnEnterEvent { get; private set; } = new RxEvent<CoreAnimationEvent>();
-        public RxEvent<CoreAnimationEvent> OnExitEvent { get; private set; } = new RxEvent<CoreAnimationEvent>();
+        private readonly Subject<CoreAnimationEvent> _onStateEnter = new Subject<CoreAnimationEvent>();
+        private readonly Subject<CoreAnimationEvent> _onStateExit = new Subject<CoreAnimationEvent>();
+
+        public IObservable<CoreAnimationEvent> OnEnterEvent => _onStateEnter;
+        public IObservable<CoreAnimationEvent> OnExitEvent => _onStateExit;
 
         protected virtual void Awake()
         {
@@ -49,6 +53,8 @@ namespace Core.Animation
 
         public virtual void DeInit()
         {
+            _onStateEnter.OnCompleted();
+            _onStateExit.OnCompleted();
             _subscriptions.Clear();
         }
 
@@ -85,12 +91,12 @@ namespace Core.Animation
 
         protected virtual void OnEnterStateEvent(CoreAnimationEvent value)
         {
-            OnEnterEvent.Broadcast(value);
+            _onStateEnter.OnNext(value);
         }
 
         protected virtual void OnExitStateEvent(CoreAnimationEvent value)
         {
-            OnExitEvent.Broadcast(value);
+            _onStateExit.OnNext(value);
         }
     }
 }

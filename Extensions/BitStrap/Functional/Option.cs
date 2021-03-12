@@ -14,10 +14,7 @@
         private readonly A value;
         private readonly bool isSome;
 
-        public bool IsSome
-        {
-            get { return isSome && (IsValue || !ReferenceEquals(value, null) && !value.Equals(null)); }
-        }
+        public bool IsSome { get { return isSome && (IsValue || !ReferenceEquals(value, null) && !value.Equals(null)); } }
 
         static Option()
         {

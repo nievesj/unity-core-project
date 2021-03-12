@@ -5,10 +5,7 @@ namespace Core.Common.Extensions.BitStrap
         public static readonly Unit Unit = default(Unit);
         public static readonly None None = default(None);
 
-        public static object Ignore
-        {
-            set { }
-        }
+        public static object Ignore { set { } }
 
         public static Unit Do(System.Action callback)
         {
