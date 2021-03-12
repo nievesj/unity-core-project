@@ -3,7 +3,13 @@
     "references": [
         "Zenject",
         "UniRx",
-        "UniRx.Async"
+        "Unity.ResourceManager",
+        "Unity.Addressables",
+        "UniTask",
+        "Unity.InputSystem",
+        "UnityInterfaceSupport",
+        "LiteNetLib",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -12,5 +18,6 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": []
+    "versionDefines": [],
+    "noEngineReferences": false
 }

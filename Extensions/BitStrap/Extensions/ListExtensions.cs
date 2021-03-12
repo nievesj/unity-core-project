@@ -13,10 +13,7 @@ namespace Core.Common.Extensions.BitStrap
         {
             private List<T>.Enumerator enumerator;
 
-            public T Current
-            {
-                get { return enumerator.Current; }
-            }
+            public T Current { get { return enumerator.Current; } }
 
             public Iterator(List<T> collection)
             {

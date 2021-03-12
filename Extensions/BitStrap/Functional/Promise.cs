@@ -5,10 +5,7 @@ namespace Core.Common.Extensions.BitStrap
         private Option<A> result;
         private readonly SafeAction<A> onComplete = new SafeAction<A>();
 
-        public Option<A> Result
-        {
-            get { return result; }
-        }
+        public Option<A> Result { get { return result; } }
 
         public void Then(System.Action<A> callback)
         {

@@ -12,15 +12,9 @@ namespace Core.Common.Extensions.BitStrap
 
         public readonly bool isOk;
 
-        public Option<A> Ok
-        {
-            get { return isOk ? new Option<A>(value) : new Option<A>(); }
-        }
+        public Option<A> Ok { get { return isOk ? new Option<A>(value) : new Option<A>(); } }
 
-        public Option<E> Error
-        {
-            get { return !isOk ? new Option<E>(error) : new Option<E>(); }
-        }
+        public Option<E> Error { get { return !isOk ? new Option<E>(error) : new Option<E>(); } }
 
         public Result(A value)
         {

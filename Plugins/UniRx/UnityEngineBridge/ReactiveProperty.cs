@@ -11,7 +11,6 @@ using UnityEngine;
 #endif
 #if CSHARP_7_OR_LATER || (UNITY_2018_3_OR_NEWER && (NET_STANDARD_2_0 || NET_4_6))
 using System.Threading.Tasks;
-
 #endif
 
 namespace UniRx
@@ -100,12 +99,18 @@ namespace UniRx
 
         protected virtual IEqualityComparer<T> EqualityComparer
         {
-            get { return defaultEqualityComparer; }
+            get
+            {
+                return defaultEqualityComparer;
+            }
         }
 
         public T Value
         {
-            get { return value; }
+            get
+            {
+                return value;
+            }
             set
             {
                 if (!EqualityComparer.Equals(this.value, value))
@@ -123,11 +128,16 @@ namespace UniRx
         // because sometimes value is deserialized from UnityEngine.
         public bool HasValue
         {
-            get { return true; }
+            get
+            {
+                return true;
+            }
         }
 
         public ReactiveProperty()
-            : this(default(T)) { }
+            : this(default(T))
+        {
+        }
 
         public ReactiveProperty(T initialValue)
         {
@@ -181,7 +191,6 @@ namespace UniRx
                 next.Previous = last;
                 last = next;
             }
-
             return next;
         }
 
@@ -191,7 +200,6 @@ namespace UniRx
             {
                 root = node.Next;
             }
-
             if (node == last)
             {
                 last = node.Previous;
@@ -201,7 +209,6 @@ namespace UniRx
             {
                 node.Previous.Next = node.Next;
             }
-
             if (node.Next != null)
             {
                 node.Next.Previous = node.Previous;
@@ -231,7 +238,7 @@ namespace UniRx
 
         public override string ToString()
         {
-            return value == null ? "(null)" : value.ToString();
+            return (value == null) ? "(null)" : value.ToString();
         }
 
         public bool IsRequiredSubscribeOnCurrentThread()
@@ -265,17 +272,26 @@ namespace UniRx
 
         public T Value
         {
-            get { return latestValue; }
+            get
+            {
+                return latestValue;
+            }
         }
 
         public bool HasValue
         {
-            get { return canPublishValueOnSubscribe; }
+            get
+            {
+                return canPublishValueOnSubscribe;
+            }
         }
 
         protected virtual IEqualityComparer<T> EqualityComparer
         {
-            get { return defaultEqualityComparer; }
+            get
+            {
+                return defaultEqualityComparer;
+            }
         }
 
         public ReadOnlyReactiveProperty(IObservable<T> source)
@@ -382,7 +398,6 @@ namespace UniRx
             {
                 root = node.Next;
             }
-
             if (node == last)
             {
                 last = node.Previous;
@@ -392,7 +407,6 @@ namespace UniRx
             {
                 node.Previous.Next = node.Next;
             }
-
             if (node.Next != null)
             {
                 node.Next.Previous = node.Previous;
@@ -448,7 +462,7 @@ namespace UniRx
 
         public override string ToString()
         {
-            return latestValue == null ? "(null)" : latestValue.ToString();
+            return (latestValue == null) ? "(null)" : latestValue.ToString();
         }
 
         public bool IsRequiredSubscribeOnCurrentThread()
@@ -483,7 +497,7 @@ namespace UniRx
 
         static void CancelCallback(object state)
         {
-            var tuple = (Tuple<ICancellableTaskCompletionSource, IDisposable>) state;
+            var tuple = (Tuple<ICancellableTaskCompletionSource, IDisposable>)state;
             tuple.Item2.Dispose();
             tuple.Item1.TrySetCanceled();
         }
@@ -572,7 +586,6 @@ namespace UniRx
                     if (item == false)
                         return false;
                 }
-
                 return true;
             });
         }
@@ -590,7 +603,6 @@ namespace UniRx
                     if (item == true)
                         return false;
                 }
-
                 return true;
             });
         }

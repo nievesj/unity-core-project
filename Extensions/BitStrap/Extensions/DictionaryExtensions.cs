@@ -13,10 +13,7 @@ namespace Core.Common.Extensions.BitStrap
         {
             private Dictionary<K, V>.Enumerator enumerator;
 
-            public KeyValuePair<K, V> Current
-            {
-                get { return enumerator.Current; }
-            }
+            public KeyValuePair<K, V> Current { get { return enumerator.Current; } }
 
             public Iterator(Dictionary<K, V> collection)
             {

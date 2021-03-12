@@ -57,7 +57,7 @@ namespace Core.Services
         /// <returns></returns>
         public static GUIStyle LabelStyle(LabelMessageType messageType)
         {
-            GUIStyle s = new GUIStyle(EditorStyles.textField);
+            var s = new GUIStyle(EditorStyles.textField);
 
             switch (messageType)
             {
@@ -91,8 +91,8 @@ namespace Core.Services
         /// <returns></returns>
         public static string[] GetSortingLayerNames()
         {
-            System.Type internalEditorUtilityType = typeof(InternalEditorUtility);
-            PropertyInfo sortingLayersProperty = internalEditorUtilityType.GetProperty("sortingLayerNames", BindingFlags.Static | BindingFlags.NonPublic);
+            var internalEditorUtilityType = typeof(InternalEditorUtility);
+            var sortingLayersProperty = internalEditorUtilityType.GetProperty("sortingLayerNames", BindingFlags.Static | BindingFlags.NonPublic);
             var sortingLayers = (string[]) sortingLayersProperty.GetValue(null, new object[0]);
             return sortingLayers;
         }

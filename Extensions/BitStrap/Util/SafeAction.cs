@@ -15,10 +15,7 @@ namespace Core.Common.Extensions.BitStrap
         /// <summary>
         /// How many actions registered.
         /// </summary>
-        public int Count
-        {
-            get { return actions.Count; }
-        }
+        public int Count { get { return actions.Count; } }
 
         /// <summary>
         /// Register a callback.
@@ -79,10 +76,7 @@ namespace Core.Common.Extensions.BitStrap
         /// <summary>
         /// How many actions registered.
         /// </summary>
-        public int Count
-        {
-            get { return actions.Count; }
-        }
+        public int Count { get { return actions.Count; } }
 
         /// <summary>
         /// Register a callback.
@@ -145,10 +139,7 @@ namespace Core.Common.Extensions.BitStrap
         /// <summary>
         /// How many actions registered.
         /// </summary>
-        public int Count
-        {
-            get { return actions.Count; }
-        }
+        public int Count { get { return actions.Count; } }
 
         /// <summary>
         /// Register a callback.

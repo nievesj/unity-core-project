@@ -30,6 +30,22 @@ namespace Zenject
             return container.DeclareSignal(typeof(TSignal));
         }
 
+        public static DeclareSignalIdRequireHandlerAsyncTickPriorityCopyBinder DeclareSignalWithInterfaces<TSignal>(this DiContainer container)
+        {
+            Type type = typeof(TSignal);
+
+            var declaration = container.DeclareSignal(type);
+
+            Type[] interfaces = type.GetInterfaces();
+            int numOfInterfaces = interfaces.Length;
+            for (int i = 0; i < numOfInterfaces; i++)
+            {
+                container.DeclareSignal(interfaces[i]);
+            }
+
+            return declaration;
+        }
+
         public static BindSignalIdToBinder<TSignal> BindSignal<TSignal>(this DiContainer container)
         {
             var signalBindInfo = new SignalBindingBindInfo(typeof(TSignal));
